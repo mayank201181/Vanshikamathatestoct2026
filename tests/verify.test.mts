@@ -79,3 +79,8 @@ test("labels before list values are ignored", () => {
   assert.equal(st({ type: "list", values: [2, -3] }, "x = 2 or x = -3"), "correct");
   assert.equal(st({ type: "list", values: [28, 35] }, "28, 35"), "correct");
 });
+
+test("a multiplier may be typed with a times sign", () => {
+  assert.equal(st({ type: "number", value: 1.05, allowFraction: false }, "×1.05"), "correct");
+  assert.equal(st({ type: "number", value: 0.9, allowFraction: false }, "x 0.9"), "correct");
+});

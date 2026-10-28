@@ -146,7 +146,11 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
     }
     return { status: "incorrect" };
   }
-  const p = parseNumberAnswer(input) ?? parseNumberAnswer(afterLastEquals(input)) ?? parseNumberAnswer(input.replace(LEADING_LABEL, ""));
+  const p =
+    parseNumberAnswer(input) ??
+    parseNumberAnswer(afterLastEquals(input)) ??
+    parseNumberAnswer(input.replace(LEADING_LABEL, "")) ??
+    parseNumberAnswer(input.replace(/^\s*(?:[×x*]|times)\s*(?=\d|\.\d)/i, "")); // a multiplier typed as "×1.05"
   if (!p) {
     // Maybe they wrote a list or an expression.
     return { status: "invalid", feedback: "Type a single number, like 12, −3.5 or 3/4." };
