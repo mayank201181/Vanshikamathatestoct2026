@@ -9,7 +9,8 @@
     "lint": "eslint",
     "validate": "node --no-warnings scripts/validate.ts",
     "try": "node --no-warnings scripts/try-answer.ts",
-    "test": "node --no-warnings --test tests/*.test.ts tests/*.test.mts"
+    "test": "node --no-warnings --test tests/*.test.ts tests/*.test.mts",
+    "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "next": "16.2.9",

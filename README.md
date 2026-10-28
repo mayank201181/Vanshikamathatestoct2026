@@ -38,3 +38,8 @@ Progress is stored on the device (localStorage) — no login needed.
 npm install
 npm run dev
 ```
+
+## Deploy
+`npm run deploy` (needs `VERCEL_TOKEN`) validates the content, deploys to production and checks key
+pages on the live site. To let Claude Code run it without asking, the repo owner adds
+`.claude/settings.json` with the allow rule `Bash(npm run deploy)`.
