@@ -146,7 +146,7 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
     }
     return { status: "incorrect" };
   }
-  const p = parseNumberAnswer(input);
+  const p = parseNumberAnswer(input) ?? parseNumberAnswer(afterLastEquals(input));
   if (!p) {
     // Maybe they wrote a list or an expression.
     return { status: "invalid", feedback: "Type a single number, like 12, −3.5 or 3/4." };
@@ -178,9 +178,20 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
   return { status: "incorrect" };
 }
 
+/**
+ * "e³ = −27", "8e² + 3 = 75": the learner restated the expression before the answer.
+ * Only the part after the last "=" is the answer (used when the whole input isn't a number).
+ */
+function afterLastEquals(input: string): string {
+  const i = input.lastIndexOf("=");
+  if (i < 0) return "";
+  const left = input.slice(0, i);
+  return /[a-zA-Z]/.test(left) ? input.slice(i + 1) : "";
+}
+
 function checkFraction(spec: Extract<AnswerSpec, { type: "fraction" }>, input: string): CheckResult {
   const target = spec.n / spec.d;
-  const p = parseNumberAnswer(input);
+  const p = parseNumberAnswer(input) ?? parseNumberAnswer(afterLastEquals(input));
   if (!p) return { status: "invalid", feedback: "Type a fraction like 3/4 or a mixed number like 1 1/2." };
   if (!p.frac) {
     // Integer or decimal typed.

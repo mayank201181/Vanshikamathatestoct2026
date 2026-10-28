@@ -51,3 +51,10 @@ test("numbers may carry a short unit phrase; reversed lists get order feedback",
   assert.equal(r.status, "incorrect");
   assert.match(r.feedback ?? "", /order the question asks/);
 });
+
+test("a restated expression before the answer is ignored", () => {
+  assert.equal(st({ type: "number", value: -27 }, "e³ = −27"), "correct");
+  assert.equal(st({ type: "number", value: 75 }, "8e^2 + 3 = 75"), "correct");
+  assert.equal(st({ type: "number", value: 75 }, "8e^2 + 3 = 72"), "incorrect");
+  assert.equal(st({ type: "fraction", n: 15, d: 4 }, "(2c − e)/4 = 15/4"), "correct");
+});
