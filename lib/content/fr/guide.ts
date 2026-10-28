@@ -403,7 +403,365 @@ export const GUIDE_FR: TopicGuide = {
         },
       ],
     },
+
+    // -------------------------------------------------------------------------------------------
+    // 4. Fraction problems in context
+    // -------------------------------------------------------------------------------------------
+    {
+      id: "fr-problems",
+      topic: "fr",
+      lesson: "Questions/Answers",
+      heading: "Fraction problems: what's left, smallest totals and puzzles",
+      discovery: {
+        problem:
+          "My four pet monkeys and I harvested a large pile of peanuts. In the night, Monkey A woke and ate half of them. Then Monkey B woke and ate one third of what remained. Then Monkey C ate one quarter of the rest, and finally Monkey D ate one fifth of the much diminished pile. What fraction of the original harvest was left in the morning?",
+        idea:
+          "Don't add up what was eaten: {{1/2 + 1/3 + 1/4 + 1/5 = 77/60}}, which is more than the whole pile! Each monkey eats a fraction *of what's left*, so track what's left instead. A leaves {{1/2}}, B leaves {{2/3}} of that, C leaves {{3/4}} of that and D leaves {{4/5}} of that. “Of” means ×, so {{1/2 × 2/3 × 3/4 × 4/5 = 1/5}}. The tops and bottoms cancel in a chain, leaving {{1/5}} of the harvest.",
+      },
+      body:
+        "Fraction problems in tests reuse a few big ideas. The skill is spotting which one you need.\n\n" +
+        "**1. A fraction of what's LEFT → multiply.** When each fraction is taken from the *remainder*, you can't just add or subtract the fractions. Work out the fraction that is **left** at each stage and multiply. In the monkeys puzzle the monkeys leave {{1/2}}, then {{2/3}}, {{3/4}} and {{4/5}} of what they find:\n\n" +
+        "    {{1/2 × 2/3 × 3/4 × 4/5 = 1/5}}\n\n" +
+        "Each top cancels with the bottom before it, so only {{1/5}} of the peanuts is left. (Adding the fractions eaten gives {{1/2 + 1/3 + 1/4 + 1/5 = 77/60}} — more than the whole pile, so that can't be right!)\n\n" +
+        "**2. Smallest possible number → LCM.** If {{7/12}} of a club are women, the number of members must be a multiple of 12 (you can't have part of a person). If {{3/8}} wear glasses, it must also be a multiple of 8. The smallest number in both times tables is the **LCM**: LCM(12, 8) = 24.\n\n" +
+        "**3. Order of operations.** BIDMAS works for fractions too: brackets, then × and ÷, then + and − from left to right.\n\n" +
+        "    {{1/3 - (1/3 × 1/3) + (1/3 ÷ 1/3) = 1/3 - 1/9 + 1 = 1 2/9}}\n\n" +
+        "**4. Working backwards.** “{{3/5}} of a number is 24.” Draw a bar of 5 equal boxes: 3 boxes = 24, so 1 box = 8, and all 5 boxes = 40.\n\n" +
+        "**5. Puzzles.** In a **magic square** every row, column and diagonal has the same total: find the total from a complete line first, then subtract to fill each gap. If two shaded parts of the same shape add up to more than 1 whole, the extra is the **overlap** ({{4/7 + 3/5 - 1 = 6/35}}).\n\n" +
+        "**6. “Is it always true?”** One **counterexample** proves a statement false. “If a > b then {{1/a > 1/b}}”: try a = 2 and b = 1. Then {{1/a = 1/2}}, which is *less* than {{1/b = 1}}. False! Dividing 1 by a bigger positive number gives a smaller answer — share one pizza between more people and everyone gets a smaller slice.",
+      diagram: `<svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar model of the monkeys and peanuts puzzle, drawn to scale. Each row shows the pile that is left: monkey A eats half the pile, B eats a third of the rest, C eats a quarter of the rest and D eats a fifth of the rest. The final row shows the whole pile cut into fifths, and the part left over lines up exactly with one fifth." font-family="sans-serif">
+  <rect width="480" height="300" fill="#ffffff"/>
+  <g stroke="#334155" stroke-width="1.5">
+    <rect x="220" y="24" width="120" height="28" fill="#fecaca"/>
+    <rect x="340" y="24" width="120" height="28" fill="#bbf7d0"/>
+    <rect x="340" y="74" width="40" height="28" fill="#fecaca"/>
+    <rect x="380" y="74" width="80" height="28" fill="#bbf7d0"/>
+    <rect x="380" y="124" width="20" height="28" fill="#fecaca"/>
+    <rect x="400" y="124" width="60" height="28" fill="#bbf7d0"/>
+    <rect x="400" y="174" width="12" height="28" fill="#fecaca"/>
+    <rect x="412" y="174" width="48" height="28" fill="#bbf7d0"/>
+    <rect x="220" y="232" width="192" height="28" fill="#f1f5f9"/>
+    <rect x="412" y="232" width="48" height="28" fill="#bbf7d0"/>
+    <rect x="220" y="276" width="14" height="12" fill="#fecaca"/>
+    <rect x="300" y="276" width="14" height="12" fill="#bbf7d0"/>
+  </g>
+  <path d="M420 74V102M420 124V152M440 124V152M424 174V202M436 174V202M448 174V202M268 232V260M316 232V260M364 232V260" stroke="#334155" stroke-width="1"/>
+  <path d="M340 52V74M380 102V124M400 152V174M412 202V232" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+  <g font-size="13" fill="#1f2937">
+    <text x="12" y="43">A eats a half</text>
+    <text x="12" y="93">B eats a third of the rest</text>
+    <text x="12" y="143">C eats a quarter of the rest</text>
+    <text x="12" y="193">D eats a fifth of the rest</text>
+    <text x="12" y="251" font-size="12" font-weight="bold">Left: one fifth of the pile</text>
+  </g>
+  <g font-size="12" fill="#1f2937">
+    <text x="240" y="287">eaten</text>
+    <text x="320" y="287">left</text>
+  </g>
+</svg>`,
+      diagramCaption:
+        "Drawn to scale: each row is the pile that's left, and each monkey eats part of it (red). What's left is {{1/2 × 2/3 × 3/4 × 4/5 = 1/5}} of the pile — it lines up exactly with one fifth of the original bar.",
+      workedExamples: [
+        {
+          title: "Class example: the badminton club",
+          problem:
+            "{{7/12}} of the members of a badminton club are women. {{3/8}} of the members wear glasses. Work out the smallest possible number of members of the badminton club.",
+          steps: [
+            "{{7/12}} of the members must be a whole number of people, so the number of members must be a multiple of 12.",
+            "{{3/8}} of the members must be a whole number too, so it must also be a multiple of 8.",
+            "Multiples of 12: 12, 24, 36, … Multiples of 8: 8, 16, 24, … The lowest common multiple is 24. (12 fails: {{3/8}} of 12 would be 4.5 people.)",
+            "Check: {{7/12}} of 24 = 24 ÷ 12 × 7 = 14 women, and {{3/8}} of 24 = 24 ÷ 8 × 3 = 9 people with glasses. Both are whole numbers ✓",
+          ],
+          answer: "24 members",
+        },
+        {
+          title: "Class example: order of operations",
+          problem: "Find {{1/3 - (1/3 × 1/3) + (1/3 ÷ 1/3)}}.",
+          steps: [
+            "Brackets first: {{1/3 × 1/3 = 1/9}}.",
+            "{{1/3 ÷ 1/3 = 1}}, because any number divided by itself is 1. (Keep, Change, Flip agrees: {{1/3 × 3/1 = 3/3 = 1}}.)",
+            "Now the calculation is {{1/3 - 1/9 + 1}}. Work left to right: {{1/3 - 1/9 = 3/9 - 1/9 = 2/9}}.",
+            "Finally {{2/9 + 1 = 1 2/9}}.",
+          ],
+          answer: "{{1 2/9}}",
+        },
+        {
+          title: "Class puzzle: overlapping shading",
+          problem:
+            "Three identical rectangles, A, B and C. In A, the bottom {{4/7}} is shaded, up to a line. In C, the top {{3/5}} is shaded, down to a second, lower line. In B, only the band between the two lines is shaded. What fraction of B is shaded?",
+          steps: [
+            "Imagine A's shading and C's shading on the same rectangle. Together they cover {{4/7 + 3/5 = 20/35 + 21/35 = 41/35}}, which is more than one whole rectangle.",
+            "That is only possible if they overlap. The extra {{41/35 - 35/35 = 6/35}} has been counted twice: that is the overlap.",
+            "The overlap is exactly the band between the two lines, which is B's shading.",
+            "Check another way: C's line is {{3/5}} down from the top, so it is {{2/5}} up from the bottom. The band runs from {{2/5}} up to {{4/7}}: {{4/7 - 2/5 = 20/35 - 14/35 = 6/35}} ✓",
+          ],
+          answer: "{{6/35}} of B is shaded",
+        },
+      ],
+      keyPoints: [
+        "“A fraction of what's left” → multiply the fractions that are **left** (if {{1/3}} is eaten, {{2/3}} is left).",
+        "“Smallest possible number” → the LCM of the denominators (badminton club: LCM(12, 8) = 24).",
+        "BIDMAS still applies: brackets, then × and ÷, then + and −.",
+        "Working backwards: if {{3/5}} of a number is 24, then {{1/5}} of it is 8 and the number is 40.",
+        "One counterexample proves a statement false: a = 2, b = 1 shows that “a > b means {{1/a > 1/b}}” is false.",
+      ],
+      whyItWorks:
+        "Each monkey eats a fraction *of the pile that's left*, and “of” means ×, so the fractions left multiply together. For the smallest number, every fraction of the club must be a whole number of people, so the total has to be in every denominator's times table — a common multiple — and the smallest one is the LCM.",
+      memoryTrick:
+        "**Of what's left? Multiply what's left.** In {{1/2 × 2/3 × 3/4 × 4/5}} each top knocks out the bottom before it, like dominoes, leaving {{1/5}}.",
+      examTip:
+        "Read “of the rest” or “of what remains” carefully: the fraction is of a *smaller* amount, so don't take it away from the whole. (For the monkeys, {{1 - 1/2 - 1/3 - 1/4 - 1/5}} is less than 0!) And in “smallest possible number” questions, 12 × 8 = 96 works but it isn't the *smallest* — use the LCM, 24.",
+      thinkDeeper:
+        "“If a > b, then {{1/a > 1/b}}.” For positive numbers this is false. Can you find a pair of numbers where it IS true? (Hint: let b be negative.) Can you describe exactly when it's true?",
+      quickChecks: [
+        {
+          question: "{{3/5}} of a number is 24. What is the number?",
+          answer: { type: "number", value: 40 },
+          solution: "3 fifths = 24, so 1 fifth = 24 ÷ 3 = 8. The whole number is 5 fifths = 5 × 8 = 40. Check: {{3/5}} of 40 = 24 ✓",
+        },
+        {
+          question:
+            "Mei spends {{1/4}} of her pocket money on a book, then {{2/3}} of what is left on a cinema ticket. What fraction of her pocket money does she have left? Give your answer in its simplest form.",
+          answer: { type: "fraction", n: 1, d: 4, simplest: true },
+          solution:
+            "After the book, {{3/4}} is left. She spends {{2/3}} of that, so she keeps {{1/3}} of it: {{1/3 × 3/4 = 3/12 = 1/4}}. (Not {{1 - 1/4 - 2/3 = 1/12}}: the {{2/3}} is of what's left, not of all her money.)",
+        },
+      ],
+    },
+
+    // -------------------------------------------------------------------------------------------
+    // 5. Algebraic fractions: simplify, multiply, divide (monomials only)
+    // -------------------------------------------------------------------------------------------
+    {
+      id: "fr-algebraic",
+      topic: "fr",
+      lesson: "Fractions with algebra & Further Fractions",
+      heading: "Algebraic fractions: cancel, multiply and divide with letters",
+      discovery: {
+        problem:
+          "Choose any numbers for x, y and z (not 0). Work out {{3xy/xz}}, then work out {{3y/z}}. Try again with different numbers. What do you notice — and why does it happen?",
+        idea:
+          "They always match! With x = 2, y = 5 and z = 3 you get {{30/6 = 5}} and {{15/3 = 5}}. The x on the top and the x on the bottom divide to make 1 ({{x/x = 1}}), so they cancel — just like simplifying {{6/10}} to {{3/5}}. Letters are numbers in disguise, so the same fraction rules apply: {{3xy/xz = 3y/z}}.",
+      },
+      body:
+        "An **algebraic fraction** is a fraction with letters in it, like {{3xy/xz}}. The letters stand for numbers, so **every fraction rule you already know still works**. (We assume the letters aren't zero — you can't divide by 0.)\n\n" +
+        "**Simplifying = cancelling common factors.** In {{3xy/xz}}, the top is 3 × x × y and the bottom is x × z. There is an x on the top and an x on the bottom, and {{x/x = 1}}, so they cancel:\n\n" +
+        "    {{3xy/xz = 3y/z}}\n\n" +
+        "It's the same move as simplifying {{6/10}} to {{3/5}}: dividing the top and the bottom by the same thing. When there are numbers and letters, deal with the **numbers** first (divide by their HCF), then the **letters**:\n\n" +
+        "    {{42xyz/56}}: the HCF of 42 and 56 is 14, so {{42xyz/56 = 3xyz/4}}\n\n" +
+        "**Powers.** {{c^2}} means c × c. Write it out and cancel one c at a time:\n\n" +
+        "    {{17cf/(34c^2) = (17 × c × f)/(2 × 17 × c × c) = f/(2c)}}\n\n" +
+        "If *everything* on the top cancels, a 1 is left on top, not 0: {{5y/(10y^2) = 1/(2y)}}.\n\n" +
+        "**Multiplying**: tops × tops, bottoms × bottoms, then cancel (or cancel first):\n\n" +
+        "    {{2a/3 × 9/(4a) = 18a/(12a) = 3/2}}\n\n" +
+        "The a's cancel completely and {{18/12 = 3/2}}.\n\n" +
+        "**Dividing**: Keep, Change, Flip, then cancel:\n\n" +
+        "    {{x/4 ÷ x/8 = x/4 × 8/x = 8x/(4x) = 2}}\n" +
+        "    {{3x/y ÷ 6x^2/y^2 = 3x/y × y^2/(6x^2) = 3xy^2/(6x^2y) = y/(2x)}}\n\n" +
+        "In the last one, 3 ÷ 6 leaves {{1/2}}, one x cancels (leaving x on the bottom) and one y cancels (leaving y on the top).\n\n" +
+        "**Check by substituting.** Put numbers in: with x = 2, y = 5 and z = 3, {{3xy/xz = 30/6 = 5}} and {{3y/z = 15/3 = 5}} ✓\n\n" +
+        "**Typing answers in this app:** put a bottom with more than one factor in brackets. Type `y/(2x)`, not `y/2x` — the app reads that as {{y/2}} × x.",
+      diagram: `<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cancelling factors. Top: 3 times x times y over x times z; the x on the top and the x on the bottom are crossed out, leaving 3y over z. Bottom: 17 times c times f over 2 times 17 times c times c; the two 17s and one pair of c's are crossed out, leaving f over 2c." font-family="sans-serif">
+  <rect width="480" height="260" fill="#ffffff"/>
+  <g stroke="#334155" stroke-width="1.5">
+    <rect x="40" y="30" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="78" y="30" width="32" height="30" fill="#fecaca"/>
+    <rect x="116" y="30" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="59" y="80" width="32" height="30" fill="#fecaca"/>
+    <rect x="97" y="80" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="230" y="30" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="268" y="30" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="249" y="80" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="59" y="160" width="32" height="30" fill="#fecaca"/>
+    <rect x="97" y="160" width="32" height="30" fill="#fecaca"/>
+    <rect x="135" y="160" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="40" y="210" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="78" y="210" width="32" height="30" fill="#fecaca"/>
+    <rect x="116" y="210" width="32" height="30" fill="#fecaca"/>
+    <rect x="154" y="210" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="247" y="160" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="228" y="210" width="32" height="30" fill="#c7d2fe"/>
+    <rect x="266" y="210" width="32" height="30" fill="#c7d2fe"/>
+  </g>
+  <path d="M36 70H152M226 70H304M36 200H190M224 200H302" stroke="#1f2937" stroke-width="2"/>
+  <path d="M78 60L110 30M59 110L91 80M59 190L91 160M97 190L129 160M78 240L110 210M116 240L148 210" stroke="#1f2937" stroke-width="2"/>
+  <g font-size="14" text-anchor="middle" fill="#1f2937">
+    <text x="56" y="50">3</text>
+    <text x="94" y="50" font-style="italic">x</text>
+    <text x="132" y="50" font-style="italic">y</text>
+    <text x="75" y="100" font-style="italic">x</text>
+    <text x="113" y="100" font-style="italic">z</text>
+    <text x="246" y="50">3</text>
+    <text x="284" y="50" font-style="italic">y</text>
+    <text x="265" y="100" font-style="italic">z</text>
+    <text x="75" y="180">17</text>
+    <text x="113" y="180" font-style="italic">c</text>
+    <text x="151" y="180" font-style="italic">f</text>
+    <text x="56" y="230">2</text>
+    <text x="94" y="230">17</text>
+    <text x="132" y="230" font-style="italic">c</text>
+    <text x="170" y="230" font-style="italic">c</text>
+    <text x="263" y="180" font-style="italic">f</text>
+    <text x="244" y="230">2</text>
+    <text x="282" y="230" font-style="italic">c</text>
+  </g>
+  <g font-size="22" text-anchor="middle" fill="#1f2937">
+    <text x="192" y="78">=</text>
+    <text x="207" y="208">=</text>
+  </g>
+  <g font-size="13" fill="#1f2937">
+    <text x="330" y="74">x ÷ x = 1</text>
+    <text x="322" y="186">34 = 2 × 17</text>
+    <text x="322" y="206">c² = c × c</text>
+    <text x="322" y="226">cancel 17 and one c</text>
+  </g>
+</svg>`,
+      diagramCaption:
+        "Write the top and the bottom as factors, then cancel matching pairs (red): {{3xy/xz = 3y/z}} and {{17cf/(34c^2) = f/(2c)}}.",
+      workedExamples: [
+        {
+          title: "Class example: numbers, letters and powers",
+          problem: "Simplify {{17cf/(34c^2)}}.",
+          steps: [
+            "Numbers first: the HCF of 17 and 34 is 17. 17 ÷ 17 = 1 and 34 ÷ 17 = 2.",
+            "Letters: {{c^2}} = c × c, so the c on the top cancels with one c underneath, leaving one c on the bottom.",
+            "f only appears on the top, so it stays there.",
+            "Put it together: {{17cf/(34c^2) = f/(2c)}}.",
+          ],
+          answer: "{{f/(2c)}}",
+        },
+        {
+          title: "Multiplying",
+          problem: "Simplify {{2a/3 × 9/(4a)}}.",
+          steps: [
+            "Tops × tops and bottoms × bottoms: {{(2a × 9)/(3 × 4a) = 18a/(12a)}}.",
+            "Cancel the a's ({{a/a = 1}}), leaving {{18/12}}.",
+            "Simplify the numbers (HCF 6): {{18/12 = 3/2}}.",
+            "Or cancel before multiplying: 2 with 4, 9 with 3, and a with a — you get {{3/2}} with smaller numbers.",
+          ],
+          answer: "{{3/2}} (or {{1 1/2}})",
+        },
+        {
+          title: "Dividing",
+          problem: "Simplify {{3x/y ÷ 6x^2/y^2}}.",
+          steps: [
+            "Keep, Change, Flip: {{3x/y × y^2/(6x^2)}}.",
+            "Multiply: {{(3x × y^2)/(y × 6x^2) = 3xy^2/(6x^2y)}}.",
+            "Numbers: {{3/6 = 1/2}}. Letters: one x cancels, leaving x on the bottom; one y cancels, leaving y on the top.",
+            "Check with x = 2 and y = 3: {{6/3 ÷ 24/9 = 2 × 9/24 = 3/4}}, and {{y/(2x) = 3/4}} ✓",
+          ],
+          answer: "{{y/(2x)}}",
+        },
+      ],
+      keyPoints: [
+        "Letters stand for numbers, so the usual fraction rules work (assume the letters aren't 0).",
+        "Simplify by cancelling **common factors**: divide the numbers by their HCF, and cancel any letter that is on the top and the bottom ({{x/x = 1}}).",
+        "{{c^2}} = c × c: cancel one c at a time. If everything on the top cancels, leave a 1 on top.",
+        "Multiply: tops × tops, bottoms × bottoms, then cancel. Divide: Keep, Change, Flip, then cancel.",
+        "Check your answer by substituting numbers for the letters.",
+      ],
+      whyItWorks:
+        "For any number x except 0, {{x/x = 1}}, just like {{7/7 = 1}}. Cancelling a factor that is on the top and the bottom divides both by the same number, which makes an equivalent fraction — exactly what you do when you simplify {{6/10}} to {{3/5}}.",
+      memoryTrick:
+        "**Write it out long-hand, then cross out pairs.** {{3xy/xz}} becomes {{(3 × x × y)/(x × z)}}: one x from the top and one x from the bottom — gone, leaving {{3y/z}}.",
+      examTip:
+        "Don't lose what's left when things cancel: {{5y/(10y^2)}} is {{1/(2y)}} — not 2y, and not 0. When typing an answer here, bracket the bottom: `y/(2x)`.",
+      thinkDeeper:
+        "{{10y^2/(5y)}} simplifies to 2y. Test it with y = 3 and with y = −1. Now try y = 0. Why do we say “assume y isn't 0”?",
+      quickChecks: [
+        {
+          question: "Simplify {{42xyz/56}} fully. Type it as a fraction, e.g. `5ab/7`.",
+          answer: { type: "expression", expr: "3xyz/4", form: "simplified" },
+          solution:
+            "The HCF of 42 and 56 is 14: 42 ÷ 14 = 3 and 56 ÷ 14 = 4. There are no letters on the bottom, so nothing else cancels: {{42xyz/56 = 3xyz/4}}.",
+        },
+        {
+          question: "Simplify {{4a/5 × 15/(8a^2)}}. Type the bottom in brackets, e.g. `5/(3b)`.",
+          answer: { type: "expression", expr: "3/(2a)", form: "simplified" },
+          solution:
+            "Multiply: {{(4a × 15)/(5 × 8a^2) = 60a/(40a^2)}}. Numbers: {{60/40 = 3/2}}. Letters: one a cancels, leaving a on the bottom. So the answer is {{3/(2a)}}.",
+        },
+      ],
+    },
   ],
-  flashcards: [],
-  cram: [],
+
+  flashcards: [
+    {
+      front: "Equivalent fractions",
+      back: "Same value, different numbers. Multiply or divide the top and the bottom by the same number: {{3/4 = 9/12 = 30/40}}.",
+    },
+    {
+      front: "How do you simplify a fraction fully?",
+      back: "Divide the top and the bottom by their HCF. {{36/48}}: the HCF is 12, so {{36/48 = 3/4}}.",
+    },
+    {
+      front: "How do you compare or order fractions? Which is bigger, {{5/8}} or {{3/5}}?",
+      back: "Rewrite them with a common denominator (the LCM) and compare the numerators: {{5/8 = 25/40}} and {{3/5 = 24/40}}, so {{5/8}} is bigger.",
+    },
+    {
+      front: "Write {{17/5}} as a mixed number, and {{4 3/7}} as an improper fraction.",
+      back: "17 ÷ 5 = 3 remainder 2, so {{17/5 = 3 2/5}}. 4 × 7 + 3 = 31, so {{4 3/7 = 31/7}}.",
+    },
+    {
+      front: "How do you add or subtract fractions?",
+      back: "Common denominator first, convert both fractions, then add or subtract the numerators only: {{4/5 + 2/3 = 12/15 + 10/15 = 22/15 = 1 7/15}}.",
+    },
+    {
+      front: "Work out {{3 2/5 - 1 2/3}}.",
+      back: "{{17/5 - 5/3 = 51/15 - 25/15 = 26/15 = 1 11/15}}. (Or borrow a whole: {{2 21/15 - 1 10/15 = 1 11/15}}.)",
+    },
+    {
+      front: "How do you multiply fractions?",
+      back: "Tops × tops, bottoms × bottoms — cancel first if you can: {{2/3 × 4/5 = 8/15}}.",
+    },
+    {
+      front: "Keep, Change, Flip",
+      back: "To divide, multiply by the reciprocal: keep the first fraction, change ÷ to ×, flip the second. {{2 1/4 ÷ 3 1/2 = 9/4 × 2/7 = 9/14}}.",
+    },
+    {
+      front: "Work out {{3 ÷ 2/5}}.",
+      back: "Keep, Change, Flip: {{3/1 × 5/2 = 15/2 = 7 1/2}}. ({{7 1/2}} groups of {{2/5}} fit into 3.)",
+    },
+    {
+      front: "Work out {{1 1/5 × 2 1/3}}.",
+      back: "Improper first: {{6/5 × 7/3 = 42/15 = 14/5 = 2 4/5}}. Not {{2 1/15}} — never multiply the parts separately.",
+    },
+    {
+      front: "Find {{3/5}} of 40.",
+      back: "Divide by the bottom, multiply by the top: 40 ÷ 5 × 3 = 24.",
+    },
+    {
+      front: "Monkeys eat {{1/2}} of the peanuts, then {{1/3}} of the rest, {{1/4}} of the rest and {{1/5}} of the rest. What fraction is left?",
+      back: "Multiply what's LEFT: {{1/2 × 2/3 × 3/4 × 4/5 = 1/5}}.",
+    },
+    {
+      front: "{{7/12}} of a club are women and {{3/8}} wear glasses. Smallest possible number of members?",
+      back: "The LCM of 12 and 8, which is 24 (14 women, 9 with glasses).",
+    },
+    {
+      front: "If a > b, is {{1/a}} always bigger than {{1/b}}?",
+      back: "No. Counterexample: a = 2, b = 1 gives {{1/2}}, which is less than 1. For positive numbers, dividing 1 by a bigger number gives a smaller answer.",
+    },
+    {
+      front: "Simplify {{3xy/xz}} and {{17cf/(34c^2)}}.",
+      back: "Cancel common factors: {{3xy/xz = 3y/z}} and {{17cf/(34c^2) = f/(2c)}}.",
+    },
+    {
+      front: "Simplify {{3x/y ÷ 6x^2/y^2}}.",
+      back: "Keep, Change, Flip, then cancel: {{3x/y × y^2/(6x^2) = 3xy^2/(6x^2y) = y/(2x)}}.",
+    },
+  ],
+
+  cram: [
+    "Equivalent fractions: × or ÷ the top and the bottom by the same number. Simplest form: divide both by the HCF ({{36/48 = 3/4}}).",
+    "Order or compare: rewrite with the LCM as the common denominator, then compare the numerators ({{5/8 = 25/40}} beats {{3/5 = 24/40}}).",
+    "Improper ↔ mixed: {{17/5}} → 17 ÷ 5 = 3 r 2 → {{3 2/5}}; {{3 2/5}} → 3 × 5 + 2 = 17 → {{17/5}}.",
+    "+ and −: common denominator first, then add or subtract the tops only: {{4/5 + 2/3 = 12/15 + 10/15 = 1 7/15}}.",
+    "Mixed-number subtraction: go improper, or borrow a whole: {{3 2/5 - 1 2/3 = 51/15 - 25/15 = 1 11/15}}.",
+    "×: tops × tops, bottoms × bottoms, cancel first; mixed numbers → improper first: {{1 1/5 × 2 1/3 = 6/5 × 7/3 = 2 4/5}}.",
+    "÷: Keep, Change, Flip: {{2 1/4 ÷ 3 1/2 = 9/4 × 2/7 = 9/14}} and {{3 ÷ 2/5 = 15/2 = 7 1/2}}.",
+    "“Of what's left” → multiply what's left: {{1/2 × 2/3 × 3/4 × 4/5 = 1/5}}. Smallest possible number → LCM of the denominators (badminton club: 24).",
+    "BIDMAS with fractions: {{1/3 - (1/3 × 1/3) + (1/3 ÷ 1/3) = 1/3 - 1/9 + 1 = 1 2/9}}.",
+    "Algebraic fractions: cancel common factors ({{3xy/xz = 3y/z}}, {{17cf/(34c^2) = f/(2c)}}); multiply then cancel; divide with Keep, Change, Flip.",
+  ],
 };

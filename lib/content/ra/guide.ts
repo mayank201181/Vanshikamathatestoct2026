@@ -70,7 +70,7 @@ export const GUIDE_RA: TopicGuide = {
           steps: [
             "Make the units the same: 2 hours = 120 minutes, so the ratio is 45 : 120.",
             "Find the HCF: 45 = 3 × 15 and 120 = 8 × 15, so the HCF is 15.",
-            "Divide both parts by 15: 45 ÷ 15 = 3 and 120 ÷ 15 = 8.",
+            "Divide both parts by 15, giving 45 ÷ 15 = 3 and 120 ÷ 15 = 8.",
             "Check: 3 and 8 have no common factor except 1, so the ratio is fully simplified.",
           ],
           answer: "3 : 8",
@@ -84,7 +84,7 @@ export const GUIDE_RA: TopicGuide = {
             "(b) The denominators are 2 and 3, so multiply both parts by 6 (their LCM): {{1/2 * 6 = 3}} and {{1/3 * 6 = 2}}.",
             "So {{1/2}} : {{1/3}} = 3 : 2. Sense check: a half is more than a third, so the first number should be the bigger one ✓.",
           ],
-          answer: "(a) 3 : 4   (b) 3 : 2",
+          answer: "(a) 3 : 4; (b) 3 : 2",
         },
         {
           title: "Ratio to fractions, and the form 1 : n (class example)",
@@ -92,10 +92,10 @@ export const GUIDE_RA: TopicGuide = {
           steps: [
             "(a) The whole is 2 + 5 = 7 parts and a is 2 of them, so a is {{2/7}} of the total.",
             "(b) {{a/b}} compares part with part, so {{a/b = 2/5}}. Turn it upside down for {{b/a = 5/2}}.",
-            "(c) Divide both parts by 2 so that the first part becomes 1: 2 ÷ 2 = 1 and 5 ÷ 2 = 2.5.",
+            "(c) Divide both parts by 2, so that the first part becomes 1 (2 ÷ 2 = 1 and 5 ÷ 2 = 2.5).",
             "So a : b = 1 : 2.5. For every 1 of a there are 2.5 of b, which matches {{b/a = 5/2}} = 2.5 ✓.",
           ],
-          answer: "(a) {{2/7}}   (b) {{a/b = 2/5}} and {{b/a = 5/2}}   (c) 1 : 2.5",
+          answer: "(a) {{2/7}}; (b) {{a/b = 2/5}} and {{b/a = 5/2}}; (c) 1 : 2.5",
         },
       ],
       keyPoints: [
@@ -124,7 +124,7 @@ export const GUIDE_RA: TopicGuide = {
         {
           question: "Write 6 : 15 in the form 1 : n.",
           answer: { type: "ratio", parts: [1, 2.5], unitForm: "1:n" },
-          solution: "Divide both parts by 6 so the first part becomes 1: 6 ÷ 6 = 1 and 15 ÷ 6 = 2.5. So 6 : 15 = 1 : 2.5.",
+          solution: "Divide both parts by 6, so that the first part becomes 1 (6 ÷ 6 = 1 and 15 ÷ 6 = 2.5). So 6 : 15 = 1 : 2.5.",
         },
       ],
     },
@@ -402,7 +402,7 @@ export const GUIDE_RA: TopicGuide = {
             "Method 2, make the blue equal: the LCM of 3 and 4 is 12. Arjun's 3 : 5 = 12 : 20 and Mei's 4 : 7 = 12 : 21.",
             "Same amount of blue, but Mei's paint has more yellow, so hers is less blue. Both methods agree ✓.",
           ],
-          answer: "(a) {{3/8}}   (b) Arjun's paint (only just!)",
+          answer: "(a) {{3/8}}; (b) Arjun's paint (only just!)",
         },
         {
           title: "Combining two ratios (class example)",
@@ -414,7 +414,7 @@ export const GUIDE_RA: TopicGuide = {
             "Blue now matches, so red : blue : green = 4 : 6 : 3. The numbers 4, 6 and 3 have no common factor, so this is the simplest form.",
             "(b) The whole mix is 4 + 6 + 3 = 13 parts and green is 3 of them, so green is {{3/13}} of the mix.",
           ],
-          answer: "(a) 4 : 6 : 3   (b) {{3/13}}",
+          answer: "(a) 4 : 6 : 3; (b) {{3/13}}",
         },
         {
           title: "A chain of equal amounts (Ratio Puzzles 1★: Printer Ink)",
@@ -460,8 +460,239 @@ export const GUIDE_RA: TopicGuide = {
         },
       ],
     },
-    // @@NEXT_SECTION@@
+    // ------------------------------------------------------------------ ra-problems
+    {
+      id: "ra-problems",
+      topic: "ra",
+      lesson: "Ratio Puzzles",
+      heading: "Ratio puzzles: hold still what doesn't change",
+      discovery: {
+        problem:
+          "At a school fair, the ratio of children to adults is 4 : 1. Then 8 adults go home, and the ratio becomes 8 : 1. How many children are at the fair?",
+        idea:
+          "The children don't change, only the adults do. So give the children the same number in both ratios: before, 4 : 1 = 8 : 2; after, 8 : 1. The adults dropped from 2 units to 1 unit, and that 1 unit is the 8 adults who left. So 1 unit = 8 people, and the children are 8 units = **64**. (Check: 64 : 16 = 4 : 1, then 64 : 8 = 8 : 1 ✓.) Holding the unchanged quantity still is the key to every changing-ratio puzzle.",
+      },
+      body:
+        "Ratio puzzles look different from each other, but they're built from a few moves you already know. Before calculating, ask: **What do I know? Which parts does it match? What stays the same?**\n\n" +
+        "**Move 1: find one part.** Match the number you're given to its parts: a total, one share, a difference, or a **group** of parts. In the Athletics Club, \"juniors\" means girls **and** boys, so it is two parts of the ratio added together (worked example 1).\n\n" +
+        "**Move 2: make the shared part equal.** When two ratios share a member (seniors, blue paint, medium cartridges), scale both to the LCM of that member so they join into one ratio.\n\n" +
+        "**Move 3: when a ratio changes, hold still what doesn't change.** When people join or leave, or fruit is taken out, one quantity usually stays the same. Give that quantity the **same number** in the before and after ratios, and the change shows up as a number of parts.\n" +
+        "- Know the actual amounts? Use the unchanged amount to find the new size of a part (Ratio Swap: the picture and worked example 2).\n" +
+        "- Only know the ratios? Use the LCM to make the unchanged part equal (Fruit Basket: worked example 3).\n\n" +
+        "**Move 4: speed and time.** For the same distance, going faster takes less time, so the times are in the **inverse** (flipped) ratio of the speeds. Dean runs up a mountain road at 8 km/h, taking 1 hour, and runs back down at 12 km/h:\n\n" +
+        "    speeds up : down = 8 : 12 = 2 : 3\n" +
+        "    so times up : down = 3 : 2\n" +
+        "    time down = {{2/3}} of 60 minutes = 40 minutes\n\n" +
+        "Check another way: the road is 8 km long, and 8 km at 12 km/h takes {{8/12 = 2/3}} of an hour ✓.\n\n" +
+        "| Clue in the question | Move |\n" +
+        "|---|---|\n" +
+        "| \"16 more than…\", \"altogether…\" | find one part |\n" +
+        "| two ratios share a member | make the shared part equal |\n" +
+        "| \"…join\", \"…leave\", \"…is removed\" | hold still what doesn't change |\n" +
+        "| same distance, different speeds | flip the ratio |\n\n" +
+        "Finally, **check** your answer by putting it back into every sentence of the puzzle.",
+      diagram: `<svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ratio Swap bar model. Before: children are 5 boxes of 6, which is 30, and adults are 3 boxes of 6, which is 18. After: children are 3 boxes of 10, still 30, and adults are 5 boxes of 10, which is 50. So 32 adults joined." font-family="sans-serif">
+<rect width="480" height="260" fill="#ffffff"/>
+<g stroke="#334155" stroke-width="1.5" fill="#bbf7d0">
+<rect x="80" y="50" width="24" height="30"/>
+<rect x="104" y="50" width="24" height="30"/>
+<rect x="128" y="50" width="24" height="30"/>
+<rect x="152" y="50" width="24" height="30"/>
+<rect x="176" y="50" width="24" height="30"/>
+<rect x="80" y="140" width="40" height="30"/>
+<rect x="120" y="140" width="40" height="30"/>
+<rect x="160" y="140" width="40" height="30"/>
+</g>
+<g stroke="#334155" stroke-width="1.5" fill="#c7d2fe">
+<rect x="200" y="50" width="24" height="30"/>
+<rect x="224" y="50" width="24" height="30"/>
+<rect x="248" y="50" width="24" height="30"/>
+<rect x="200" y="140" width="40" height="30"/>
+<rect x="240" y="140" width="40" height="30"/>
+<rect x="280" y="140" width="40" height="30"/>
+<rect x="320" y="140" width="40" height="30"/>
+<rect x="360" y="140" width="40" height="30"/>
+</g>
+<g fill="none" stroke="#334155" stroke-width="1.5">
+<path d="M200 176 V182 H272 V176"/>
+<path d="M272 176 V182 H400 V176"/>
+</g>
+<g fill="#1f2937" font-size="12" text-anchor="middle">
+<text x="92" y="70">6</text>
+<text x="116" y="70">6</text>
+<text x="140" y="70">6</text>
+<text x="164" y="70">6</text>
+<text x="188" y="70">6</text>
+<text x="212" y="70">6</text>
+<text x="236" y="70">6</text>
+<text x="260" y="70">6</text>
+<text x="100" y="160">10</text>
+<text x="140" y="160">10</text>
+<text x="180" y="160">10</text>
+<text x="220" y="160">10</text>
+<text x="260" y="160">10</text>
+<text x="300" y="160">10</text>
+<text x="340" y="160">10</text>
+<text x="380" y="160">10</text>
+<text x="140" y="43">children 30</text>
+<text x="236" y="43">adults 18</text>
+<text x="140" y="133">children 30</text>
+<text x="300" y="133">adults 50</text>
+<text x="236" y="198">18 already there</text>
+<text x="336" y="198">32 joined</text>
+</g>
+<g fill="#1f2937" font-size="13">
+<text x="12" y="20" font-weight="bold">Ratio Swap: only adults join, so the children stay the same</text>
+<text x="12" y="70">Before</text>
+<text x="12" y="160">After</text>
+</g>
+<g fill="#1f2937" font-size="12">
+<text x="12" y="228">Children: 5 boxes of 6 = 30 before, 3 boxes of 10 = 30 after.</text>
+<text x="12" y="248">Adults: 3 × 6 = 18 before, 5 × 10 = 50 after, so 32 joined.</text>
+</g>
+</svg>`,
+      diagramCaption:
+        "The children's bar is the same length before and after; it is just cut into 3 boxes of 10 instead of 5 boxes of 6. The adults grow from 18 to 50, so 32 adults joined.",
+      workedExamples: [
+        {
+          title: "A group of parts (Ratio Puzzles 1★: Athletics Club)",
+          problem:
+            "In an athletics club, girls : boys : adults = 3 : 4 : 9. There are 16 more adults than juniors. How many members does the club have?",
+          steps: [
+            "Juniors are the girls **and** the boys: 3 + 4 = 7 parts. Adults are 9 parts.",
+            "Adults − juniors = 9 − 7 = 2 parts, and that difference is 16 people.",
+            "1 part = 16 ÷ 2 = 8 people.",
+            "Total members = 3 + 4 + 9 = 16 parts = 16 × 8 = 128.",
+            "Check: 24 girls + 32 boys = 56 juniors, 9 × 8 = 72 adults, and 72 − 56 = 16 ✓.",
+          ],
+          answer: "128 members",
+        },
+        {
+          title: "Hold the children still (Ratio Puzzles 2★: Ratio Swap)",
+          problem:
+            "A group of 48 people has adults : children = 3 : 5. How many adults must join the group to make the ratio of adults to children 5 : 3?",
+          steps: [
+            "Before: 3 + 5 = 8 parts = 48 people, so 1 part = 6. Adults = 3 × 6 = 18 and children = 5 × 6 = 30.",
+            "Only adults join, so the **children stay at 30**. That's the quantity to hold still.",
+            "After: adults : children = 5 : 3, so the children's 3 parts are 30 and 1 new part = 30 ÷ 3 = 10.",
+            "Adults after = 5 × 10 = 50, so the number who join = 50 − 18 = 32.",
+            "Check: 50 : 30 = 5 : 3 ✓. Don't share 48 in the ratio 5 : 3: the total grows when people join.",
+          ],
+          answer: "32 adults",
+        },
+        {
+          title: "Only ratios given (Ratio Puzzles 2★: Fruit Basket)",
+          problem:
+            "A basket holds apples and oranges in the ratio 3 : 8. One apple is removed and the ratio becomes 1 : 3. How many oranges are in the basket?",
+          steps: [
+            "Taking out an apple doesn't change the oranges, so make the oranges the same number in both ratios.",
+            "The orange numbers are 8 and 3, and their LCM is 24. Before: 3 : 8 = 9 : 24 (× 3). After: 1 : 3 = 8 : 24 (× 8).",
+            "The apples went from 9 units to 8 units, so 1 unit fewer. That unit is the 1 apple removed, so 1 unit = 1 fruit.",
+            "So there are 24 oranges (and there were 9 apples to start with).",
+            "Check: 9 : 24 = 3 : 8 ✓, and after one apple goes, 8 : 24 = 1 : 3 ✓.",
+            "Another way (algebra): apples = 3k and oranges = 8k. After one apple goes, oranges are 3 times the apples: 3 × (3k − 1) = 8k, so 9k − 3 = 8k and k = 3. Oranges = 8 × 3 = 24.",
+          ],
+          answer: "24 oranges",
+        },
+      ],
+      keyPoints: [
+        "Ask: What do I know? Which parts does it match? What stays the same?",
+        "A group (like \"juniors\" = girls + boys) is several parts added together.",
+        "When a ratio changes, give the unchanged quantity the same number in the before and after ratios.",
+        "Same distance: the times are in the inverse ratio of the speeds (speeds 8 : 12 → times 3 : 2).",
+        "Always check your answer against every sentence of the puzzle.",
+      ],
+      whyItWorks:
+        "A part is only a measuring unit, and when the situation changes, the size of a part can change too. The unchanged quantity is a real amount that is the same before and after, so giving it the same number in both ratios puts everything on one scale. Then the change becomes a whole number of parts that you can count.",
+      memoryTrick:
+        "**Freeze what doesn't move.** In a changing-ratio puzzle, find the frozen quantity first and make it match in both ratios.",
+      examTip:
+        "In changing-ratio questions, never share the old total in the new ratio, because the total changes when people join or leave. In Ratio Swap, sharing 48 in the ratio 5 : 3 gives 30 adults and the wrong answer 12. Find what stays the same instead.",
+      thinkDeeper:
+        "Leg It (Ratio Puzzles 2★): Amina runs 100 m in 12 s and Bhavi runs 100 m in 15 s. (a) If Amina starts 100 m from the finish, how far in front of her should Bhavi start for a fair race? (b) If Bhavi starts 100 m from the finish, how far behind her should Amina start? Why aren't the two answers the same? *Hint: how far does each girl run in 60 seconds?*\n\n" +
+        "*Check your thinking:* in 60 s Amina runs 500 m and Bhavi runs 400 m, so in any time their distances are in the ratio 5 : 4. (a) Amina's 100 m is 5 parts, so 1 part = 20 m. Bhavi runs 80 m, so she starts **20 m** in front. (b) Now Bhavi's 100 m is 4 parts, so 1 part = 25 m. Amina runs 125 m, so she starts **25 m** behind. The gap is always 1 part, but the size of a part depends on whether the 100 m is 5 parts or 4 parts.",
+      quickChecks: [
+        {
+          question:
+            "At a football match, away fans : home fans = 5 : 6. Among the away fans, adults : children = 11 : 4. There are 28 more adult away fans than child away fans. How many home fans are there?",
+          answer: { type: "number", value: 72, display: "72 home fans" },
+          solution:
+            "For the away fans, adults − children = 11 − 4 = 7 parts = 28, so 1 part = 4 and there are (11 + 4) × 4 = 60 away fans. Away : home = 5 : 6, so 5 parts = 60, 1 part = 12, and home fans = 6 × 12 = 72.",
+        },
+        {
+          question:
+            "Speed over a Bridge (Ratio Puzzles 1★): a train is 100 m long. It takes 30 seconds from the moment the front of the train reaches a 400 m bridge until the back of the train leaves it. What is the train's speed in km/h?",
+          answer: { type: "number", value: 60, display: "60 km/h" },
+          solution:
+            "The front of the train has to cross the whole bridge and then go another 100 m so the back comes off: 400 + 100 = 500 m. 500 m in 30 s is 1000 m in 60 s, which is 1 km every minute, so 60 km every hour: 60 km/h.",
+        },
+      ],
+    },
   ],
-  flashcards: [],
-  cram: [],
+  flashcards: [
+    {
+      front: "What does a : b = 2 : 5 tell you?",
+      back: "For every 2 of a there are 5 of b. The whole is 7 parts, so a is {{2/7}} of the total, and {{a/b = 2/5}}.",
+    },
+    {
+      front: "How do you simplify a ratio fully?",
+      back: "Divide every part by the HCF: 24 : 36 → (÷ 12) → 2 : 3. Stop when the only common factor is 1.",
+    },
+    { front: "Simplify 50 cm : 2 m.", back: "Same units first: 50 cm : 200 cm = 50 : 200 = 1 : 4." },
+    { front: "Simplify 1.5 : 2 and {{1/2}} : {{1/3}}.", back: "1.5 : 2 → multiply by 10 → 15 : 20 = 3 : 4. {{1/2}} : {{1/3}} → multiply by 6 → 3 : 2." },
+    { front: "Write 4 : 10 in the form 1 : n.", back: "Divide both parts by 4, giving 1 : 2.5." },
+    { front: "Share £40 in the ratio 3 : 5.", back: "8 parts, so 1 part = £5. The shares are £15 and £25 (check: they add up to £40)." },
+    {
+      front: "Mo : Mae = 3 : 5 and Mae gets £45. How much was shared?",
+      back: "Mae's 5 parts = £45, so 1 part = £9. Total = 8 parts = £72.",
+    },
+    {
+      front: "Children : adults = 7 : 13, and there are 42 more adults. How many children?",
+      back: "Difference = 13 − 7 = 6 parts = 42, so 1 part = 7. Children = 7 × 7 = 49.",
+    },
+    {
+      front: "Lucy gets twice Mary's share and Nancy gets 50% more than Mary. They share £180. How much does each get?",
+      back: "Lucy : Mary : Nancy = 4 : 2 : 3 = 9 parts, so 1 part = £20. Lucy £80, Mary £40, Nancy £60.",
+    },
+    {
+      front: "Squash : water = 1 : 4. What fraction of the drink is squash?",
+      back: "{{1/5}}, because the whole drink is 1 + 4 = 5 parts. 1 : 4 is part : part; {{1/5}} is part : whole (not {{1/4}}).",
+    },
+    {
+      front: "How do you decide which of two mixes is stronger?",
+      back: "Compare fractions of the whole ({{1/5 = 9/45}} vs {{2/9 = 10/45}}), or scale so one ingredient matches (2 : 8 vs 2 : 7).",
+    },
+    {
+      front: "Red : blue = 2 : 3 and blue : green = 2 : 1. Find red : blue : green.",
+      back: "Make blue equal (the LCM of 3 and 2 is 6): 4 : 6 and 6 : 3, so red : blue : green = 4 : 6 : 3.",
+    },
+    {
+      front: "x : y = 4 : 9. Describe x using y, and y using x.",
+      back: "x is {{4/9}} of y, so {{x = 4y/9}}. y is {{9/4}} = 2.25 times x, so y is 125% larger than x.",
+    },
+    {
+      front: "What is the first step in a changing-ratio puzzle?",
+      back: "Find the quantity that stays the same, and give it the same number in the before and after ratios.",
+    },
+    {
+      front: "Ratio Swap: 48 people, adults : children = 3 : 5. How many adults must join to make it 5 : 3?",
+      back: "18 adults and 30 children. The children stay at 30 = 3 new parts, so 1 part = 10 and adults = 50. 50 − 18 = 32 join.",
+    },
+    {
+      front: "Same distance, speeds in the ratio 2 : 3. What is the ratio of the times?",
+      back: "3 : 2. Flip it, because faster means less time (Dean: 1 hour up at 8 km/h, 40 minutes down at 12 km/h).",
+    },
+  ],
+  cram: [
+    "Simplify: divide every part by the HCF. Same units first; clear decimals (× 10) and fractions (× the common denominator).",
+    "a : b = 2 : 5 → a is {{2/7}} of the total, {{a/b = 2/5}} and {{b/a = 5/2}}.",
+    "1 : n → divide every part by the first number (4 : 10 = 1 : 2.5). n : 1 → divide by the last number.",
+    "Sharing: bar model → match what you know to its parts → find 1 part → multiply.",
+    "Given one share → divide by THAT person's parts (Mae: £45 ÷ 5 = £9), not by the total number of parts.",
+    "Given the difference → divide by the difference in parts (42 ÷ (13 − 7) = 7).",
+    "Part : part (1 : 4) vs part : whole ({{1/5}}). Compare mixes with fractions of the whole, or make one part equal.",
+    "Join a : b and b : c by making b equal with the LCM (2 : 3 and 2 : 1 → 4 : 6 : 3).",
+    "Changing ratios: hold still what doesn't change. Give it the same number in the before and after ratios.",
+    "Same distance: times are in the inverse ratio of the speeds (speeds 8 : 12 → times 3 : 2).",
+  ],
 };

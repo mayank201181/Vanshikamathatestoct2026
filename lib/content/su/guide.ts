@@ -23,7 +23,7 @@ export const GUIDE_SU: TopicGuide = {
       },
       body:
         "**Substitution** means replacing each letter with the number it stands for, then working out the value. Once the numbers are in, it's ordinary arithmetic — so the order you work in is fixed by **BIDMAS**.\n\n" +
-        "**Step 1 — put the numbers in, in brackets.** Write a line with every letter swapped for its value. In algebra, terms written next to each other are multiplied (**implied multiplication**), so put the hidden × signs back:\n\n" +
+        "**Step 1 — put the numbers in, in brackets.** Write a line with every letter swapped for its value. In algebra, numbers and letters written next to each other are multiplied (**implied multiplication**), so put the hidden × signs back:\n\n" +
         "- 3ab means 3 × a × b. With a = 3 and b = 4 that's 3 × (3) × (4) = 36 — not 334!\n" +
         "- 4(a + 5) means 4 × (a + 5), so with a = 3 it's 4 × 8 = 32\n" +
         "- 3x² means 3 × x², because the power belongs to the x alone\n\n" +
@@ -70,7 +70,7 @@ export const GUIDE_SU: TopicGuide = {
         "With x = 3: 2x² is two squares of side 3 (2 × 9 = 18), but (2x)² is one square of side 6 — that's four lots of x² (36). The power only touches the x.",
       workedExamples: [
         {
-          title: "Class example: a = 3, b = 4",
+          title: "Using the class values a = 3, b = 4",
           problem: "If a = 3 and b = 4, work out 5 + 2a, 3ab and b² − 2a.",
           steps: [
             "**5 + 2a** → 5 + 2 × (3). Multiply before you add: 2 × 3 = 6, then 5 + 6 = **11**. (Adding first would give 7 × 3 = 21.)",
@@ -308,10 +308,11 @@ export const GUIDE_SU: TopicGuide = {
   <path d="M75 205L120 68L165 205Z" fill="#bbf7d0" stroke="#334155" stroke-width="2" stroke-linejoin="round"/>
   <path d="M91.8 134.6L103.2 138.4M136.8 138.4L148.2 134.6" fill="none" stroke="#334155" stroke-width="2"/>
   <g font-family="sans-serif" fill="#1f2937">
+    <text x="240" y="30" font-size="14" font-weight="bold" text-anchor="middle">Isosceles triangle: perimeter when x = 3</text>
     <text x="86" y="141" font-size="13" text-anchor="end">3x − 1</text>
     <text x="154" y="141" font-size="13">3x − 1</text>
     <text x="120" y="226" font-size="13" text-anchor="middle">x + 2</text>
-    <text x="226" y="70" font-size="14" font-weight="bold">When x = 3:</text>
+    <text x="226" y="70" font-size="14" font-weight="bold">Substitute into each side:</text>
     <text x="226" y="100" font-size="13">3x − 1 = 3 × 3 − 1 = 8 cm</text>
     <text x="226" y="126" font-size="13">x + 2 = 3 + 2 = 5 cm</text>
     <text x="226" y="158" font-size="14" font-weight="bold">P = 8 + 8 + 5 = 21 cm</text>
@@ -387,8 +388,211 @@ export const GUIDE_SU: TopicGuide = {
         },
       ],
     },
-    // SECTION_4
+    // -----------------------------------------------------------------------
+    // 4 · su-powers
+    // -----------------------------------------------------------------------
+    {
+      id: "su-powers",
+      topic: "su",
+      lesson: "More Challenging Substitution",
+      heading: "Squares, cubes and roots: bigger, smaller or the same?",
+      discovery: {
+        problem:
+          "Ravi says: 'Squaring always makes a number bigger — look, 3² = 9 and 10² = 100.' Can you find a number that gets smaller when you square it? What about one that stays exactly the same?",
+        idea:
+          "Try 0.5: 0.5² = 0.5 × 0.5 = 0.25 — smaller! Half of a half is a quarter. Every number between 0 and 1 shrinks when you square it, because you're taking only part of something that's already less than 1. And 0² = 0 and 1² = 1 don't change at all. So Ravi is only sometimes right.",
+      },
+      body:
+        "When you substitute into x², x³ or √x, the **type** of number you put in decides whether the answer is bigger, smaller or the same. Explaining this is the top-level skill in this topic.\n\n" +
+        "| Type of number | Squared | Cubed | Square-rooted |\n" +
+        "|---|---|---|---|\n" +
+        "| Bigger than 1 | bigger: 3² = 9 | bigger: 3³ = 27 | smaller: {{sqrt(9)}} = 3 |\n" +
+        "| Between 0 and 1 | smaller: 0.5² = 0.25 | smaller: 0.5³ = 0.125 | bigger: {{sqrt(0.25)}} = 0.5 |\n" +
+        "| 0 or 1 | no change | no change | no change |\n" +
+        "| Negative | positive: (−3)² = 9 | negative: (−3)³ = −27 | not possible |\n\n" +
+        "**Why do numbers between 0 and 1 shrink?** Squaring multiplies a number by itself, and multiplying by something less than 1 keeps only *part* of it. 0.5² is half of 0.5 — a quarter. Fractions make it obvious: ({{1/2}})² = {{1/4}} and ({{1/3}})² = {{1/9}}. Cubing multiplies by the number once more, so it shrinks even further: 0.5³ = 0.125.\n\n" +
+        "**Why do square roots go the other way?** A square root undoes squaring. Since 0.5² = 0.25, {{sqrt(0.25)}} = 0.5, which is bigger than 0.25. Numbers above 1 do the opposite: they grow when squared and shrink when rooted. **1 is the tipping point** — see the number line.\n\n" +
+        "**Negatives.** In a square the minus signs pair up: (−3) × (−3) = +9. A cube has three factors, so one minus is left over: (−3)³ = −27. Even powers of a negative are positive; odd powers are negative.\n\n" +
+        "**The square root of a negative? Not possible.** No number multiplied by itself gives −9, because (+) × (+) and (−) × (−) are both positive. (Cube roots are fine, though: {{cbrt(-27)}} = −3, because (−3)³ = −27.)\n\n" +
+        "**√ means the positive root.** Both 3² and (−3)² equal 9, but {{sqrt(9)}} means 3.\n\n" +
+        "**Decimals: count the decimal places.** For 0.3² = 0.3 × 0.3, work out 3 × 3 = 9, then count the decimal places in the numbers you multiplied — two — so the answer is 0.09, not 0.9. Likewise 0.2³ = 0.008 (three decimal places).",
+      diagram: `<svg viewBox="0 0 480 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Number line from 0 to 2.25. Between 0 and 1, squaring moves 0.5 down to 0.25 and square-rooting moves 0.25 back up to 0.5. Above 1, squaring moves 1.5 up to 2.25 and square-rooting moves 2.25 back down to 1.5. 1 squared stays 1.">
+  <rect x="0" y="0" width="480" height="210" fill="#ffffff"/>
+  <rect x="40" y="36" width="160" height="74" fill="#bae6fd"/>
+  <rect x="200" y="36" width="240" height="74" fill="#fde68a"/>
+  <path d="M30 110H450" fill="none" stroke="#334155" stroke-width="2"/>
+  <path d="M40 104V116M80 104V116M120 104V116M200 104V116M280 104V116M360 104V116M400 104V116" fill="none" stroke="#334155" stroke-width="2"/>
+  <path d="M120 104C120 66 80 66 80 98" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+  <polygon points="80,106 75,97 85,97" fill="#1f2937"/>
+  <path d="M280 104C280 52 400 52 400 98" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+  <polygon points="400,106 395,97 405,97" fill="#1f2937"/>
+  <path d="M80 140C80 176 120 176 120 146" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+  <polygon points="120,138 115,147 125,147" fill="#1f2937"/>
+  <path d="M400 140C400 180 280 180 280 146" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+  <polygon points="280,138 275,147 285,147" fill="#1f2937"/>
+  <circle cx="200" cy="110" r="4.5" fill="#1f2937"/>
+  <g font-family="sans-serif" fill="#1f2937" text-anchor="middle">
+    <text x="120" y="28" font-size="12" font-weight="bold">0 to 1: squaring shrinks</text>
+    <text x="320" y="28" font-size="12" font-weight="bold">above 1: squaring grows</text>
+    <text x="100" y="60" font-size="12">0.5² = 0.25</text>
+    <text x="340" y="56" font-size="12">1.5² = 2.25</text>
+    <text x="200" y="92" font-size="12" font-weight="bold">1² = 1</text>
+    <text x="40" y="130" font-size="12">0</text>
+    <text x="80" y="130" font-size="12">0.25</text>
+    <text x="120" y="130" font-size="12">0.5</text>
+    <text x="200" y="130" font-size="12">1</text>
+    <text x="280" y="130" font-size="12">1.5</text>
+    <text x="360" y="130" font-size="12">2</text>
+    <text x="400" y="130" font-size="12">2.25</text>
+    <text x="100" y="196" font-size="12">√0.25 = 0.5</text>
+    <text x="340" y="196" font-size="12">√2.25 = 1.5</text>
+  </g>
+</svg>`,
+      diagramCaption:
+        "Arrows above the line show squaring; arrows below show square-rooting. Squaring makes 0.5 smaller (0.25) but 1.5 bigger (2.25), and the square root undoes each move. 1 is the tipping point.",
+      workedExamples: [
+        {
+          title: "A number between 0 and 1",
+          problem: "If x = 0.4, work out x² and x³. Then write x, x² and x³ in order of size, smallest first.",
+          steps: [
+            "x² = 0.4 × 0.4. Work out 4 × 4 = 16; there are two decimal places in total, so x² = 0.16.",
+            "x³ = x² × x = 0.16 × 0.4. Work out 16 × 4 = 64; there are three decimal places in total, so x³ = 0.064.",
+            "Compare: 0.064 < 0.16 < 0.4. Each extra × 0.4 keeps only 40% of the number, so every power is smaller than the one before.",
+          ],
+          answer: "x² = 0.16 and x³ = 0.064, so the order is x³, x², x",
+        },
+        {
+          title: "Powers of a negative",
+          problem: "If n = −2, work out {{n^2}}, {{n^3}}, {{n^4}} and {{n^5}}. What do you notice?",
+          steps: [
+            "{{n^2}} = (−2) × (−2) = 4 — the two minus signs pair up.",
+            "{{n^3}} = {{n^2}} × n = 4 × (−2) = −8.",
+            "{{n^4}} = {{n^3}} × n = (−8) × (−2) = 16.",
+            "{{n^5}} = {{n^4}} × n = 16 × (−2) = −32.",
+            "The sign flips every time: **even powers are positive, odd powers are negative**. The size doubles each time.",
+          ],
+          answer: "4, −8, 16, −32",
+        },
+        {
+          title: "Always, sometimes or never?",
+          problem: "Is this statement always, sometimes or never true? *Squaring a number makes it bigger.* Explain your answer.",
+          steps: [
+            "Bigger than 1: 3² = 9, and 9 is bigger than 3 ✓",
+            "Between 0 and 1: 0.5² = 0.25, and 0.25 is smaller than 0.5 ✗",
+            "0 and 1: 0² = 0 and 1² = 1 — no change ✗",
+            "Negative: (−3)² = 9, and any positive number is bigger than a negative one ✓",
+            "One counter-example shows it isn't *always* true; one example that works shows it isn't *never* true.",
+          ],
+          answer: "**Sometimes** — true for numbers bigger than 1 and for negative numbers, but not for numbers from 0 to 1.",
+        },
+      ],
+      keyPoints: [
+        "Numbers bigger than 1 get bigger when squared or cubed, and smaller when square-rooted.",
+        "Numbers between 0 and 1 get smaller when squared or cubed (0.5² = 0.25) but bigger when square-rooted (√0.25 = 0.5).",
+        "0 and 1 stay the same when squared, cubed or square-rooted.",
+        "Negatives: squared → positive, cubed → negative, square-rooted → not possible.",
+        "√ means the positive square root: √9 = 3.",
+      ],
+      whyItWorks:
+        "Multiplying by a number bigger than 1 scales things up; multiplying by a number between 0 and 1 scales them down (× 0.5 halves). Squaring x means multiplying x by itself, so it scales x up when x is bigger than 1 and down when x is between 0 and 1. A square root undoes squaring, so it must do the opposite.",
+      memoryTrick:
+        "**1 is the tipping point.** Above 1, powers push numbers up and roots pull them down; between 0 and 1 it flips. For negatives: **even power, positive; odd power, negative.**",
+      examTip:
+        "Count decimal places when you square a decimal: 0.3² = 0.09, not 0.9. And if you're asked for the square root of a negative, say it isn't possible — don't write {{sqrt(-9)}} = −3.",
+      thinkDeeper:
+        "Always, sometimes or never: *cubing a negative number makes it smaller*. Test x = −3 and x = −0.5, and mark each answer on a number line before you decide.",
+      quickChecks: [
+        {
+          question: "If y = 0.36, work out {{sqrt(y)}}.",
+          answer: { type: "number", value: 0.6 },
+          solution:
+            "0.6 × 0.6 = 0.36, so {{sqrt(0.36)}} = **0.6**. Check: the root of a number between 0 and 1 should be bigger — and 0.6 is bigger than 0.36 ✓ (0.06 is wrong: 0.06² = 0.0036.)",
+        },
+        {
+          question: "If x = −2, work out x³ − x².",
+          answer: { type: "number", value: -12 },
+          solution:
+            "x³ = (−2)³ = −8 and x² = (−2)² = 4, so x³ − x² = −8 − 4 = **−12**. (−4 comes from using x² = −4.)",
+        },
+      ],
+    },
   ],
-  flashcards: [],
-  cram: [],
+  flashcards: [
+    {
+      front: "What does **substitute** mean?",
+      back: "Replace each letter with its value (in brackets), then work out the answer using BIDMAS.",
+    },
+    {
+      front: "BIDMAS — what order?",
+      back: "Brackets → Indices (powers and roots) → Division and Multiplication (left to right) → Addition and Subtraction (left to right).",
+    },
+    {
+      front: "3ab when a = 3 and b = 4",
+      back: "3 × 3 × 4 = 36. Letters written together are multiplied.",
+    },
+    {
+      front: "Class recap: 5b² when b = 4",
+      back: "5 × 4² = 5 × 16 = 80 (not 20² = 400).",
+    },
+    {
+      front: "2x² or (2x)² — which is bigger when x = 3?",
+      back: "(2x)² = 6² = 36 is bigger than 2x² = 2 × 9 = 18. The power in 2x² touches only the x.",
+    },
+    {
+      front: "Class recap: {{(b + 2)/3}} when b = 4",
+      back: "The fraction line divides the whole top: (4 + 2) ÷ 3 = 2.",
+    },
+    {
+      front: "If x = −3, what are x² and −x²?",
+      back: "x² = (−3)² = 9, but −x² = −(9) = −9.",
+    },
+    {
+      front: "Class recap: e³ when e = −3",
+      back: "(−3) × (−3) × (−3) = 9 × (−3) = −27.",
+    },
+    {
+      front: "Class recap: 8e² + 3 when e = −3",
+      back: "Square first: (−3)² = 9. Then 8 × 9 + 3 = 75.",
+    },
+    {
+      front: "Class recap: {{(2c - e)/4}} when c = 6 and e = −3",
+      back: "Top first: 12 − (−3) = 15. Then {{15/4}} = 3.75.",
+    },
+    {
+      front: "5 − (−3) = ?",
+      back: "8. Subtracting a negative is the same as adding: 5 + 3.",
+    },
+    {
+      front: "Class Task 2: y² + x(2w − T) when w = 7, T = −6, x = 4, y = −3",
+      back: "(−3)² + 4 × (14 + 6) = 9 + 80 = 89.",
+    },
+    {
+      front: "Class formula: {{K = 1/2 mv^2}} when m = 10 and v = 2",
+      back: "{{1/2}} × 10 × 2² = 5 × 4 = 20 joules. Only the v is squared.",
+    },
+    {
+      front: "What happens to a number between 0 and 1 when you square it, cube it, square-root it?",
+      back: "Squared or cubed → smaller (0.5² = 0.25, 0.5³ = 0.125). Square-rooted → bigger ({{sqrt(0.25)}} = 0.5).",
+    },
+    {
+      front: "What happens to a negative number when you square it, cube it, square-root it?",
+      back: "Squared → positive. Cubed → negative. Square-rooted → not possible (no number times itself is negative).",
+    },
+    {
+      front: "0.3² = ?",
+      back: "0.09 — 3 × 3 = 9 with two decimal places (not 0.9).",
+    },
+  ],
+  cram: [
+    "Substitute: swap each letter for its value **in brackets**, then use BIDMAS.",
+    "Letters together multiply: 3ab = 3 × a × b and 4(a + d) = 4 × (a + d).",
+    "A power touches only its letter: 5b² = 5 × b² (b = 4 → 80, not 400), so 2x² ≠ (2x)².",
+    "A fraction line or a √ sign groups everything: finish the whole top, or the whole inside, first.",
+    "x = −3: x² = 9, −x² = −9, x³ = −27, 5 − x = 8.",
+    "Minus a negative is plus: with c = 6 and e = −3, {{(2c - e)/4}} = {{(12 + 3)/4}} = {{15/4}} = 3.75.",
+    "Formulae: write it → sub it → work it out → units. {{K = 1/2 mv^2}} with m = 10, v = 2 gives 20 J.",
+    "Between 0 and 1: squaring and cubing shrink (0.5² = 0.25), rooting grows ({{sqrt(0.25)}} = 0.5). 0 and 1 stay the same.",
+    "Negatives: even power → positive, odd power → negative, square root → not possible. √ means the positive root.",
+    "Decimals: count the decimal places — 0.3² = 0.09 and 0.2³ = 0.008.",
+  ],
 };

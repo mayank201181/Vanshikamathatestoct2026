@@ -538,12 +538,17 @@ export const GUIDE_SQ: TopicGuide = {
 <line x1="296" y1="84" x2="315" y2="100"/>
 <line x1="344" y1="84" x2="325" y2="100"/>
 </g>
-<g fill="#c7d2fe" stroke="#334155" stroke-width="1">
-<rect x="120" y="18" width="40" height="26" rx="6"/>
-<rect x="180" y="18" width="40" height="26" rx="6"/>
-<rect x="240" y="18" width="40" height="26" rx="6"/>
-<rect x="300" y="18" width="40" height="26" rx="6"/>
-<rect x="360" y="18" width="40" height="26" rx="6"/>
+<g stroke="#334155" stroke-width="1">
+<rect x="120" y="18" width="40" height="26" rx="6" fill="#c7d2fe"/>
+<rect x="180" y="18" width="40" height="26" rx="6" fill="#c7d2fe"/>
+<rect x="240" y="18" width="40" height="26" rx="6" fill="#c7d2fe"/>
+<rect x="300" y="18" width="40" height="26" rx="6" fill="#c7d2fe"/>
+<rect x="360" y="18" width="40" height="26" rx="6" fill="#c7d2fe"/>
+<rect x="120" y="180" width="40" height="26" rx="6" fill="#bbf7d0"/>
+<rect x="180" y="180" width="40" height="26" rx="6" fill="#bbf7d0"/>
+<rect x="240" y="180" width="40" height="26" rx="6" fill="#bbf7d0"/>
+<rect x="300" y="180" width="40" height="26" rx="6" fill="#bbf7d0"/>
+<rect x="360" y="180" width="40" height="26" rx="6" fill="#bbf7d0"/>
 </g>
 <g font-size="14" font-weight="bold" text-anchor="middle" fill="#1f2937">
 <text x="140" y="36">3</text>
@@ -551,6 +556,11 @@ export const GUIDE_SQ: TopicGuide = {
 <text x="260" y="36">11</text>
 <text x="320" y="36">18</text>
 <text x="380" y="36">27</text>
+<text x="140" y="198">2</text>
+<text x="200" y="198">2</text>
+<text x="260" y="198">2</text>
+<text x="320" y="198">2</text>
+<text x="380" y="198">2</text>
 </g>
 <g font-size="13" font-weight="bold" text-anchor="middle" fill="#b45309">
 <text x="170" y="80">+3</text>
@@ -571,20 +581,6 @@ export const GUIDE_SQ: TopicGuide = {
 <text x="260" y="164">9</text>
 <text x="320" y="164">16</text>
 <text x="380" y="164">25</text>
-</g>
-<g fill="#bbf7d0" stroke="#334155" stroke-width="1">
-<rect x="120" y="180" width="40" height="26" rx="6"/>
-<rect x="180" y="180" width="40" height="26" rx="6"/>
-<rect x="240" y="180" width="40" height="26" rx="6"/>
-<rect x="300" y="180" width="40" height="26" rx="6"/>
-<rect x="360" y="180" width="40" height="26" rx="6"/>
-</g>
-<g font-size="14" font-weight="bold" text-anchor="middle" fill="#1f2937">
-<text x="140" y="198">2</text>
-<text x="200" y="198">2</text>
-<text x="260" y="198">2</text>
-<text x="320" y="198">2</text>
-<text x="380" y="198">2</text>
 </g>
 <text x="240" y="236" font-size="15" font-weight="bold" text-anchor="middle" fill="#1f2937">2 is left every time, so the nth term is n² + 2</text>
 </svg>`,

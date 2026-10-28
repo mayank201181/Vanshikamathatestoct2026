@@ -1,4 +1,670 @@
 import type { QA, QuestionSet } from "../../types";
 
-// PLACEHOLDER — replaced by the written-question author.
-export const WRITTEN_RA: QuestionSet<QA>[] = [];
+// Ratio & Proportion — written (show-your-method) questions, 4 sets × 6.
+// Sections: ra-basics · ra-sharing · ra-proportion · ra-problems (every set covers all four).
+// Class material is marked with `source`; the rest are fresh questions on the same objectives.
+
+export const WRITTEN_RA: QuestionSet<QA>[] = [
+  // =========================================================================
+  // SET 1 · Foundations (2 warm-up / 3 core / 1 challenge)
+  // =========================================================================
+  {
+    id: "ra-written-1",
+    title: "Written 1 · Foundations",
+    subtitle: "Simplifying and 1 : n, sharing with a bar model, ratios as fractions, which squash is stronger, and Dean's Mountain.",
+    topic: "ra",
+    questions: [
+      {
+        id: "ra-w1-q01",
+        topic: "ra",
+        section: "ra-basics",
+        difficulty: "warmup",
+        question: "Simplify each ratio. Type your ratios with a colon, for example 5 : 7.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write 24 : 36 in its simplest form.",
+            marks: 1,
+            answer: { type: "ratio", parts: [2, 3], simplest: true },
+            verify: "24/12:36/12",
+          },
+          {
+            label: "b",
+            prompt: "Write 45 cm : 2 m in its simplest form.",
+            marks: 2,
+            answer: { type: "ratio", parts: [9, 40], simplest: true },
+            verify: "45:2*100",
+            traps: [
+              { spec: { type: "ratio", parts: [45, 2] }, feedback: "45 : 2 compares centimetres with metres. A ratio must use the same units — change 2 m into centimetres first." },
+              { spec: { type: "ratio", parts: [9, 4] }, feedback: "2 m is 200 cm, not 20 cm. Use 45 : 200 and then simplify." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Write 6 : 15 in the form 1 : n.",
+            marks: 1,
+            answer: { type: "ratio", parts: [1, 2.5], unitForm: "1:n" },
+            verify: "6/6:15/6",
+          },
+        ],
+        hints: [
+          "What is the biggest number that divides into both 24 and 36?",
+          "In (b) a ratio must compare the same units — change 2 m into centimetres first. In (c) divide BOTH parts by the first number, 6.",
+        ],
+        solution: [
+          "(a) The HCF of 24 and 36 is 12: 24 ÷ 12 = 2 and 36 ÷ 12 = 3, so 24 : 36 = **2 : 3**.",
+          "(b) Change to the same units first: 2 m = 200 cm, so the ratio is 45 : 200.",
+          "The HCF of 45 and 200 is 5: 45 ÷ 5 = 9 and 200 ÷ 5 = 40, so 45 cm : 2 m = **9 : 40**.",
+          "(c) For the form 1 : n, divide both parts by the first number: 6 ÷ 6 = 1 and 15 ÷ 6 = 2.5, so 6 : 15 = **1 : 2.5**.",
+          "Check (c): multiply 1 : 2.5 by 6 and you get back to 6 : 15 ✓",
+        ],
+        commonError: "Writing 45 : 2 for 45 cm : 2 m (the units must match first), or stopping before the ratio is fully simplified, e.g. 12 : 18 instead of 2 : 3.",
+        strategy: "Spot the common factor",
+      },
+      {
+        id: "ra-w1-q02",
+        topic: "ra",
+        section: "ra-sharing",
+        difficulty: "warmup",
+        question: "Mo and Mae share some money in the ratio 3 : 5. Mae receives £45.",
+        diagram: `<svg viewBox="0 0 300 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar model: Mo has 3 equal boxes and Mae has 5 equal boxes. Mae's 5 boxes are worth £45 altogether."><rect width="300" height="130" fill="#ffffff"/><text x="12" y="40" font-family="sans-serif" font-size="14" fill="#1f2937">Mo</text><rect x="60" y="20" width="40" height="30" fill="#bae6fd" stroke="#1f2937"/><rect x="100" y="20" width="40" height="30" fill="#bae6fd" stroke="#1f2937"/><rect x="140" y="20" width="40" height="30" fill="#bae6fd" stroke="#1f2937"/><text x="12" y="85" font-family="sans-serif" font-size="14" fill="#1f2937">Mae</text><rect x="60" y="65" width="40" height="30" fill="#fde68a" stroke="#1f2937"/><rect x="100" y="65" width="40" height="30" fill="#fde68a" stroke="#1f2937"/><rect x="140" y="65" width="40" height="30" fill="#fde68a" stroke="#1f2937"/><rect x="180" y="65" width="40" height="30" fill="#fde68a" stroke="#1f2937"/><rect x="220" y="65" width="40" height="30" fill="#fde68a" stroke="#1f2937"/><path d="M60 102 V110 H260 V102" fill="none" stroke="#334155" stroke-width="1.5"/><text x="160" y="126" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#1f2937">£45</text></svg>`,
+        parts: [
+          {
+            label: "a",
+            prompt: "How much is one part worth? Give your answer in £.",
+            marks: 1,
+            answer: { type: "number", value: 9, display: "£9" },
+            verify: "45/5",
+            traps: [
+              { spec: { type: "number", value: 15 }, feedback: "£15 is £45 ÷ 3 — but £45 is Mae's share, and Mae has 5 parts. Divide by 5." },
+              { spec: { type: "number", value: 5.625, tolerance: 0.01 }, feedback: "£45 is only Mae's share, not the total, so don't divide it by all 8 parts. Mae's £45 is her 5 parts." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "How much money was shared altogether? Give your answer in £.",
+            marks: 2,
+            answer: { type: "number", value: 72, display: "£72" },
+            verify: "45/5*(3+5)",
+            traps: [
+              { spec: { type: "number", value: 27 }, feedback: "£27 is Mo's share (3 parts). The total is Mo's share plus Mae's £45." },
+              { spec: { type: "number", value: 120 }, feedback: "£120 = 8 × £15 comes from dividing £45 by 3. Mae's £45 is 5 parts, so find one part with £45 ÷ 5." },
+            ],
+          },
+        ],
+        hints: [
+          "Look at the bar model: the £45 covers Mae's boxes. How many boxes does Mae have?",
+          "Find what one box is worth, then count all the boxes.",
+        ],
+        solution: [
+          "Bar model: Mo has 3 boxes and Mae has 5 boxes, all the same size.",
+          "(a) Mae's 5 boxes are worth £45, so one box (one part) = £45 ÷ 5 = **£9**.",
+          "(b) There are 3 + 5 = 8 boxes altogether, so the total is 8 × £9 = **£72**.",
+          "Check: Mo gets 3 × £9 = £27, and £27 + £45 = £72 ✓",
+        ],
+        commonError: "Dividing £45 by 3 (Mo's parts) or by 8 (all the parts). £45 is Mae's share, so it is her 5 parts.",
+        strategy: "Use a bar model",
+        source: "Class worksheet",
+      },
+      {
+        id: "ra-w1-q03",
+        topic: "ra",
+        section: "ra-sharing",
+        difficulty: "core",
+        question: "Wei Ling, Omar and Hana share $360 in the ratio 2 : 3 : 4.",
+        parts: [
+          {
+            label: "a",
+            prompt: "How much does each person get? Give the amounts in the order Wei Ling, Omar, Hana, separated by commas.",
+            marks: 2,
+            answer: { type: "list", values: [80, 120, 160], ordered: true, display: "$80, $120, $160" },
+            verify: "360/(2+3+4)*2, 360/(2+3+4)*3, 360/(2+3+4)*4",
+            traps: [
+              { spec: { type: "list", values: [180, 120, 90], ordered: true }, feedback: "Those are $360 ÷ 2, $360 ÷ 3 and $360 ÷ 4 — and they add up to $390, not $360! Add the parts first (2 + 3 + 4) and share $360 into that many equal parts." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "What fraction of the money does Omar get? Give your answer in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 1, d: 3, simplest: true },
+            verify: "3/(2+3+4)",
+            traps: [
+              { spec: { type: "fraction", n: 1, d: 2 }, feedback: "{{3/6}} = {{1/2}} compares Omar with the other two people (3 parts : 6 parts). As a fraction of ALL the money, Omar has 3 parts out of 9." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Hana then gives $40 of her share to Wei Ling. Write the new ratio Wei Ling : Omar : Hana in its simplest form.",
+            marks: 2,
+            answer: { type: "ratio", parts: [1, 1, 1], simplest: true },
+            verify: "360/(2+3+4)*2+40:360/(2+3+4)*3:360/(2+3+4)*4-40",
+            traps: [
+              { spec: { type: "ratio", parts: [2, 3, 3] }, feedback: "You took $40 away from Hana but didn't give it to Wei Ling. Wei Ling's share goes UP by $40." },
+            ],
+          },
+        ],
+        hints: [
+          "How many parts are there altogether? What is one part worth?",
+          "For (c), work out each person's new amount of money first, then simplify the ratio of the amounts.",
+        ],
+        solution: [
+          "Total parts: 2 + 3 + 4 = 9, so one part = $360 ÷ 9 = $40.",
+          "(a) Wei Ling: 2 × $40 = **$80**. Omar: 3 × $40 = **$120**. Hana: 4 × $40 = **$160**. Check: 80 + 120 + 160 = 360 ✓",
+          "(b) Omar has 3 of the 9 parts: {{3/9}} = **{{1/3}}** of the money. (Check: {{120/360}} = {{1/3}} ✓)",
+          "(c) After the gift: Wei Ling has $80 + $40 = $120, Omar still has $120, and Hana has $160 − $40 = $120.",
+          "So the new ratio is 120 : 120 : 120 = **1 : 1 : 1** — they now all have the same amount.",
+        ],
+        commonError: "Dividing $360 by 2, by 3 and by 4 separately. Always add the parts first (9), then find what one part is worth.",
+        strategy: "Use a bar model",
+      },
+      {
+        id: "ra-w1-q04",
+        topic: "ra",
+        section: "ra-proportion",
+        difficulty: "core",
+        question: "In a choir, the ratio of boys to girls is 2 : 5.",
+        parts: [
+          {
+            label: "a",
+            prompt: "What fraction of the choir are boys? Give your answer in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 2, d: 7, simplest: true },
+            verify: "2/(2+5)",
+            traps: [
+              { spec: { type: "fraction", n: 2, d: 5 }, feedback: "{{2/5}} compares boys with girls (part : part). For a fraction of the WHOLE choir, use all 2 + 5 = 7 parts." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "The number of boys is what fraction of the number of girls? Give your answer in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 2, d: 5, simplest: true },
+            verify: "2/5",
+            traps: [
+              { spec: { type: "fraction", n: 2, d: 7 }, feedback: "{{2/7}} is the boys as a fraction of the whole choir. Here you compare boys with girls only: 2 parts against 5 parts." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "There are 35 people in the choir. How many of them are girls?",
+            marks: 2,
+            answer: { type: "number", value: 25 },
+            verify: "35/(2+5)*5",
+            traps: [
+              { spec: { type: "number", value: 10 }, feedback: "10 is the number of boys (2 parts). The girls are the 5 parts." },
+              { spec: { type: "number", value: 87.5, tolerance: 0.1 }, feedback: "35 is the whole choir (all 7 parts), not the boys' 2 parts. Start with one part = 35 ÷ 7." },
+            ],
+          },
+        ],
+        hints: [
+          "Draw a bar: 2 boxes for boys and 5 boxes for girls. How many boxes make the whole choir?",
+          "'A fraction of the choir' uses all the boxes; 'a fraction of the number of girls' uses only the girls' boxes.",
+        ],
+        solution: [
+          "Bar model: boys = 2 boxes, girls = 5 boxes, so the whole choir = 2 + 5 = 7 boxes.",
+          "(a) Boys are 2 of the 7 boxes: **{{2/7}}** of the choir.",
+          "(b) Compare boys with girls only: 2 boxes against 5 boxes, so the number of boys is **{{2/5}}** of the number of girls. (This is the class rule: b : g = 2 : 5 means {{b/g = 2/5}}.)",
+          "(c) 7 boxes = 35 people, so 1 box = 35 ÷ 7 = 5 people. Girls = 5 boxes = 5 × 5 = **25**.",
+          "Check: boys = 2 × 5 = 10, and 10 + 25 = 35 ✓, 10 : 25 = 2 : 5 ✓",
+        ],
+        commonError: "Mixing up part : part with part : whole — saying {{2/5}} of the choir are boys. {{2/5}} compares boys with girls; boys are {{2/7}} of the choir.",
+        strategy: "Use a bar model",
+      },
+      {
+        id: "ra-w1-q05",
+        topic: "ra",
+        section: "ra-proportion",
+        difficulty: "core",
+        question: "Two jugs of orange squash are mixed like this (all the cups are the same size):\n\n- Jug A: 3 cups of squash and 5 cups of water\n- Jug B: 4 cups of squash and 7 cups of water",
+        diagram: `<svg viewBox="0 0 400 136" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar pictures of the two jugs. Jug A: 3 cups of squash then 5 cups of water. Jug B: 4 cups of squash then 7 cups of water. All cups are the same size."><rect width="400" height="136" fill="#ffffff"/><text x="10" y="37" font-family="sans-serif" font-size="14" fill="#1f2937">Jug A</text><rect x="70" y="18" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="98" y="18" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="126" y="18" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="154" y="18" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="182" y="18" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="210" y="18" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="238" y="18" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="266" y="18" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><text x="10" y="87" font-family="sans-serif" font-size="14" fill="#1f2937">Jug B</text><rect x="70" y="68" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="98" y="68" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="126" y="68" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="154" y="68" width="28" height="28" fill="#fde68a" stroke="#1f2937"/><rect x="182" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="210" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="238" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="266" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="294" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="322" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="350" y="68" width="28" height="28" fill="#bae6fd" stroke="#1f2937"/><rect x="70" y="108" width="16" height="16" fill="#fde68a" stroke="#1f2937"/><text x="92" y="121" font-family="sans-serif" font-size="13" fill="#1f2937">squash</text><rect x="170" y="108" width="16" height="16" fill="#bae6fd" stroke="#1f2937"/><text x="192" y="121" font-family="sans-serif" font-size="13" fill="#1f2937">water</text></svg>`,
+        parts: [
+          {
+            label: "a",
+            prompt: "What fraction of Jug A is squash? Give your answer in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 3, d: 8, simplest: true },
+            verify: "3/(3+5)",
+            traps: [
+              { spec: { type: "fraction", n: 3, d: 5 }, feedback: "{{3/5}} compares squash with water (part : part). Jug A holds 3 + 5 = 8 cups altogether — what fraction of those is squash?" },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "What fraction of Jug B is squash? Give your answer in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 4, d: 11, simplest: true },
+            verify: "4/(4+7)",
+            traps: [
+              { spec: { type: "fraction", n: 4, d: 7 }, feedback: "{{4/7}} compares squash with water (part : part). Jug B holds 4 + 7 = 11 cups altogether — what fraction of those is squash?" },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Which jug is stronger (tastes more of orange)? Explain how you know.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Compares the jugs fairly with numbers, e.g. {{33/88}} and {{32/88}}, or 12 : 20 and 12 : 21, or 0.375 and 0.364",
+                keywords: ["33/88+32/88", "12 to 20+12 to 21", "21 to 35+20 to 35", "0.375+0.364", "0.375+0.36", "37.5+36.4", "common denominator", "same amount of squash"],
+                feedback: "Compare like with like: write {{3/8}} and {{4/11}} with the same denominator ({{33/88}} and {{32/88}}), or scale both jugs to 12 cups of squash (12 : 20 and 12 : 21).",
+              },
+              {
+                point: "Concludes that Jug A is stronger",
+                keywords: ["a is stronger", "a is the stronger", "a stronger", "a has more squash", "a tastes stronger", "b is weaker", "b weaker", "a is more orange"],
+                feedback: "Finish with a clear answer: Jug A is stronger, because a bigger fraction of it is squash ({{33/88}} against {{32/88}}).",
+              },
+            ],
+            model: "**Jug A is stronger.** Jug A is {{3/8}} squash and Jug B is {{4/11}} squash. With a common denominator of 88, {{3/8 = 33/88}} and {{4/11 = 32/88}}, so a bigger fraction of Jug A is squash. (Another way: for 12 cups of squash, Jug A is 12 : 20 and Jug B is 12 : 21 — Jug B has more water for the same squash, so it is weaker.)",
+          },
+        ],
+        hints: [
+          "More cups of squash doesn't automatically mean stronger — Jug B has more water too. What fraction of each jug is squash?",
+          "Compare {{3/8}} and {{4/11}}: rewrite both with the denominator 8 × 11 = 88, or scale both ratios so they have 12 cups of squash.",
+        ],
+        solution: [
+          "(a) Jug A holds 3 + 5 = 8 cups, and 3 of them are squash: **{{3/8}}**.",
+          "(b) Jug B holds 4 + 7 = 11 cups, and 4 of them are squash: **{{4/11}}**.",
+          "(c) Compare using a common denominator of 8 × 11 = 88: {{3/8 = 33/88}} and {{4/11 = 32/88}}.",
+          "{{33/88}} is bigger than {{32/88}}, so a bigger fraction of Jug A is squash: **Jug A is stronger** — even though Jug B has more cups of squash.",
+        ],
+        altMethod: {
+          label: "Make the squash equal",
+          steps: [
+            "Scale both ratios to 12 cups of squash: Jug A 3 : 5 = 12 : 20 (× 4) and Jug B 4 : 7 = 12 : 21 (× 3).",
+            "With the same 12 cups of squash, Jug B has more water (21 cups against 20), so it is weaker.",
+            "Jug A is stronger.",
+          ],
+        },
+        commonError: "Saying Jug B is stronger because it has more cups of squash (4 > 3). It also has more water — compare the FRACTION of each jug that is squash.",
+        strategy: "Find a common denominator",
+      },
+      {
+        id: "ra-w1-q06",
+        topic: "ra",
+        section: "ra-problems",
+        difficulty: "challenge",
+        question: "Dean runs up a mountain road at 8 km/h. It takes him 1 hour to reach the top. He then runs back down the same road at 12 km/h.",
+        parts: [
+          {
+            label: "a",
+            prompt: "How long does it take him to run down? Give your answer in minutes.",
+            marks: 3,
+            answer: { type: "number", value: 40, display: "40 minutes" },
+            verify: "8*1/12*60",
+            traps: [
+              { spec: { type: "number", value: 90 }, feedback: "90 minutes = 60 × {{12/8}}. But running FASTER over the same road must take LESS time than the 60 minutes going up. Find the length of the road first." },
+              { spec: { type: "number", value: 2 / 3, tolerance: 0.01 }, feedback: "That's {{2/3}} of an HOUR. The question asks for minutes — multiply by 60." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Write the ratio time going up : time coming down in its simplest form.",
+            marks: 1,
+            answer: { type: "ratio", parts: [3, 2], simplest: true },
+            verify: "60:8*1/12*60",
+            traps: [
+              { spec: { type: "ratio", parts: [2, 3] }, feedback: "2 : 3 is the ratio of the SPEEDS (8 : 12). Faster means less time, so the times go the other way — compare your two times in minutes." },
+            ],
+          },
+        ],
+        hints: [
+          "How long is the road? Use 8 km/h for 1 hour.",
+          "Time = distance ÷ speed. What fraction of an hour does 8 km take at 12 km/h?",
+          "Change that fraction of an hour into minutes by multiplying by 60.",
+        ],
+        solution: [
+          "Going up: 8 km/h for 1 hour, so the road is 8 × 1 = 8 km long.",
+          "Going down: time = distance ÷ speed = 8 ÷ 12 = {{8/12}} = {{2/3}} of an hour.",
+          "(a) {{2/3}} of 60 minutes = 60 ÷ 3 × 2 = **40 minutes**.",
+          "(b) Time up : time down = 60 : 40 = **3 : 2** (divide both by 20).",
+          "Notice: the speeds are 8 : 12 = 2 : 3, but the times are 3 : 2. The ratio flips, because covering the same distance faster takes less time.",
+        ],
+        altMethod: {
+          label: "Use the speed ratio",
+          steps: [
+            "Speed down : speed up = 12 : 8 = 3 : 2, so Dean runs down 1.5 times as fast.",
+            "Over the same distance, 1.5 times as fast means the time is divided by 1.5.",
+            "60 minutes ÷ 1.5 = 40 minutes.",
+          ],
+        },
+        commonError: "Multiplying instead of dividing (60 × {{12/8}} = 90 minutes). Running faster must take LESS time than the 60 minutes going up.",
+        strategy: "Estimate first",
+        source: "Ratio Puzzles 1★",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // SET 2 · Core skills (1 warm-up / 4 core / 1 challenge)
+  // =========================================================================
+  {
+    id: "ra-written-2",
+    title: "Written 2 · Core skills",
+    subtitle: "Decimal and fraction ratios, n : 1, sharing from a difference, mixing paints, x : y = 4 : 9, combining ratios, and a changing ratio.",
+    topic: "ra",
+    questions: [
+      {
+        id: "ra-w2-q01",
+        topic: "ra",
+        section: "ra-basics",
+        difficulty: "warmup",
+        question: "A ratio in its simplest form uses whole numbers with no common factor (unless a form such as n : 1 is asked for).",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write 1.5 : 2 in its simplest form.",
+            marks: 1,
+            answer: { type: "ratio", parts: [3, 4], simplest: true },
+            verify: "1.5*2:2*2",
+          },
+          {
+            label: "b",
+            prompt: "Write {{1/2}} : {{1/3}} in its simplest form.",
+            marks: 1,
+            answer: { type: "ratio", parts: [3, 2], simplest: true },
+            verify: "1/2*6:1/3*6",
+            traps: [
+              { spec: { type: "ratio", parts: [2, 3] }, feedback: "2 : 3 comes from reading the denominators. But a half is MORE than a third, so the first part must be bigger. Multiply both parts by 6 to clear the fractions." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Write 18 : 4 in the form n : 1.",
+            marks: 1,
+            answer: { type: "ratio", parts: [4.5, 1], unitForm: "n:1" },
+            verify: "18/4:4/4",
+          },
+        ],
+        hints: [
+          "Multiplying or dividing both parts by the same number never changes a ratio. What could you multiply by to get rid of the decimal or the fractions?",
+          "For (b), multiply both parts by 6 (the LCM of 2 and 3). For (c), divide both parts by the second number.",
+        ],
+        solution: [
+          "(a) Multiply both parts by 2 to clear the decimal: 1.5 : 2 = 3 : 4. 3 and 4 have no common factor, so the answer is **3 : 4**.",
+          "(b) Multiply both parts by 6, the LCM of the denominators: {{1/2}} × 6 = 3 and {{1/3}} × 6 = 2, so {{1/2}} : {{1/3}} = **3 : 2**.",
+          "(c) For n : 1, divide both parts by the second number: 18 ÷ 4 = 4.5 and 4 ÷ 4 = 1, so 18 : 4 = **4.5 : 1**.",
+        ],
+        commonError: "Writing {{1/2}} : {{1/3}} as 2 : 3 by reading the denominators — but a half is bigger than a third, so the answer is 3 : 2.",
+        strategy: "Find a common denominator",
+      },
+      {
+        id: "ra-w2-q02",
+        topic: "ra",
+        section: "ra-sharing",
+        difficulty: "core",
+        question: "In a sports club, the ratio of children to adults is 7 : 13. There are 42 more adults than children.",
+        parts: [
+          {
+            label: "a",
+            prompt: "How many children are in the club?",
+            marks: 2,
+            answer: { type: "number", value: 49 },
+            verify: "42/(13-7)*7",
+            traps: [
+              { spec: { type: "number", value: 14.7, tolerance: 0.05 }, feedback: "42 is the DIFFERENCE between adults and children. That is 13 − 7 = 6 parts — not all 20 parts." },
+              { spec: { type: "number", value: 91 }, feedback: "91 is the number of adults (13 parts). The question asks for the children: 7 parts." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "How many members does the club have altogether?",
+            marks: 1,
+            answer: { type: "number", value: 140 },
+            verify: "42/(13-7)*(7+13)",
+            traps: [
+              { spec: { type: "number", value: 91 }, feedback: "91 is the number of adults (children + 42). Add the children as well to get everyone." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "What fraction of the club members are children? Give your answer in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 7, d: 20, simplest: true },
+            verify: "7/(7+13)",
+            traps: [
+              { spec: { type: "fraction", n: 7, d: 13 }, feedback: "{{7/13}} compares children with adults (part : part). As a fraction of the WHOLE club, children are 7 parts out of 7 + 13 = 20." },
+            ],
+          },
+        ],
+        hints: [
+          "Draw two bars: 7 boxes for children and 13 boxes for adults. How many more boxes do the adults have?",
+          "Those extra boxes are the 42 extra adults. What is one box worth?",
+        ],
+        solution: [
+          "Bar model: children = 7 boxes, adults = 13 boxes. The adults have 13 − 7 = 6 more boxes.",
+          "Those 6 boxes are the 42 extra adults, so 1 box = 42 ÷ 6 = 7 people.",
+          "(a) Children = 7 boxes = 7 × 7 = **49**.",
+          "(b) Adults = 13 × 7 = 91, so the total is 49 + 91 = **140** (or 20 boxes × 7 = 140).",
+          "(c) Children are 7 of the 20 boxes: **{{7/20}}** of the club.",
+          "Check: 91 − 49 = 42 ✓",
+        ],
+        altMethod: {
+          label: "Introduce a variable",
+          steps: [
+            "Let one part be k: children = 7k and adults = 13k.",
+            "Adults − children = 13k − 7k = 6k = 42, so k = 7.",
+            "Children = 7 × 7 = 49, and the total is 20k = 140.",
+          ],
+        },
+        commonError: "Dividing 42 by 20 (all the parts). The 42 is the difference between the two groups, which is only 13 − 7 = 6 parts.",
+        strategy: "Use a bar model",
+        source: "Class worksheet",
+      },
+      {
+        id: "ra-w2-q03",
+        topic: "ra",
+        section: "ra-problems",
+        difficulty: "core",
+        question: "To make a shade of green paint, Arjun mixes blue paint and yellow paint in the ratio 3 : 5.",
+        parts: [
+          {
+            label: "a",
+            prompt: "He uses 12 litres of blue paint. How much yellow paint does he need? Give your answer in litres.",
+            marks: 1,
+            answer: { type: "number", value: 20, display: "20 litres" },
+            verify: "12/3*5",
+            traps: [
+              { spec: { type: "number", value: 14 }, feedback: "Ratios multiply, they don't add. Blue goes from 3 parts to 12 litres (× 4), so yellow goes from 5 parts to 5 × 4 litres — not 12 + 2." },
+              { spec: { type: "number", value: 7.2, tolerance: 0.05 }, feedback: "You divided the 12 litres by 5. But the blue paint is the 3 parts, so one part = 12 ÷ 3." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Another day he makes 24 litres of the same green paint. How much blue paint does he use? Give your answer in litres.",
+            marks: 2,
+            answer: { type: "number", value: 9, display: "9 litres" },
+            verify: "24/(3+5)*3",
+            traps: [
+              { spec: { type: "number", value: 14.4, tolerance: 0.05 }, feedback: "{{3/5}} compares blue with yellow. The 24 litres is the WHOLE mix, which is 3 + 5 = 8 parts, so blue is {{3/8}} of it." },
+              { spec: { type: "number", value: 15 }, feedback: "15 litres is the yellow paint (5 parts). The question asks for the blue: 3 parts." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "He has 6 litres of blue paint and 6 litres of yellow paint. What is the greatest amount of this green paint he can make? Give your answer in litres.",
+            marks: 2,
+            answer: { type: "number", value: 9.6, display: "9.6 litres" },
+            verify: "6/5*(3+5)",
+            traps: [
+              { spec: { type: "number", value: 12 }, feedback: "Using all 12 litres would mix the colours 6 : 6 = 1 : 1, not 3 : 5. One colour runs out first — which one?" },
+              { spec: { type: "number", value: 16 }, feedback: "Using all 6 litres of blue would need 6 ÷ 3 × 5 = 10 litres of yellow, but he only has 6. The yellow runs out first." },
+            ],
+          },
+        ],
+        hints: [
+          "Blue is 3 parts. In (a), if 3 parts are 12 litres, what is 1 part?",
+          "In (b) the 24 litres is the whole mix — how many parts is that? In (c), check which colour runs out first.",
+        ],
+        solution: [
+          "(a) Blue: 3 parts = 12 litres, so 1 part = 12 ÷ 3 = 4 litres. Yellow: 5 parts = 5 × 4 = **20 litres**.",
+          "(b) The whole mix is 3 + 5 = 8 parts = 24 litres, so 1 part = 24 ÷ 8 = 3 litres. Blue: 3 parts = 3 × 3 = **9 litres**.",
+          "(c) Try using all the blue: 6 litres = 3 parts, so 1 part = 2 litres and he would need 5 × 2 = 10 litres of yellow. He only has 6 litres, so the yellow runs out first.",
+          "Use all the yellow instead: 6 litres = 5 parts, so 1 part = 6 ÷ 5 = 1.2 litres. Blue needed: 3 × 1.2 = 3.6 litres (he has enough).",
+          "Greatest amount: 6 + 3.6 = **9.6 litres** of green (check: 8 parts × 1.2 = 9.6 ✓).",
+        ],
+        commonError: "Adding instead of multiplying: thinking yellow is '2 more than blue', so 12 + 2 = 14 litres. Ratios scale by multiplying.",
+        strategy: "Use a bar model",
+      },
+      {
+        id: "ra-w2-q04",
+        topic: "ra",
+        section: "ra-proportion",
+        difficulty: "core",
+        question: "Two positive numbers x and y are in the ratio x : y = 4 : 9.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Complete the statement x = ☐ × y. Give the missing number as a fraction in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 4, d: 9, simplest: true },
+            verify: "4/9",
+            traps: [
+              { spec: { type: "fraction", n: 4, d: 13 }, feedback: "{{4/13}} is x as a fraction of x + y (part : whole). Compare x with y only: 4 parts against 9 parts." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "By what percentage is y larger than x?",
+            marks: 2,
+            answer: { type: "number", value: 125, display: "125%" },
+            verify: "(9-4)/4*100",
+            traps: [
+              { spec: { type: "number", value: 225 }, feedback: "225% is y as a percentage OF x (9 ÷ 4 = 2.25). 'Larger than' asks for the increase only." },
+              { spec: { type: "number", value: 55.6, tolerance: 0.6 }, feedback: "You divided the difference (5 parts) by y's 9 parts. A percentage increase compares with the starting amount, x, which is 4 parts." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Zara says, 'y is 225% larger than x.' Explain the mistake Zara has made.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "225% is y as a percentage OF x: y = 2.25 × x (because 9 ÷ 4 = 2.25)",
+                keywords: ["2.25", "9/4", "225 percent of", "percentage of x", "times x", "times bigger"],
+                feedback: "Zara's 225% is y as a percentage OF x: 9 ÷ 4 = 2.25, so y = 2.25 × x, which is 225% of x.",
+              },
+              {
+                point: "'Larger than' means the increase: 225% − 100% = 125% (y is 5 parts more than x's 4 parts)",
+                keywords: ["125", "minus 100", "take away 100", "subtract 100", "5/4", "1.25", "5 parts"],
+                feedback: "'Larger than' is the increase only: y is 5 parts more than x's 4 parts, and {{5/4}} = 125%. That is 225% − 100%.",
+              },
+            ],
+            model: "Zara has worked out y as a percentage **of** x: 9 ÷ 4 = 2.25, so y is 225% of x. But 'larger than' means the increase. y is 9 − 4 = 5 parts more than x's 4 parts, and {{5/4}} = 1.25 = 125%. So y is 125% larger than x (225% − 100% = 125%).",
+          },
+        ],
+        hints: [
+          "Picture x as 4 equal boxes and y as 9 boxes of the same size.",
+          "How many boxes bigger is y than x? Compare that difference with x's 4 boxes — a percentage change always divides by the starting amount.",
+        ],
+        solution: [
+          "Think of x as 4 equal parts and y as 9 of the same parts.",
+          "(a) x compared with y is 4 parts against 9 parts, so x = **{{4/9}}** × y. (The class wrote this as {{x = 4y/9}}.)",
+          "(b) y is 9 − 4 = 5 parts bigger than x. As a percentage of x: {{5/4}} × 100 = **125%**.",
+          "(c) 9 ÷ 4 = 2.25, so y is 225% **of** x. 'Larger than' means the increase: 225% − 100% = 125%. Zara has given y as a percentage of x, not how much larger it is.",
+        ],
+        commonError: "Answering 225% (y as a percentage OF x) instead of the increase — or dividing the difference by y to get about 56%.",
+        strategy: "Use a bar model",
+        source: "Class example",
+      },
+      {
+        id: "ra-w2-q05",
+        topic: "ra",
+        section: "ra-proportion",
+        difficulty: "core",
+        question: "A bag of party balloons contains red, blue and green balloons. The ratio red : blue is 2 : 3, and the ratio blue : green is 2 : 1.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the ratio red : blue : green in its simplest form.",
+            marks: 2,
+            answer: { type: "ratio", parts: [4, 6, 3], simplest: true },
+            verify: "2*2:3*2:1*3",
+            traps: [
+              { spec: { type: "ratio", parts: [2, 3, 1] }, feedback: "2 : 3 : 1 just joins the two ratios together. But blue is 3 parts in one ratio and 2 parts in the other — make the blue parts equal first." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "There are 65 balloons in the bag. How many of them are green?",
+            marks: 2,
+            answer: { type: "number", value: 15 },
+            verify: "65/(2*2+3*2+1*3)*(1*3)",
+            traps: [
+              { spec: { type: "number", value: 65 / 6, tolerance: 0.1 }, feedback: "Using 2 + 3 + 1 = 6 parts comes from the ratio 2 : 3 : 1, which isn't right. Use your three-part ratio from (a)." },
+              { spec: { type: "number", value: 5 }, feedback: "5 balloons is ONE part (65 ÷ 13). Green is 3 parts." },
+            ],
+          },
+        ],
+        hints: [
+          "Blue appears in both ratios. Is blue the same number of parts in each?",
+          "Scale both ratios so that blue is 6 parts (the LCM of 3 and 2).",
+        ],
+        solution: [
+          "Blue is in both ratios, but it is 3 parts in one and 2 parts in the other. Make the blue parts equal: the LCM of 3 and 2 is 6.",
+          "red : blue = 2 : 3 = 4 : 6 (× 2).",
+          "blue : green = 2 : 1 = 6 : 3 (× 3).",
+          "(a) Now blue is 6 in both, so red : blue : green = **4 : 6 : 3**.",
+          "(b) Total parts = 4 + 6 + 3 = 13, so one part = 65 ÷ 13 = 5 balloons. Green = 3 × 5 = **15**.",
+          "Check: red 20, blue 30, green 15 → 20 + 30 + 15 = 65 ✓, 20 : 30 = 2 : 3 ✓, 30 : 15 = 2 : 1 ✓",
+        ],
+        commonError: "Writing 2 : 3 : 1 — joining the ratios without first making the shared part (blue) the same.",
+        strategy: "Make the shared part equal",
+        source: "Class worksheet",
+      },
+      {
+        id: "ra-w2-q06",
+        topic: "ra",
+        section: "ra-problems",
+        difficulty: "challenge",
+        question: "A box contains red pens and green pens in the ratio 5 : 3. Ali takes out 6 red pens. Now the ratio of red pens to green pens is 1 : 1.",
+        parts: [
+          {
+            label: "a",
+            prompt: "How many pens were in the box at the start?",
+            marks: 3,
+            answer: { type: "number", value: 24 },
+            verify: "6/(5-3)*(5+3)",
+            traps: [
+              { spec: { type: "number", value: 18 }, feedback: "18 is how many pens are left after Ali takes 6 out. The question asks how many there were at the start." },
+              { spec: { type: "number", value: 48 }, feedback: "The 6 pens aren't one part — they are the DIFFERENCE between red and green, which is 5 − 3 = 2 parts." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Ali puts the 6 red pens back. Then he adds some more green pens so that the ratio red : green becomes 3 : 4. How many green pens does he add?",
+            marks: 2,
+            answer: { type: "number", value: 11 },
+            verify: "6/(5-3)*5/3*4-6/(5-3)*3",
+            traps: [
+              { spec: { type: "number", value: 20 }, feedback: "20 is the number of green pens needed altogether. Some green pens are already in the box — how many does he ADD?" },
+            ],
+          },
+        ],
+        hints: [
+          "Draw 5 boxes for red and 3 boxes for green. After 6 red pens are taken out, red and green are equal. Which boxes did those 6 pens fill?",
+          "The 6 pens are the 2 extra red boxes. What is one box worth?",
+          "In (b) the number of red pens doesn't change. If red : green = 3 : 4, how many green pens go with that many red pens?",
+        ],
+        solution: [
+          "Bar model: red = 5 boxes and green = 3 boxes, all the same size.",
+          "Taking out 6 red pens makes red equal to green, so the 6 pens must be the 2 extra red boxes (5 − 3 = 2).",
+          "2 boxes = 6 pens, so 1 box = 3 pens.",
+          "(a) At the start: red = 5 × 3 = 15, green = 3 × 3 = 9, so the total is 8 × 3 = **24 pens**.",
+          "Check: 15 − 6 = 9 red and 9 green, and 9 : 9 = 1 : 1 ✓",
+          "(b) Back to 15 red pens. 3 : 4 = 15 : 20 (× 5), so there must be 20 green pens. He has 9, so he adds 20 − 9 = **11**.",
+        ],
+        altMethod: {
+          label: "Introduce a variable",
+          steps: [
+            "Let one part be k: red = 5k and green = 3k.",
+            "After taking out 6 red pens they are equal: 5k − 6 = 3k, so 2k = 6 and k = 3.",
+            "Total at the start = 5k + 3k = 8k = 24 pens.",
+          ],
+        },
+        commonError: "Treating the 6 pens as one part (and getting 48). The 6 pens are the difference between red and green, which is 2 parts.",
+        strategy: "Use a bar model",
+      },
+    ],
+  },
+];
