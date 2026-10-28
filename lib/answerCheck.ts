@@ -146,7 +146,7 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
     }
     return { status: "incorrect" };
   }
-  const p = parseNumberAnswer(input) ?? parseNumberAnswer(afterLastEquals(input));
+  const p = parseNumberAnswer(input) ?? parseNumberAnswer(afterLastEquals(input)) ?? parseNumberAnswer(input.replace(LEADING_LABEL, ""));
   if (!p) {
     // Maybe they wrote a list or an expression.
     return { status: "invalid", feedback: "Type a single number, like 12, −3.5 or 3/4." };
@@ -177,6 +177,9 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
   }
   return { status: "incorrect" };
 }
+
+/** A label word typed before the number: "Pattern 33", "term 24", "it's 40". (Never "minus".) */
+const LEADING_LABEL = /^\s*(?:pattern|term|position|diagram|day|week|year|n|it'?s|it is|answer|about)\s+(?=[-−]?\s*[£$]?\d)/i;
 
 /**
  * "e³ = −27", "8e² + 3 = 75": the learner restated the expression before the answer.
@@ -370,6 +373,9 @@ function checkExpression(spec: Extract<AnswerSpec, { type: "expression" }>, inpu
   }
   if (form === "expanded" && hasGroup(got)) {
     return { status: "close", feedback: "That's equivalent — now multiply out the brackets." };
+  }
+  if (form === "expanded" && countTerms(got) > countTerms(expected)) {
+    return { status: "close", feedback: "Expanded — now collect the like terms to simplify fully." };
   }
   if (form === "simplified") {
     if (hasLooseGroup(got) && !hasGroup(expected)) {

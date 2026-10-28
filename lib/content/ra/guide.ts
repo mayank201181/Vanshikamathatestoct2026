@@ -453,10 +453,10 @@ export const GUIDE_RA: TopicGuide = {
             "Seniors are 2 in one ratio and 5 in the other, so make them 10 (the LCM). 3 : 2 = 15 : 10 (× 5) and 5 : 2 = 10 : 4 (× 2), so juniors : seniors : veterans = 15 : 10 : 4. That also means the smallest possible club has 15 + 10 + 4 = 29 members.",
         },
         {
-          question: "x : y = 4 : 9. By what percentage is y larger than x?",
-          answer: { type: "number", value: 125, display: "125%" },
+          question: "x : y = 5 : 8. By what percentage is y larger than x?",
+          answer: { type: "number", value: 60, display: "60%" },
           solution:
-            "y is {{9/4}} = 2.25 times x. That's x plus another 1.25x, so y is 125% larger than x. Check with x = 4 and y = 9: the increase is 5, and {{5/4}} = 1.25 = 125%.",
+            "y is {{8/5}} = 1.6 times x. That's x plus another 0.6x, so y is 60% larger than x. Check with x = 5 and y = 8: the increase is 3, and {{3/5}} = 0.6 = 60%. (Not 160% — that is y as a percentage of x.)",
         },
       ],
     },

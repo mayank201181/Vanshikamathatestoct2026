@@ -557,7 +557,7 @@ export const MCQ_PC: QuestionSet<MCQ>[] = [
         section: "pc-change",
         difficulty: "core",
         question:
-          "A sports shop is having a sale. The table shows the price of each item before the sale and its discount. What is the sale price of the **cheapest** item in the sale?",
+          "A sports shop is having a sale. The table shows the price of each item before the sale and its discount. Once each discount has been taken off, what is the **lowest** sale price of the four items?",
         table: {
           caption: "Sports shop sale",
           headers: ["Item", "Price before the sale", "Discount"],
@@ -601,7 +601,7 @@ export const MCQ_PC: QuestionSet<MCQ>[] = [
           "The fall is 3 and the original is 3: {{3/3}} × 100 = 100%.",
         ],
         explanation:
-          "The original number was 3 and it fell to 0, so the decrease is 3. Percentage decrease = decrease ÷ original × 100 = {{3/3}} × 100 = 100%. Anything that drops to zero has fallen by 100% — and nothing can fall by more than 100%.",
+          "The original number was 3 and it fell to 0, so the decrease is 3. Percentage decrease = decrease ÷ original × 100 = {{3/3}} × 100 = 100%. Anything that drops to zero has fallen by 100% — and since a count like this can't go below zero, it can never fall by more than 100%.",
         hints: ["What is the original number, and how much did it fall by?", "Percentage decrease = decrease ÷ original × 100."],
         verify: "(3-0)/3*100",
         source: "UKMT JMC 1997",
@@ -692,7 +692,7 @@ export const MCQ_PC: QuestionSet<MCQ>[] = [
           "If x² = 0.7x, dividing both sides by x gives x = 0.7. Check: 0.7² = 0.49 and 70% of 0.7 = 0.49 ✓.",
         ],
         explanation:
-          "Call the number x. 70% of x is 0.7x, so x × x = 0.7 × x. Because x isn't zero, you can divide both sides by x, which gives x = 0.7. Check: 0.7² = 0.49, and 70% of 0.7 = 0.49 ✓. It makes sense: 70% of a number is smaller than the number, and squaring only makes a number smaller when it is between 0 and 1.",
+          "Call the number x. 70% of x is 0.7x, so x × x = 0.7 × x. Because x isn't zero, you can divide both sides by x, which gives x = 0.7. Check: 0.7² = 0.49, and 70% of 0.7 = 0.49 ✓. It makes sense: the square is positive, so the number must be positive — and squaring makes a positive number smaller (as taking 70% of it does) only when it is between 0 and 1.",
         hints: [
           "Call the number x. Write '70% of x' using a decimal.",
           "So x × x = 0.7 × x. What can you divide both sides by?",

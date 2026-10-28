@@ -58,3 +58,17 @@ test("a restated expression before the answer is ignored", () => {
   assert.equal(st({ type: "number", value: 75 }, "8e^2 + 3 = 72"), "incorrect");
   assert.equal(st({ type: "fraction", n: 15, d: 4 }, "(2c − e)/4 = 15/4"), "correct");
 });
+
+test("an 'expand' answer must also collect like terms", () => {
+  const spec = { type: "expression", expr: "x^2+7x+12", form: "expanded" } as const;
+  assert.equal(st(spec, "x² + 7x + 12"), "correct");
+  assert.equal(st(spec, "12 + 7x + x^2"), "correct");
+  assert.equal(st(spec, "x^2+3x+4x+12"), "close");
+  assert.equal(st(spec, "(x+3)(x+4)"), "close");
+});
+
+test("a short label before the number is ignored", () => {
+  assert.equal(st({ type: "number", value: 33 }, "Pattern 33"), "correct");
+  assert.equal(st({ type: "number", value: 24 }, "term 24"), "correct");
+  assert.equal(st({ type: "number", value: -5 }, "minus 5"), "invalid");
+});

@@ -693,7 +693,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "Write an expression for the sum of the three angles. Simplify your answer.",
+            prompt: "Write an expression for the sum of the three angles. Simplify it fully, with no brackets.",
             marks: 1,
             answer: { type: "expression", expr: "6x+30", form: "simplified" },
             verify: "(2x+10)+(3x-5)+(x+25)",
@@ -817,7 +817,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
         topic: "ex",
         section: "ex-simplify",
         difficulty: "warmup",
-        question: "In this algebra pyramid, each brick is the **sum** of the two bricks directly below it.",
+        question: "In this algebra pyramid, each brick is the **sum** of the two bricks directly below it. Write each answer as a simplified expression with no brackets.",
         diagram: PYRAMID,
         parts: [
           {
@@ -1041,7 +1041,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "Write an expression for the sum of the three numbers. Simplify your answer.",
+            prompt: "Write an expression for the sum of the three numbers. Simplify it fully, with no brackets.",
             marks: 2,
             answer: { type: "expression", expr: "3n+3", form: "simplified" },
             verify: "n+(n+1)+(n+2)",
@@ -1491,7 +1491,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
           },
           {
             label: "c",
-            prompt: "Write a simplified expression for the perimeter of the L-shape.",
+            prompt: "Write an expression for the perimeter of the L-shape. Simplify it fully, with no brackets.",
             marks: 2,
             answer: { type: "expression", expr: "6x+22", form: "simplified" },
             verify: "(2x+5)+(x+6)+((2x+5)-x)+2+x+((x+6)-2)",

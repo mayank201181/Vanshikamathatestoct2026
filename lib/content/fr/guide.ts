@@ -267,7 +267,7 @@ export const GUIDE_FR: TopicGuide = {
       heading: "Multiplying and dividing: tops × tops, and Keep, Change, Flip",
       discovery: {
         problem:
-          "How many halves are there in 3? How many quarters are there in 3? So what is {{3 ÷ 1/4}}? And why does dividing by a fraction make the answer *bigger*?",
+          "How many halves are there in 3? How many quarters are there in 3? So what is {{3 ÷ 1/4}}? And why does dividing by a fraction like {{1/4}} make the answer *bigger*?",
         idea:
           "{{3 ÷ 1/4}} asks “how many quarters fit into 3?” Each whole holds 4 quarters, so 3 wholes hold 12: {{3 ÷ 1/4 = 3 × 4 = 12}}. Dividing by {{1/4}} gives the same answer as multiplying by 4 — the fraction flipped upside down. That is exactly why **Keep, Change, Flip** works.",
       },
@@ -385,7 +385,7 @@ export const GUIDE_FR: TopicGuide = {
       whyItWorks:
         "In the area model, {{2/3}} of {{4/5}} cuts the whole into 3 × 5 = 15 pieces and takes 2 × 4 = 8 of them, so the bottoms multiply and the tops multiply. Dividing by {{2/5}} asks how many {{2/5}}s fit: each whole holds 5 fifths but each group needs 2 of them, so you multiply by 5 and divide by 2 — which is × {{5/2}}.",
       memoryTrick:
-        "**Keep, Change, Flip** — and only ever flip the *second* fraction, and only when dividing. Mixed numbers? Make them **top-heavy before you multiply**.",
+        "**Keep, Change, Flip** — and only ever flip the *second* fraction, and only when dividing. Mixed numbers? Make them **top-heavy first**, before you multiply or divide.",
       examTip:
         "Never multiply mixed numbers bit by bit: {{1 1/5 × 2 1/3}} is **not** 1 × 2 together with {{1/5 × 1/3}} (that gives {{2 1/15}}). Convert first: {{6/5 × 7/3 = 14/5 = 2 4/5}}. And when dividing, flip the **second** fraction, not the first.",
       thinkDeeper:
@@ -515,9 +515,9 @@ export const GUIDE_FR: TopicGuide = {
         "“If a > b, then {{1/a > 1/b}}.” For positive numbers this is false. Can you find a pair of numbers where it IS true? (Hint: let b be negative.) Can you describe exactly when it's true?",
       quickChecks: [
         {
-          question: "{{3/5}} of a number is 24. What is the number?",
-          answer: { type: "number", value: 40 },
-          solution: "3 fifths = 24, so 1 fifth = 24 ÷ 3 = 8. The whole number is 5 fifths = 5 × 8 = 40. Check: {{3/5}} of 40 = 24 ✓",
+          question: "{{4/7}} of a number is 36. What is the number?",
+          answer: { type: "number", value: 63 },
+          solution: "4 sevenths = 36, so 1 seventh = 36 ÷ 4 = 9. The whole number is 7 sevenths = 7 × 9 = 63. Check: {{4/7}} of 63 = 63 ÷ 7 × 4 = 36 ✓",
         },
         {
           question:
@@ -670,10 +670,10 @@ export const GUIDE_FR: TopicGuide = {
         "{{10y^2/(5y)}} simplifies to 2y. Test it with y = 3 and with y = −1. Now try y = 0. Why do we say “assume y isn't 0”?",
       quickChecks: [
         {
-          question: "Simplify {{42xyz/56}} fully. Type it as a fraction, e.g. `5ab/7`.",
-          answer: { type: "expression", expr: "3xyz/4", form: "simplified" },
+          question: "Simplify {{30xy/(45y)}} fully. Type it as a fraction, e.g. `5ab/7`.",
+          answer: { type: "expression", expr: "2x/3", form: "simplified" },
           solution:
-            "The HCF of 42 and 56 is 14: 42 ÷ 14 = 3 and 56 ÷ 14 = 4. There are no letters on the bottom, so nothing else cancels: {{42xyz/56 = 3xyz/4}}.",
+            "Numbers first: the HCF of 30 and 45 is 15, so 30 ÷ 15 = 2 and 45 ÷ 15 = 3. Letters: y is on the top and the bottom, so it cancels, and x stays on top: {{30xy/(45y) = 2x/3}}.",
         },
         {
           question: "Simplify {{4a/5 × 15/(8a^2)}}. Type the bottom in brackets, e.g. `5/(3b)`.",

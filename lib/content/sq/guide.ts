@@ -494,7 +494,7 @@ export const GUIDE_SQ: TopicGuide = {
         "You don't need the nth term to continue a quadratic sequence. Extend the rows of differences instead. For 4, 5, 8, 13, …\n\n" +
         "    Terms: 4, 5, 8, 13, __\n" +
         "    1st differences: +1, +3, +5, so the next one is +7\n" +
-        "    2nd differences: +2, +2, +2\n" +
+        "    2nd differences: +2, +2, so the next one is +2 too\n" +
         "    Next term: 13 + 7 = 20\n\n" +
         "Add the second difference to the last first difference (5 + 2 = 7), then add that to the last term: 13 + 7 = **20**.\n\n" +
         "**Finding the nth term: the class method**\n\n" +
@@ -730,7 +730,7 @@ export const GUIDE_SQ: TopicGuide = {
     "Descending sequences have a negative difference: 20, 17, 14, … → {{23 - 3n}}.",
     "Is x a term? Solve nth term = x. A whole-number n means yes.",
     "Generating terms: BIDMAS, so {{2n^2}} = 2 × n², not {{(2n)^2}}.",
-    "Constant 1st differences = linear. Constant 2nd differences = quadratic. Doubling sequences are neither.",
+    "Constant 1st differences = linear. Constant (non-zero) 2nd differences = quadratic. Doubling sequences are neither.",
     "Next term of a quadratic: last 1st difference + 2nd difference, then add it to the last term (4, 5, 8, 13 → 20).",
     "Quadratic nth term: a = 2nd difference ÷ 2, subtract {{an^2}}, then add on what's left (3, 6, 11, 18, … → {{n^2 + 2}}).",
     "Always check an nth term by substituting n = 1, 2 and 3.",

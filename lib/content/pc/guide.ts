@@ -138,9 +138,9 @@ export const GUIDE_PC: TopicGuide = {
           solution: "25 × 4 = 100, so multiply the top and bottom by 4: {{7/25}} = {{28/100}} = 28%.",
         },
         {
-          question: "Write 35% as a fraction in its simplest form.",
-          answer: { type: "fraction", n: 7, d: 20, simplest: true },
-          solution: "35% = {{35/100}}. The HCF of 35 and 100 is 5, so divide the top and bottom by 5: {{7/20}}.",
+          question: "Write 45% as a fraction in its simplest form.",
+          answer: { type: "fraction", n: 9, d: 20, simplest: true },
+          solution: "45% = {{45/100}}. The HCF of 45 and 100 is 5, so divide the top and bottom by 5: {{9/20}}.",
         },
       ],
     },
@@ -293,7 +293,7 @@ export const GUIDE_PC: TopicGuide = {
         idea: "+100% adds another whole $50, so the value **doubles** to $100. +200% adds two more lots of $50: $150. +300% gives $200. So +150% adds one-and-a-half lots of $50, which is $75, making **$125**. Notice that $125 is 250% of $50: after an increase of r%, you always have (100 + r)% of what you started with.",
       },
       body:
-        "When an amount goes **up or down by a percentage**, the percentage is always worked out on the **original** amount. Your class notes use two methods — learn both.\n\n" +
+        "When an amount goes **up or down by a percentage**, the percentage is worked out on the amount **before** the change — the **original** amount. Your class notes use two methods — learn both.\n\n" +
         "**Method 1: find the change, then add it on or take it off.**\n\n" +
         "    Increase 70 by 10%: 10% of 70 = 7, so 70 + 7 = 77\n" +
         "    Decrease 80 by 10%: 10% of 80 = 8, so 80 − 8 = 72\n\n" +
@@ -377,7 +377,7 @@ export const GUIDE_PC: TopicGuide = {
         },
       ],
       keyPoints: [
-        "The percentage is always worked out on the original amount.",
+        "The percentage is worked out on the amount before the change (the original amount).",
         "Method 1: find r% of the amount, then add it on (increase) or take it off (decrease).",
         "Method 2: an increase of r% leaves you with (100 + r)%; a decrease of r% leaves (100 − r)%.",
         "VAT, tax, inflation and pay rises go up; discounts, sales and depreciation go down.",
@@ -389,14 +389,14 @@ export const GUIDE_PC: TopicGuide = {
       thinkDeeper: "A price can be increased by 150% — but can a price be *decreased* by 150%? What would that mean? What is the biggest percentage decrease that makes sense for a price, and what would the new price be?",
       quickChecks: [
         {
-          question: "Henry sells cookers for £800. He increases the price by 20%. What is the new price? Give your answer in £.",
-          answer: { type: "number", value: 960, display: "£960" },
-          solution: "10% of £800 = £80, so 20% = £160. New price = £800 + £160 = £960. (Or 120% of £800 = 800 × 1.2 = £960.)",
+          question: "Danny gets paid £2500 per month. He gets a 2% pay rise. How much will he get paid each month now? Give your answer in £.",
+          answer: { type: "number", value: 2550, display: "£2550" },
+          solution: "1% of £2500 = £25, so 2% = £50. New pay = £2500 + £50 = £2550. (Or 102% of £2500 = 2500 × 1.02 = £2550.) £50 is only the rise, not the new pay.",
         },
         {
-          question: "Increase 40 by 150%.",
-          answer: { type: "number", value: 100 },
-          solution: "100% of 40 is 40 and 50% is 20, so 150% of 40 = 60. The new amount is 40 + 60 = 100 — which is 250% of 40.",
+          question: "Increase 60 by 150%.",
+          answer: { type: "number", value: 150 },
+          solution: "100% of 60 is 60 and 50% is 30, so 150% of 60 = 90. The new amount is 60 + 90 = 150 — which is 250% of 60. (90 is only the increase.)",
         },
       ],
     },
@@ -640,9 +640,9 @@ export const GUIDE_PC: TopicGuide = {
       thinkDeeper: "**Challenge (UKMT):** Minnie increased her average speed in a marathon by 25%. By what percentage did her time decrease? (Hint: the distance stays the same, and distance = speed × time. If her speed is multiplied by 1.25, what must her time be multiplied by? Try a speed going up from 8 km/h to 10 km/h.)",
       quickChecks: [
         {
-          question: "What single decimal multiplier increases an amount by 5%?",
-          answer: { type: "number", value: 1.05, allowFraction: false },
-          solution: "100% + 5% = 105% = 1.05. (Not 1.5 — that would be a 50% increase.)",
+          question: "What single decimal multiplier increases an amount by 3%?",
+          answer: { type: "number", value: 1.03, allowFraction: false },
+          solution: "100% + 3% = 103% = 1.03. (Not 1.3 — that would be a 30% increase.)",
         },
         {
           question: "A jacket costs £50. In a sale it is reduced by 20%. Later, the sale price is reduced by a further 10%. What is the final price? Give your answer in £.",

@@ -116,7 +116,7 @@ export const GUIDE_EX: TopicGuide = {
       memoryTrick:
         "The sign is the term's backpack: ring each term together with the sign in front of it, and the sign goes wherever the term goes. Then highlight each family (x³, x², x, numbers) in its own colour.",
       examTip:
-        "Powers only change when you multiply. 3x² + 4x³ is NOT 7x⁵, and x² + x² is 2x², not x⁴. Keep the sign with its term too: in 3x² − 4x² the 4x² is being subtracted, so the answer is −x², not x².",
+        "Powers only change when you multiply or divide, never when you add or subtract. 3x² + 4x³ is NOT 7x⁵, and x² + x² is 2x², not x⁴. Keep the sign with its term too: in 3x² − 4x² the 4x² is being subtracted, so the answer is −x², not x².",
       thinkDeeper:
         "2x + 3y and 5xy both equal 5 when x = 1 and y = 1. So is 2x + 3y = 5xy a correct simplification? Test x = 2 and y = 3, and explain what this tells you about like terms.",
       quickChecks: [
@@ -163,7 +163,7 @@ export const GUIDE_EX: TopicGuide = {
         "**Sums and differences of brackets.** Expand each bracket separately, then collect like terms:\n\n" +
         "    5(2x + 3) + 6(3x − 4) = 10x + 15 + 18x − 24 = 28x − 9\n" +
         "    x(2x + 1) − 3(2x − 4) = 2x² + x − 6x + 12 = 2x² − 5x + 12\n\n" +
-        "**Check by substituting.** Put x = 1 into the question and into your answer. For 5(2x + 3) + 6(3x − 4): 5 × 5 + 6 × (−1) = 19, and 28 − 9 = 19 ✓. If the two numbers are different, there's a slip somewhere.\n\n" +
+        "**Check by substituting.** Put x = 1 into the question and into your answer. For 5(2x + 3) + 6(3x − 4): 5 × 5 + 6 × (−1) = 19, and 28 − 9 = 19 ✓. If the two numbers are different, there's a slip somewhere. When there's a letter outside a bracket, use x = 2 instead: 1² = 1, so x = 1 can't catch a slip like x × 2x = 2x.\n\n" +
         "**In context:** a rectangle 5 cm wide and (3x + 7) cm long has area 5(3x + 7) = 15x + 35 cm². A triangle with base 2x and height (x + 5) has area {{1/2}} × 2x × (x + 5) = x(x + 5) = x² + 5x.",
       diagram: `<svg viewBox="0 0 480 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left: a rectangle 3 by (2x + 5) split into areas 6x and 15. Right: a grid for minus 3 times (2k minus 4) giving minus 6k plus 12" font-family="sans-serif">
   <rect width="480" height="250" fill="#ffffff"/>
@@ -239,7 +239,7 @@ export const GUIDE_EX: TopicGuide = {
         "A letter outside multiplies the letters too: 4x(x − 3) = 4x² − 12x.",
         "The sign in front of a bracket belongs to the outside term: −3(2k − 4) = −6k + 12.",
         "For sums and differences, expand each bracket, then collect like terms: 5(2x + 3) + 6(3x − 4) = 28x − 9.",
-        "Check by substituting a small number (x = 1 or 2) into the question and into your answer.",
+        "Check by substituting a small number such as x = 2 into the question and into your answer (x = 1 can hide slips with powers, because 1² = 1).",
       ],
       whyItWorks:
         "Multiplication spreads over addition: 3 × 23 = 3 × 20 + 3 × 3. In a picture, a 3 by (2x + 5) rectangle splits into a 3 by 2x piece and a 3 by 5 piece, so its area is 6x + 15. A negative outside follows the same rule with negative numbers, and (−3) × (−4) = +12.",
@@ -748,6 +748,6 @@ export const GUIDE_EX: TopicGuide = {
     "≡ means identical for every value (an identity), e.g. 3(x + 2) ≡ 3x + 6; an equation such as 3x + 6 = 21 is only true for some values.",
     "Double brackets: four grid cells, then collect: (2x + 3)(3x − 4) = 6x² + x − 12.",
     "Squared brackets: (2x − 3)² = (2x − 3)(2x − 3) = 4x² − 12x + 9, never 4x² + 9.",
-    "Forming: perimeter = add all the sides; rectangle area = length × width; triangle angles add to 180°. Check any answer by substituting x = 1 or 2.",
+    "Forming: perimeter = add all the sides; rectangle area = length × width; triangle angles add to 180°. Check any answer by substituting x = 2 (x = 1 can hide slips with powers, because 1² = 1).",
   ],
 };

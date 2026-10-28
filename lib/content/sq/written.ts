@@ -879,4 +879,984 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
       },
     ],
   },
+
+  // ---------------------------------------------------------------------------
+  // SET 3 · Exam practice (warm-up 1 / core 3 / challenge 2)
+  // ---------------------------------------------------------------------------
+  {
+    id: "sq-written-3",
+    title: "Written 3 · Exam practice",
+    subtitle: "Exam-style mixed practice: spot the error, which rules are quadratic, shared terms and dot-pattern nth terms.",
+    topic: "sq",
+    questions: [
+      {
+        id: "sq-w3-q01",
+        topic: "sq",
+        section: "sq-terms",
+        difficulty: "warmup",
+        question: "Priya writes the 7 times table as a sequence: 7, 14, 21, 28, …\n\nRavi writes a different sequence: 9, 16, 23, 30, …",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the next two terms of Ravi's sequence, separated by a comma.",
+            marks: 1,
+            answer: { type: "list", values: [37, 44], ordered: true },
+            verify: "7*5+2, 7*6+2",
+          },
+          {
+            label: "b",
+            prompt: "Work out the 10th term of Ravi's sequence.",
+            marks: 2,
+            answer: { type: "number", value: 72 },
+            verify: "9+9*7",
+            traps: [
+              {
+                spec: { type: "number", value: 79 },
+                feedback: "From the 1st term to the 10th term is 9 jumps of 7, not 10: 9 + 9 × 7 = 72.",
+              },
+              {
+                spec: { type: "number", value: 70 },
+                feedback:
+                  "70 is the 10th term of Priya's sequence (7 × 10). Each of Ravi's terms is 2 more than Priya's, so his 10th term is 70 + 2 = 72.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "What is the term-to-term rule for Ravi's sequence?",
+          "Compare each of Ravi's terms with the term in the same position in Priya's sequence.",
+        ],
+        solution: [
+          "(a) Ravi's term-to-term rule is **add 7**: 30 + 7 = **37**, 37 + 7 = **44**.",
+          "(b) Compare position by position: 9 = 7 + 2, 16 = 14 + 2, 23 = 21 + 2, … Ravi's terms are always **2 more** than the 7 times table.",
+          "The 10th term of the 7 times table is 7 × 10 = 70, so Ravi's 10th term is 70 + 2 = **72**.",
+          "That's the same as using Ravi's nth term, 7n + 2: 7 × 10 + 2 = 72.",
+        ],
+        altMethod: {
+          label: "Count the jumps",
+          steps: ["From the 1st term to the 10th term there are 9 jumps of 7.", "9 + 9 × 7 = 9 + 63 = 72."],
+        },
+        commonError: "Adding 10 jumps instead of 9 (getting 79) — the 1st term is already there before any jumps.",
+        strategy: "Find a pattern",
+      },
+      {
+        id: "sq-w3-q02",
+        topic: "sq",
+        section: "sq-nth",
+        difficulty: "core",
+        question: "Omar is asked for the nth term of this sequence:\n\n6, 10, 14, 18, …\n\nHe writes: **nth term = n + 4**",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the correct nth term.",
+            marks: 2,
+            answer: { type: "expression", expr: "4n+2" },
+            verify: "terms:6,10,14,18",
+            traps: [
+              {
+                spec: { type: "expression", expr: "n+4" },
+                feedback: "That's Omar's rule — test it: n = 1 gives 1 + 4 = 5, not 6, and it only goes up by 1 each time.",
+              },
+              {
+                spec: { type: "expression", expr: "4n+6" },
+                feedback: "6 is the 1st term, not the zeroth term. One step back from 6 is 6 − 4 = 2, so the nth term is 4n + 2.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Explain Omar's mistake.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Omar's rule n + 4 goes up by 1 each time (5, 6, 7, 8, …), but the sequence goes up by 4",
+                keywords: ["5+6+7", "gives 5", "up by 1", "up by one", "increases by 1", "add 1", "adds 1", "plus 1"],
+                feedback: "Test Omar's rule: n + 4 gives 5, 6, 7, 8 — it only goes up by 1 each time, but the sequence goes up by 4.",
+              },
+              {
+                point: "The difference 4 should multiply n (4n, the 4 times table), then add the zeroth term 2: 4n + 2",
+                keywords: ["4n", "4 times table", "times table", "in front of n", "multiply n", "times n", "multiplied by n", "coefficient"],
+                feedback:
+                  "The difference 4 belongs **in front of n**: 4n is the 4 times table (4, 8, 12, 16), and each term is 2 more than that, so the nth term is 4n + 2.",
+              },
+            ],
+            model:
+              "Omar's rule n + 4 gives 5, 6, 7, 8 — it only goes up by 1 each time, but the sequence goes up by 4. The difference 4 should multiply n: 4n gives the 4 times table 4, 8, 12, 16, and each term of the sequence is 2 more, so the nth term is 4n + 2.",
+          },
+          {
+            label: "c",
+            prompt: "Which term of the sequence is 98?",
+            marks: 1,
+            answer: { type: "number", value: 24 },
+            verify: "(98-6)/4+1",
+            traps: [
+              {
+                spec: { type: "number", value: 23 },
+                feedback:
+                  "(98 − 6) ÷ 4 = 23 counts the **jumps** — and 23 jumps after the 1st term is the **24th** term. (Or solve 4n + 2 = 98.)",
+              },
+              {
+                spec: { type: "number", value: 24.5 },
+                feedback: "98 ÷ 4 ignores the + 2. Solve 4n + 2 = 98: 4n = 96, so n = 24.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "What is the common difference? Which times table goes up by that amount?",
+          "Compare the sequence with that times table, term by term. What do you add?",
+          "For (c), set your nth term equal to 98 and solve.",
+        ],
+        solution: [
+          "| n | 0 | 1 | 2 | 3 | 4 |\n|---|---|---|---|---|---|\n| term | 2 | 6 | 10 | 14 | 18 |\n| difference | | +4 | +4 | +4 | +4 |",
+          "(a) The difference is 4, so compare with 4n (4, 8, 12, 16). Each term is 2 more, so the nth term is **4n + 2**. (Zeroth term: 6 − 4 = 2.)",
+          "(b) Omar put the difference in the wrong place. n + 4 gives 5, 6, 7, 8 — it goes up by 1, not 4, and doesn't even start at 6. The difference 4 must multiply n.",
+          "(c) 4n + 2 = 98 → 4n = 96 → n = **24**. Check: 4 × 24 + 2 = 98 ✓",
+        ],
+        commonError: "Writing n + d (here n + 4) — adding the difference instead of multiplying n by it.",
+        strategy: "Check by substituting",
+      },
+      {
+        id: "sq-w3-q03",
+        topic: "sq",
+        section: "sq-generate",
+        difficulty: "core",
+        question:
+          "Here are four nth-term expressions:\n\n- **A:** {{n^2 + 3}}\n- **B:** {{3(n^2 - 4)}}\n- **C:** {{n(2n - 3)}}\n- **D:** {{(n - 3)(n^2 - 1)}}",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the first four terms of the sequence with nth term C, separated by commas.",
+            marks: 2,
+            answer: { type: "list", values: [-1, 2, 9, 20], ordered: true },
+            verify: "1*(2*1-3), 2*(2*2-3), 3*(2*3-3), 4*(2*4-3)",
+            traps: [
+              {
+                spec: { type: "list", values: [-1, 5, 15, 29], ordered: true },
+                feedback:
+                  "Multiply n by the **whole** bracket: n(2n − 3) = {{2n^2 - 3n}}, not {{2n^2 - 3}}. For n = 2: 2 × (4 − 3) = 2 × 1 = 2.",
+              },
+              {
+                spec: { type: "list", values: [1, 2, 9, 20], ordered: true },
+                feedback: "Check the sign of the 1st term: 1 × (2 − 3) = 1 × (−1) = −1.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Use your answer to (a) to find the second difference of sequence C.",
+            marks: 1,
+            answer: { type: "number", value: 4 },
+            verify: "(4*(2*4-3)-3*(2*3-3))-(3*(2*3-3)-2*(2*2-3))",
+            traps: [
+              {
+                spec: { type: "number", value: 2 },
+                feedback: "2 is the number in front of {{n^2}}. The second difference is double that: the first differences 3, 7, 11 go up by 4.",
+              },
+              {
+                spec: { type: "number", value: 3 },
+                feedback: "3 is the first **first** difference (−1 → 2). The second difference is how much the first differences change: 7 − 3 = 4.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Is D the nth term of a quadratic sequence? Answer yes or no.",
+            marks: 1,
+            answer: {
+              type: "text",
+              accept: [
+                "no",
+                "no it is not",
+                "no, it is not",
+                "no it isn't",
+                "no, it isn't",
+                "no it's not",
+                "no, it's not",
+                "no it is cubic",
+                "no, it is cubic",
+                "no it's cubic",
+                "no, it's cubic",
+              ],
+              display: "No",
+            },
+          },
+          {
+            label: "d",
+            prompt: "Explain your answer to (c).",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Multiplying out gives an {{n^3}} term (n × {{n^2}} = {{n^3}})",
+                keywords: ["cubed", "cube", "power of 3", "power 3", "n3", "3rd power"],
+                feedback: "Look at the biggest power when you multiply out: n × {{n^2}} = {{n^3}}, so D has an {{n^3}} (n cubed) term.",
+              },
+              {
+                point:
+                  "So D is cubic, not quadratic: a quadratic's highest power is {{n^2}} and its second differences are constant (D gives 0, −3, 0, 15, 48, whose second differences 6, 12, 18 are not constant)",
+                keywords: ["cubic", "highest power", "not constant", "6+12+18", "not the same", "bigger than 2", "more than 2"],
+                feedback:
+                  "Finish the argument: the highest power is 3, so the sequence is cubic. A quadratic sequence's highest power is {{n^2}} — and you can check that D's second differences (6, 12, 18) aren't constant.",
+              },
+            ],
+            model:
+              "Multiplying out, {{(n - 3)(n^2 - 1) = n^3 - 3n^2 - n + 3}}. The n × {{n^2}} part makes an {{n^3}} (n cubed) term, so the highest power is 3 and D is cubic, not quadratic. Check: D gives 0, −3, 0, 15, 48, with first differences −3, 3, 15, 33 and second differences 6, 12, 18 — not constant.",
+          },
+        ],
+        hints: [
+          "For C, substitute n = 1, 2, 3, 4 into n(2n − 3) — work out the bracket first.",
+          "Find the first differences of C, then the differences between them.",
+          "For D, what is the highest power of n you get when you multiply out the brackets?",
+        ],
+        solution: [
+          "(a) Work out the bracket first, then multiply by n:\n\n| n | 1 | 2 | 3 | 4 |\n|---|---|---|---|---|\n| 2n − 3 | −1 | 1 | 3 | 5 |\n| n(2n − 3) | −1 | 2 | 9 | 20 |",
+          "So C starts **−1, 2, 9, 20**.",
+          "(b) First differences: 3, 7, 11. Second differences: 4, 4. The second difference is **4** — constant, so C is quadratic. (C expands to {{2n^2 - 3n}}, and 2 × 2 = 4 ✓)",
+          "A = {{n^2 + 3}} and B = {{3(n^2 - 4) = 3n^2 - 12}} are quadratic too: their highest power is {{n^2}}.",
+          "(c) and (d): D expands to {{n^3 - 3n^2 - n + 3}}. It has an {{n^3}} term, so D is **cubic, not quadratic**.",
+          "Check with differences: D gives 0, −3, 0, 15, 48; first differences −3, 3, 15, 33; second differences 6, 12, 18 — not constant ✓",
+        ],
+        commonError:
+          "Thinking any expression containing {{n^2}} must be quadratic — D also makes an {{n^3}} when you multiply out, so it's cubic.",
+        strategy: "Look at the differences",
+        source: "Class worksheet (Quadratic Sequences, Task 1)",
+      },
+      {
+        id: "sq-w3-q04",
+        topic: "sq",
+        section: "sq-quadratic",
+        difficulty: "core",
+        question: "These are all quadratic sequences.",
+        parts: [
+          {
+            label: "a",
+            prompt: "19, 16, 11, 4, …\n\nWrite the next two terms, separated by a comma.",
+            marks: 2,
+            answer: { type: "list", values: [-5, -16], ordered: true },
+            verify: "20-5^2, 20-6^2",
+            traps: [
+              {
+                spec: { type: "list", values: [-3, -10], ordered: true },
+                feedback:
+                  "Subtracting 7 each time treats it as linear. The first differences −3, −5, −7 keep changing by −2, so the next two are −9 and −11: 4 − 9 = −5, then −5 − 11 = −16.",
+              },
+              {
+                spec: { type: "list", values: [-5, -14], ordered: true },
+                feedback: "−5 is right, but the next first difference is −11, not −9 again: −5 − 11 = −16.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "5, 2, 5, 14, …\n\nWrite the next two terms, separated by a comma.",
+            marks: 2,
+            answer: { type: "list", values: [29, 50], ordered: true },
+            verify: "3*5^2-12*5+14, 3*6^2-12*6+14",
+            traps: [
+              {
+                spec: { type: "list", values: [23, 32], ordered: true },
+                feedback:
+                  "Adding 9 each time treats it as linear. The first differences −3, +3, +9 go up by 6, so the next two are +15 and +21.",
+              },
+              {
+                spec: { type: "list", values: [29, 44], ordered: true },
+                feedback: "29 is right, but the next first difference is +21, not +15 again: 29 + 21 = 50.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "−4, −1, 4, 11, 20, …\n\nFind the nth term.",
+            marks: 2,
+            answer: { type: "expression", expr: "n^2-5" },
+            verify: "terms:-4,-1,4,11,20",
+            traps: [
+              {
+                spec: { type: "expression", expr: "n^2-4" },
+                feedback:
+                  "−4 is the 1st term, not the number added on. Subtract {{n^2}} from each term: −4 − 1 = −5, −1 − 4 = −5, 4 − 9 = −5 … so it's {{n^2 - 5}}.",
+              },
+              {
+                spec: { type: "expression", expr: "2n^2-6" },
+                feedback: "Halve the second difference: 2 ÷ 2 = 1, so start with {{n^2}}, not {{2n^2}}.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "Work out the first differences, then the second differences. Watch the signs.",
+          "To continue a sequence, keep the second difference the same, build the next first differences, then the terms.",
+          "For (c), halve the second difference, subtract that many lots of {{n^2}} from each term, and see what's left.",
+        ],
+        solution: [
+          "(a)\n\n| n | 1 | 2 | 3 | 4 | 5 | 6 |\n|---|---|---|---|---|---|---|\n| term | 19 | 16 | 11 | 4 | **−5** | **−16** |\n| 1st difference | | −3 | −5 | −7 | −9 | −11 |\n| 2nd difference | | | −2 | −2 | −2 | −2 |",
+          "The second difference is −2, so the first differences continue −9, −11: 4 − 9 = **−5**, −5 − 11 = **−16**. (Its nth term is {{20 - n^2}}: 20 − 25 = −5 ✓)",
+          "(b)\n\n| n | 1 | 2 | 3 | 4 | 5 | 6 |\n|---|---|---|---|---|---|---|\n| term | 5 | 2 | 5 | 14 | **29** | **50** |\n| 1st difference | | −3 | +3 | +9 | +15 | +21 |\n| 2nd difference | | | +6 | +6 | +6 | +6 |",
+          "The second difference is +6, so the first differences continue +15, +21: 14 + 15 = **29**, 29 + 21 = **50**.",
+          "(c) First differences 3, 5, 7, 9 → second difference 2 → 2 ÷ 2 = 1, so start with {{n^2}}. Term − {{n^2}}: −4 − 1 = −5, −1 − 4 = −5, 4 − 9 = −5, 11 − 16 = −5, 20 − 25 = −5. It's always −5, so the nth term is **{{n^2 - 5}}**.",
+        ],
+        commonError:
+          "Continuing a quadratic sequence with the same first difference (as if it were linear), or slipping with the negative signs.",
+        strategy: "Look at the differences",
+        source: "Class worksheet (Quadratic Sequences, Tasks 1 and 2)",
+      },
+      {
+        id: "sq-w3-q05",
+        topic: "sq",
+        section: "sq-nth",
+        difficulty: "challenge",
+        question:
+          "Mei writes out the sequence with nth term **3n + 2**. Jun writes out the sequence with nth term **4n + 1**. Some numbers appear in **both** sequences.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the first three numbers that appear in both sequences, separated by commas.",
+            marks: 2,
+            answer: { type: "list", values: [5, 17, 29], ordered: true },
+            verify: "4*1+1, 4*4+1, 4*7+1",
+            traps: [
+              {
+                spec: { type: "list", values: [5, 12, 19], ordered: true },
+                feedback: "12 isn't in either sequence. Mei's goes 5, 8, 11, 14, 17, …; Jun's goes 5, 9, 13, 17, … — list both and look for matches.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find the nth term of the sequence of numbers that appear in both.",
+            marks: 2,
+            answer: { type: "expression", expr: "12n-7" },
+            verify: "terms:5,17,29,41",
+            traps: [
+              {
+                spec: { type: "expression", expr: "12n+5" },
+                feedback: "5 is the 1st term, not the zeroth term. The zeroth term is 5 − 12 = −7, so the nth term is 12n − 7.",
+              },
+              {
+                spec: { type: "expression", expr: "7n-2" },
+                feedback:
+                  "The shared numbers go up in 12s, not 7s. Mei's go up in 3s and Jun's in 4s, so after a match they next meet 12 later — the lowest common multiple of 3 and 4.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Work out the 20th number that appears in both sequences.",
+            marks: 1,
+            answer: { type: "number", value: 233 },
+            verify: "5+19*12",
+            traps: [
+              {
+                spec: { type: "number", value: 245 },
+                feedback: "245 = 12 × 20 + 5 uses the 1st term instead of the zeroth term. Use 12n − 7: 12 × 20 − 7 = 233.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "Write out the first eight or so terms of each sequence and circle the numbers in both.",
+          "How far apart are the shared numbers? Can you explain why?",
+          "Mei's terms go up in 3s and Jun's in 4s. After they meet, when do both land on the same number again?",
+        ],
+        solution: [
+          "Write out both sequences:\n\n- Mei (3n + 2): 5, 8, 11, 14, **17**, 20, 23, 26, **29**, 32, …\n- Jun (4n + 1): 5, 9, 13, **17**, 21, 25, **29**, 33, …",
+          "(a) The numbers in both are **5, 17, 29**, …",
+          "They go up in **12s**: from a shared number, Mei's sequence moves in 3s and Jun's in 4s, so they next land on the same number after the lowest common multiple of 3 and 4, which is 12.",
+          "(b) Difference 12 → 12n. Zeroth term: 5 − 12 = −7. So the nth term is **12n − 7**. Check: n = 2 → 24 − 7 = 17 ✓, n = 3 → 36 − 7 = 29 ✓",
+          "(c) 20th shared number: 12 × 20 − 7 = 240 − 7 = **233**. Check: 233 = 3 × 77 + 2 (Mei's 77th term) and 233 = 4 × 58 + 1 (Jun's 58th term) ✓",
+        ],
+        commonError:
+          "Thinking the shared numbers go up by 3 + 4 = 7 — they go up by the lowest common multiple of 3 and 4, which is 12.",
+        strategy: "Try small cases",
+      },
+      {
+        id: "sq-w3-q06",
+        topic: "sq",
+        section: "sq-quadratic",
+        difficulty: "challenge",
+        question:
+          "These dot patterns make the **centred hexagonal numbers**: 1, 7, 19, … Each new pattern adds a ring of dots around the one before.",
+        diagram: `<svg viewBox="0 0 400 145" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Centred hexagonal dot patterns. Pattern 1 is a single dot. Pattern 2 is a centre dot with a ring of 6 dots around it. Pattern 3 adds an outer ring of 12 dots, 19 dots in all."><rect width="400" height="145" fill="#ffffff"/><g stroke="#334155" stroke-width="1.5"><g fill="#fde68a"><circle cx="60" cy="70" r="6"/><circle cx="170" cy="70" r="6"/><circle cx="320" cy="70" r="6"/></g><g fill="#bae6fd"><circle cx="188" cy="70" r="6"/><circle cx="152" cy="70" r="6"/><circle cx="179" cy="85.6" r="6"/><circle cx="161" cy="85.6" r="6"/><circle cx="179" cy="54.4" r="6"/><circle cx="161" cy="54.4" r="6"/><circle cx="338" cy="70" r="6"/><circle cx="302" cy="70" r="6"/><circle cx="329" cy="85.6" r="6"/><circle cx="311" cy="85.6" r="6"/><circle cx="329" cy="54.4" r="6"/><circle cx="311" cy="54.4" r="6"/></g><g fill="#bbf7d0"><circle cx="302" cy="38.8" r="6"/><circle cx="320" cy="38.8" r="6"/><circle cx="338" cy="38.8" r="6"/><circle cx="293" cy="54.4" r="6"/><circle cx="347" cy="54.4" r="6"/><circle cx="284" cy="70" r="6"/><circle cx="356" cy="70" r="6"/><circle cx="293" cy="85.6" r="6"/><circle cx="347" cy="85.6" r="6"/><circle cx="302" cy="101.2" r="6"/><circle cx="320" cy="101.2" r="6"/><circle cx="338" cy="101.2" r="6"/></g></g><g font-family="sans-serif" font-size="13" fill="#1f2937" text-anchor="middle"><text x="60" y="132">Pattern 1</text><text x="170" y="132">Pattern 2</text><text x="320" y="132">Pattern 3</text></g></svg>`,
+        parts: [
+          {
+            label: "a",
+            prompt: "How many dots are in Pattern 4 and in Pattern 5? Write the two numbers in that order, separated by a comma.",
+            marks: 2,
+            answer: { type: "list", values: [37, 61], ordered: true },
+            verify: "19+6*3, 19+6*3+6*4",
+            traps: [
+              {
+                spec: { type: "list", values: [31, 43], ordered: true },
+                feedback:
+                  "Adding 12 each time treats it as linear. Each ring has 6 more dots than the ring before (6, 12, 18, 24), so add 18 and then 24.",
+              },
+              {
+                spec: { type: "list", values: [37, 55], ordered: true },
+                feedback: "37 is right, but the next ring has 24 dots, not 18: 37 + 24 = 61.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find an expression for the number of dots in Pattern n.",
+            marks: 3,
+            answer: { type: "expression", expr: "3n^2-3n+1" },
+            verify: "terms:1,7,19,37,61",
+            traps: [
+              {
+                spec: { type: "expression", expr: "3n^2-2" },
+                feedback:
+                  "After subtracting {{3n^2}} the leftovers are −2, −5, −8, −11, … — not a constant. They go down by 3 and their zeroth term is 1, so the linear part is −3n + 1.",
+              },
+              {
+                spec: { type: "expression", expr: "3n^2+3n+1" },
+                feedback:
+                  "{{3n^2 + 3n + 1}} gives 7, 19, 37, … — one pattern too late. The leftovers go **down** by 3, so the linear part is −3n + 1.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Which pattern has exactly 127 dots?",
+            marks: 1,
+            answer: { type: "number", value: 7 },
+            verify: "(1+sqrt(1+4*(127-1)/3))/2",
+            traps: [
+              {
+                spec: { type: "number", value: 42 },
+                feedback: "{{3n^2 - 3n + 1 = 127}} gives n(n − 1) = 42. That isn't n itself: 7 × 6 = 42, so n = 7.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "Count the dots in each new ring: 6, then 12. How many will the next ring have?",
+          "Second difference ÷ 2 gives the number in front of {{n^2}}. Subtract that many lots of {{n^2}} from each term and find the rule for what's left.",
+          "For (c), keep adding rings — or try values of n in your nth term.",
+        ],
+        solution: [
+          "Each ring has 6 more dots than the one before: 6, 12, 18, 24, … So after 1, 7, 19 come 19 + 18 = **37** and 37 + 24 = **61**.",
+          "(b) First differences 6, 12, 18, 24 → second difference 6 → 6 ÷ 2 = 3, so start with {{3n^2}}.\n\n| n | 1 | 2 | 3 | 4 | 5 |\n|---|---|---|---|---|---|\n| dots | 1 | 7 | 19 | 37 | 61 |\n| {{3n^2}} | 3 | 12 | 27 | 48 | 75 |\n| dots − {{3n^2}} | −2 | −5 | −8 | −11 | −14 |",
+          "The leftovers go down by 3, and their zeroth term is −2 + 3 = 1, so they are −3n + 1. The nth term is **{{3n^2 - 3n + 1}}**.",
+          "Check: n = 3 → 27 − 9 + 1 = 19 ✓, n = 5 → 75 − 15 + 1 = 61 ✓",
+          "(c) Keep adding rings: Pattern 6 = 61 + 30 = 91, Pattern 7 = 91 + 36 = 127. So it is **Pattern 7**. Check: 3 × 49 − 21 + 1 = 127 ✓",
+        ],
+        altMethod: {
+          label: "Count the rings",
+          steps: [
+            "Pattern n is the centre dot plus rings of 6, 12, 18, … up to 6(n − 1) dots.",
+            "That's 1 + 6 × (1 + 2 + … + (n − 1)), and 1 + 2 + … + (n − 1) = {{n(n - 1)/2}}.",
+            "So the total is 1 + 3n(n − 1) = {{3n^2 - 3n + 1}} ✓",
+          ],
+        },
+        commonError:
+          "Stopping after subtracting {{3n^2}}: what's left (−2, −5, −8, …) is a linear sequence, not a constant, so it needs its own nth term (−3n + 1).",
+        strategy: "Look at the differences",
+        source: "Class example (Review starter)",
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------------------
+  // SET 4 · Stretch & challenge (warm-up 0 / core 3 / challenge 3)
+  // ---------------------------------------------------------------------------
+  {
+    id: "sq-written-4",
+    title: "Written 4 · Stretch & challenge",
+    subtitle: "Harder problems: missing terms, non-linear rules, algebraic sequences, pentagonal numbers and working backwards.",
+    topic: "sq",
+    questions: [
+      {
+        id: "sq-w4-q01",
+        topic: "sq",
+        section: "sq-terms",
+        difficulty: "core",
+        question: "In an arithmetic sequence, the **4th term is 23** and the **9th term is 8**.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out the common difference (the amount added each time).",
+            marks: 1,
+            answer: { type: "number", value: -3 },
+            verify: "(8-23)/(9-4)",
+            traps: [
+              {
+                spec: { type: "number", value: -2.5 },
+                feedback:
+                  "From the 4th term to the 9th term is 9 − 4 = **5** jumps — count the gaps, not the terms. −15 ÷ 5 = −3.",
+              },
+              {
+                spec: { type: "number", value: 3 },
+                feedback: "The terms go **down** from 23 to 8, so the amount added each time is negative: −3.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out the 1st term.",
+            marks: 1,
+            answer: { type: "number", value: 32 },
+            verify: "23-3*(8-23)/(9-4)",
+            traps: [
+              {
+                spec: { type: "number", value: 35 },
+                feedback: "35 is the zeroth term. From the 4th term back to the 1st term is only 3 jumps: 23 + 3 × 3 = 32.",
+              },
+              {
+                spec: { type: "number", value: 26 },
+                feedback: "26 is the 3rd term — just one step back. The 1st term is 3 steps back from the 4th: 23 + 3 × 3 = 32.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Work out the 20th term.",
+            marks: 2,
+            answer: { type: "number", value: -25 },
+            verify: "8+11*(8-23)/(9-4)",
+            traps: [
+              {
+                spec: { type: "number", value: -28 },
+                feedback: "From the 1st term to the 20th term is 19 jumps, not 20: 32 + 19 × (−3) = 32 − 57 = −25.",
+              },
+              {
+                spec: { type: "number", value: -22 },
+                feedback: "From the 9th term to the 20th term is 20 − 9 = 11 jumps, not 10: 8 + 11 × (−3) = 8 − 33 = −25.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "How many jumps are there from the 4th term to the 9th term?",
+          "Once you know the difference, step back from the 4th term to the 1st term.",
+          "Count jumps carefully: from the 1st term to the 20th term is 19 jumps.",
+        ],
+        solution: [
+          "(a) From the 4th term to the 9th term is 9 − 4 = **5 jumps**, and the value changes by 8 − 23 = −15. Each jump is −15 ÷ 5 = **−3**.",
+          "(b) The 1st term is 3 jumps before the 4th term, so undo three jumps: 23 + 3 × 3 = **32**. The sequence is 32, 29, 26, 23, 20, 17, 14, 11, 8, …",
+          "(c) The 20th term is 19 jumps after the 1st term: 32 + 19 × (−3) = 32 − 57 = **−25**.",
+          "Or use the nth term: the zeroth term is 32 + 3 = 35, so {{U_n = 35 - 3n}} and the 20th term is 35 − 60 = −25 ✓",
+        ],
+        commonError: "Counting terms instead of jumps: from the 4th term to the 9th term is 5 jumps, not 6.",
+        strategy: "Work backwards",
+      },
+      {
+        id: "sq-w4-q02",
+        topic: "sq",
+        section: "sq-generate",
+        difficulty: "core",
+        question: "The nth term of a sequence is {{3n^2 - 2}}.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the first four terms of the sequence, separated by commas.",
+            marks: 1,
+            answer: { type: "list", values: [1, 10, 25, 46], ordered: true },
+            verify: "3*1^2-2, 3*2^2-2, 3*3^2-2, 3*4^2-2",
+            traps: [
+              {
+                spec: { type: "list", values: [7, 34, 79, 142], ordered: true },
+                feedback: "That's {{(3n)^2 - 2}}. In {{3n^2}} only n is squared: for n = 2 it's 3 × 4 − 2 = 10.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Write down the first term of the sequence that is greater than 1000.",
+            marks: 2,
+            answer: { type: "number", value: 1081 },
+            verify: "3*19^2-2",
+            traps: [
+              {
+                spec: { type: "number", value: 970 },
+                feedback: "970 is the 18th term, and it's less than 1000. The next term, the 19th, is 3 × 361 − 2 = 1081.",
+              },
+              {
+                spec: { type: "number", value: 19 },
+                feedback: "19 is the term **number**. The question asks for the term itself: 3 × {{19^2}} − 2 = 1081.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Is 190 a term of the sequence? Answer yes or no.",
+            marks: 1,
+            answer: {
+              type: "text",
+              accept: [
+                "yes",
+                "yes it is",
+                "yes, it is",
+                "yes it is a term",
+                "yes, it is a term",
+                "yes the 8th term",
+                "yes, the 8th term",
+                "yes 8th term",
+                "yes it's the 8th term",
+                "yes, it's the 8th term",
+              ],
+              display: "Yes",
+            },
+          },
+          {
+            label: "d",
+            prompt: "Explain your answer to (c).",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Sets {{3n^2 - 2 = 190}} and solves: {{3n^2 = 192}}, so {{n^2 = 64}}",
+                keywords: ["192", "64", "add 2", "plus 2", "divide by 3", "divided by 3"],
+                feedback: "Set the nth term equal to 190 and solve: add 2 to get {{3n^2 = 192}}, then divide by 3 to get {{n^2 = 64}}.",
+              },
+              {
+                point: "n = 8 is a whole number, so 190 is a term — the 8th term",
+                keywords: ["8th", "eighth", "n equals 8", "n is 8", "whole number", "square number", "square root"],
+                feedback:
+                  "Finish it: {{n^2 = 64}} gives n = 8, a whole number — so 190 is a term (the 8th term). If n hadn't been a whole number, 190 wouldn't be a term.",
+              },
+            ],
+            model:
+              "If 190 is a term, then {{3n^2 - 2 = 190}}. Add 2: {{3n^2 = 192}}. Divide by 3: {{n^2 = 64}}. So n = 8, which is a whole number, so 190 is a term of the sequence — it is the 8th term. Check: 3 × 64 − 2 = 190.",
+          },
+        ],
+        hints: [
+          "{{3n^2}} means square n first, then multiply by 3.",
+          "For (b), estimate: {{3n^2}} has to be just over 1000, so {{n^2}} must be just over 334. Which square number is that?",
+          "For (c), solve {{3n^2 - 2 = 190}}. Is n a whole number?",
+        ],
+        solution: [
+          "(a) Square, then × 3, then − 2: n = 1 → 3 − 2 = 1; n = 2 → 12 − 2 = 10; n = 3 → 27 − 2 = 25; n = 4 → 48 − 2 = 46. The terms are **1, 10, 25, 46**.",
+          "(b) We need {{3n^2 - 2 > 1000}}, so {{3n^2 > 1002}} and {{n^2 > 334}}. {{18^2 = 324}} is too small, but {{19^2 = 361}} is big enough.",
+          "So the first term over 1000 is the 19th term: 3 × 361 − 2 = **1081**. (The 18th term is 3 × 324 − 2 = 970, still under 1000.)",
+          "(c) and (d): {{3n^2 - 2 = 190}} → {{3n^2 = 192}} → {{n^2 = 64}} → n = 8. That's a whole number, so **yes** — 190 is the 8th term.",
+        ],
+        commonError: "Squaring 3n instead of n: {{3n^2}} means 3 × {{n^2}}, not {{(3n)^2}}.",
+        strategy: "Estimate first",
+      },
+      {
+        id: "sq-w4-q03",
+        topic: "sq",
+        section: "sq-quadratic",
+        difficulty: "core",
+        question: "Here are two quadratic sequences:\n\n- Sequence A: 3, 10, 21, 36, 55, …\n- Sequence B: 0, 2, 6, 12, 20, …",
+        parts: [
+          {
+            label: "a",
+            prompt: "Find the nth term of sequence A.",
+            marks: 2,
+            answer: { type: "expression", expr: "2n^2+n" },
+            verify: "terms:3,10,21,36,55",
+            traps: [
+              {
+                spec: { type: "expression", expr: "2n^2+1" },
+                feedback: "After subtracting {{2n^2}} you get 1, 2, 3, 4, 5 — that's n, not the constant 1.",
+              },
+              {
+                spec: { type: "expression", expr: "4n^2-1" },
+                feedback: "The second difference is 4, so the number in front of {{n^2}} is 4 ÷ 2 = 2, not 4.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find the nth term of sequence B.",
+            marks: 2,
+            answer: { type: "expression", expr: "n^2-n" },
+            verify: "terms:0,2,6,12,20",
+            traps: [
+              {
+                spec: { type: "expression", expr: "n^2-1" },
+                feedback: "After subtracting {{n^2}} you get −1, −2, −3, −4, −5 — that's −n, not the constant −1.",
+              },
+              {
+                spec: { type: "expression", expr: "2n^2-2" },
+                feedback: "The second difference is 2, so the number in front of {{n^2}} is 2 ÷ 2 = 1, not 2.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt:
+              "Take each term of A minus the matching term of B. This makes a new sequence: 3, 8, 15, 24, 35, … Find its nth term.",
+            marks: 1,
+            answer: { type: "expression", expr: "n^2+2n" },
+            verify: "terms:3,8,15,24,35",
+            traps: [
+              {
+                spec: { type: "expression", expr: "n^2+2" },
+                feedback: "After subtracting {{n^2}} you get 2, 4, 6, 8, 10 — that's 2n, not the constant 2.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "Halve the second difference to get the number in front of {{n^2}}.",
+          "Subtract that many lots of {{n^2}} from each term. If what's left goes up or down in steps, it's a linear part like n or −n.",
+          "For (c), you can subtract your two nth terms — or use the differences method again.",
+        ],
+        solution: [
+          "(a) First differences 7, 11, 15, 19 → second difference 4 → 4 ÷ 2 = 2, so start with {{2n^2}}.\n\n| n | 1 | 2 | 3 | 4 | 5 |\n|---|---|---|---|---|---|\n| A | 3 | 10 | 21 | 36 | 55 |\n| {{2n^2}} | 2 | 8 | 18 | 32 | 50 |\n| A − {{2n^2}} | 1 | 2 | 3 | 4 | 5 |",
+          "What's left is 1, 2, 3, 4, 5, which is n. So A has nth term **{{2n^2 + n}}**. Check: n = 3 → 18 + 3 = 21 ✓",
+          "(b) First differences 2, 4, 6, 8 → second difference 2 → start with {{n^2}}. B − {{n^2}}: 0 − 1 = −1, 2 − 4 = −2, 6 − 9 = −3, 12 − 16 = −4, … which is −n. So B has nth term **{{n^2 - n}}**.",
+          "(c) Subtract the nth terms: {{(2n^2 + n) - (n^2 - n) = n^2 + 2n}}. Check: n = 3 → 9 + 6 = 15 ✓. The nth term is **{{n^2 + 2n}}**.",
+        ],
+        commonError:
+          "Treating what's left after subtracting the {{n^2}} part as a constant when it actually goes up or down in steps (1, 2, 3, … means + n).",
+        strategy: "Look at the differences",
+      },
+      {
+        id: "sq-w4-q04",
+        topic: "sq",
+        section: "sq-nth",
+        difficulty: "challenge",
+        question:
+          "These arithmetic sequences have their terms written with letters.\n\n- Sequence 1: p + r, p, p − r, p − 2r, …\n- Sequence 2: 2c + d, 2d, −2c + 3d, −4c + 4d, …",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write down the next term of sequence 1.",
+            marks: 1,
+            answer: { type: "expression", expr: "p-3r" },
+            verify: "(p-2r)+(p-(p+r))",
+            traps: [
+              {
+                spec: { type: "expression", expr: "-r" },
+                feedback: "−r is the difference, not the next term. Add the difference to the last term: (p − 2r) + (−r) = p − 3r.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find an expression for the nth term of sequence 1.",
+            marks: 2,
+            answer: { type: "expression", expr: "p+2r-rn" },
+            verify: "(p+r)+(n-1)*(p-(p+r))",
+            traps: [
+              {
+                spec: { type: "expression", expr: "p+r-rn" },
+                feedback:
+                  "p + r is the 1st term, not the zeroth term. One step before p + r is (p + r) + r = p + 2r, so the nth term is p + 2r − rn.",
+              },
+              {
+                spec: { type: "expression", expr: "p+2r+rn" },
+                feedback: "The terms go **down** by r each time, so the n-term is −rn, not +rn.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Find an expression for the nth term of sequence 2.",
+            marks: 3,
+            answer: { type: "expression", expr: "(d-2c)n+4c" },
+            verify: "(2c+d)+(n-1)*(2d-(2c+d))",
+            traps: [
+              {
+                spec: { type: "expression", expr: "(d-2c)n+2c+d" },
+                feedback: "2c + d is the 1st term. The zeroth term is (2c + d) − (d − 2c) = 4c, so the nth term is (d − 2c)n + 4c.",
+              },
+              {
+                spec: { type: "expression", expr: "(2c-d)n+2d" },
+                feedback: "The difference is 2nd term − 1st term: 2d − (2c + d) = d − 2c. You subtracted the wrong way round.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "Find the difference: subtract the 1st term from the 2nd term, keeping the letters.",
+          "The nth term is (difference)n + (zeroth term), just like 3n + 2 — the zeroth term is the 1st term minus the difference.",
+          "For sequence 2 the difference is 2d − (2c + d). Simplify it carefully, then check it with the next pair of terms.",
+        ],
+        solution: [
+          "Treat the letters like numbers. **Sequence 1:** p − (p + r) = −r, so each term is r less than the one before.",
+          "(a) Next term: (p − 2r) − r = **p − 3r**.",
+          "(b) Difference −r → −rn. Zeroth term = (p + r) − (−r) = p + 2r. So the nth term is **p + 2r − rn**, which you can also write as (p + 2r) − rn.",
+          "Check: n = 1 → p + 2r − r = p + r ✓; n = 3 → p + 2r − 3r = p − r ✓",
+          "(c) **Sequence 2:** difference = 2d − (2c + d) = d − 2c. Check with the next pair: (−2c + 3d) − 2d = d − 2c ✓",
+          "Zeroth term = (2c + d) − (d − 2c) = 4c. So the nth term is **(d − 2c)n + 4c**.",
+          "Check: n = 2 → 2d − 4c + 4c = 2d ✓; n = 4 → 4d − 8c + 4c = 4d − 4c ✓",
+        ],
+        altMethod: {
+          label: "Try numbers first",
+          steps: [
+            "Pick p = 10 and r = 1: sequence 1 becomes 11, 10, 9, 8, … with nth term 12 − n.",
+            "12 is p + 2r and −n is −rn, so the nth term is p + 2r − rn.",
+            "Substituting numbers is also a quick way to check any algebraic answer.",
+          ],
+        },
+        commonError:
+          "Using the 1st term instead of the zeroth term (writing p + r − rn), or subtracting the terms the wrong way round when finding the difference.",
+        strategy: "Look at the differences",
+        source: "Class example (Arithmetic Sequences starter)",
+      },
+      {
+        id: "sq-w4-q05",
+        topic: "sq",
+        section: "sq-quadratic",
+        difficulty: "challenge",
+        question:
+          "These dot patterns make the **centred pentagonal numbers**: 1, 6, 16, 31, 51, … Each pattern adds a new ring of dots around the one before: 5 dots, then 10, then 15, …",
+        diagram: `<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Centred pentagonal dot patterns. Pattern 1 is a single dot. Pattern 2 is a centre dot with a pentagon of 5 dots around it. Pattern 3 adds an outer pentagon of 10 dots, 16 dots in all."><rect width="400" height="150" fill="#ffffff"/><g stroke="#334155" stroke-width="1.5"><g fill="#fde68a"><circle cx="60" cy="75" r="5.5"/><circle cx="170" cy="75" r="5.5"/><circle cx="310" cy="75" r="5.5"/></g><g fill="#bae6fd"><circle cx="170" cy="53" r="5.5"/><circle cx="190.9" cy="68.2" r="5.5"/><circle cx="182.9" cy="92.8" r="5.5"/><circle cx="157.1" cy="92.8" r="5.5"/><circle cx="149.1" cy="68.2" r="5.5"/><circle cx="310" cy="53" r="5.5"/><circle cx="330.9" cy="68.2" r="5.5"/><circle cx="322.9" cy="92.8" r="5.5"/><circle cx="297.1" cy="92.8" r="5.5"/><circle cx="289.1" cy="68.2" r="5.5"/></g><g fill="#bbf7d0"><circle cx="310" cy="31" r="5.5"/><circle cx="351.9" cy="61.4" r="5.5"/><circle cx="335.9" cy="110.6" r="5.5"/><circle cx="284.1" cy="110.6" r="5.5"/><circle cx="268.1" cy="61.4" r="5.5"/><circle cx="330.9" cy="46.2" r="5.5"/><circle cx="343.9" cy="86" r="5.5"/><circle cx="310" cy="110.6" r="5.5"/><circle cx="276.1" cy="86" r="5.5"/><circle cx="289.1" cy="46.2" r="5.5"/></g></g><g font-family="sans-serif" font-size="13" fill="#1f2937" text-anchor="middle"><text x="60" y="140">Pattern 1</text><text x="170" y="140">Pattern 2</text><text x="310" y="140">Pattern 3</text></g></svg>`,
+        parts: [
+          {
+            label: "a",
+            prompt: "Write the next two centred pentagonal numbers, separated by a comma.",
+            marks: 2,
+            answer: { type: "list", values: [76, 106], ordered: true },
+            verify: "51+5*5, 51+5*5+5*6",
+            traps: [
+              {
+                spec: { type: "list", values: [71, 91], ordered: true },
+                feedback: "Adding 20 each time treats it as linear. Each ring has 5 more dots than the last, so the next rings have 25 and 30 dots.",
+              },
+              {
+                spec: { type: "list", values: [76, 101], ordered: true },
+                feedback: "76 is right, but the ring after that has 30 dots, not 25: 76 + 30 = 106.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find an expression for the nth centred pentagonal number.",
+            marks: 3,
+            answer: { type: "expression", expr: "2.5n^2-2.5n+1" },
+            verify: "terms:1,6,16,31,51",
+            traps: [
+              {
+                spec: { type: "expression", expr: "5n^2-5n+1" },
+                feedback:
+                  "The second difference is 5, so the number in front of {{n^2}} is 5 ÷ 2 = 2.5, not 5. It doesn't have to be a whole number!",
+              },
+              {
+                spec: { type: "expression", expr: "2.5n^2+2.5n+1" },
+                feedback:
+                  "That gives 6, 16, 31, … — one pattern too late. After subtracting {{2.5n^2}} the leftovers go **down** by 2.5, so the linear part is −2.5n + 1.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Work out the 10th centred pentagonal number.",
+            marks: 1,
+            answer: { type: "number", value: 226 },
+            verify: "1+5*(1+2+3+4+5+6+7+8+9)",
+            traps: [
+              {
+                spec: { type: "number", value: 451 },
+                feedback:
+                  "451 comes from {{5n^2 - 5n + 1}}. Halve the second difference: the rule is {{2.5n^2 - 2.5n + 1}}, giving 250 − 25 + 1 = 226.",
+              },
+            ],
+          },
+        ],
+        hints: [
+          "Each ring has 5 more dots than the ring before. How many dots will the 6th and 7th patterns add?",
+          "Second difference ÷ 2 gives the number in front of {{n^2}} — it doesn't have to be a whole number.",
+          "Subtract {{2.5n^2}} from each term and find the rule for what's left.",
+        ],
+        solution: [
+          "(a) The rings add 5, 10, 15, 20, … dots, so the next two rings add 25 and 30: 51 + 25 = **76**, 76 + 30 = **106**.",
+          "(b) First differences 5, 10, 15, 20 → second difference 5 → 5 ÷ 2 = 2.5, so start with {{2.5n^2}}.\n\n| n | 1 | 2 | 3 | 4 | 5 |\n|---|---|---|---|---|---|\n| dots | 1 | 6 | 16 | 31 | 51 |\n| {{2.5n^2}} | 2.5 | 10 | 22.5 | 40 | 62.5 |\n| dots − {{2.5n^2}} | −1.5 | −4 | −6.5 | −9 | −11.5 |",
+          "The leftovers go down by 2.5 each time and their zeroth term is −1.5 + 2.5 = 1, so they are −2.5n + 1. The nth term is **{{2.5n^2 - 2.5n + 1}}** (or {{(5n^2 - 5n + 2)/2}}).",
+          "Check: n = 4 → 40 − 10 + 1 = 31 ✓",
+          "(c) n = 10: 2.5 × 100 − 2.5 × 10 + 1 = 250 − 25 + 1 = **226**.",
+        ],
+        altMethod: {
+          label: "Count the rings",
+          steps: [
+            "Pattern 10 = 1 + 5 + 10 + 15 + … + 45 = 1 + 5 × (1 + 2 + … + 9).",
+            "1 + 2 + … + 9 = 45, so Pattern 10 has 1 + 5 × 45 = 226 dots ✓",
+          ],
+        },
+        commonError: "Using the second difference (5) as the number in front of {{n^2}} instead of halving it to 2.5.",
+        strategy: "Look at the differences",
+        source: "Class example (Review starter)",
+      },
+      {
+        id: "sq-w4-q06",
+        topic: "sq",
+        section: "sq-terms",
+        difficulty: "challenge",
+        question: "A sequence is made using the term-to-term rule **multiply by 2, then subtract 3**.",
+        parts: [
+          {
+            label: "a",
+            prompt: "The 1st term is 5. Write down the 2nd, 3rd and 4th terms, separated by commas.",
+            marks: 1,
+            answer: { type: "list", values: [7, 11, 19], ordered: true },
+            verify: "2*5-3, 2*(2*5-3)-3, 2*(2*(2*5-3)-3)-3",
+            traps: [
+              {
+                spec: { type: "list", values: [4, 2, -2], ordered: true },
+                feedback: "Do the steps in the order given — multiply by 2 first, then subtract 3: 5 × 2 − 3 = 7.",
+              },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "A different sequence uses the same rule. Its 4th term is 43. Work out its 1st term.",
+            marks: 2,
+            answer: { type: "number", value: 8 },
+            verify: "(((43+3)/2+3)/2+3)/2",
+            traps: [
+              {
+                spec: { type: "number", value: 13 },
+                feedback: "13 is the 2nd term. From the 4th term back to the 1st term is **3** steps: 43 → 23 → 13 → 8.",
+              },
+              {
+                spec: { type: "number", value: 2.75 },
+                feedback:
+                  "To undo 'subtract 3' you **add** 3, and to undo '× 2' you halve — in reverse order: (43 + 3) ÷ 2 = 23, and so on.",
+              },
+            ],
+          },
+          {
+            label: "c",
+            prompt:
+              "The 1st term of a sequence that uses this rule is a whole number. Could 100 ever be the 2nd term, or any term after that? Answer yes or no.",
+            marks: 1,
+            answer: {
+              type: "text",
+              accept: ["no", "no it can't", "no, it can't", "no it cannot", "no, it cannot", "no never", "no, never", "never"],
+              display: "No",
+            },
+          },
+          {
+            label: "d",
+            prompt: "Explain your answer to (c).",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Multiplying a whole number by 2 always gives an even number",
+                keywords: ["even", "multiple of 2", "doubl", "times 2", "2 times"],
+                feedback: "Start with the × 2: any whole number times 2 is even (e.g. 5 × 2 = 10, 8 × 2 = 16).",
+              },
+              {
+                point: "An even number minus 3 is always odd — so every term after the 1st is odd, and 100 is even",
+                keywords: ["odd", "never even", "cant be even", "cannot be even", "not be even"],
+                feedback:
+                  "Then the − 3: even − 3 is always odd. So every term from the 2nd onwards is odd — and 100 is even, so it can never appear.",
+              },
+            ],
+            model:
+              "Multiplying any whole number by 2 always gives an even number. Subtracting 3 from an even number always gives an odd number. So every term after the 1st term is odd. 100 is even, so it can never be the 2nd term or any later term.",
+          },
+        ],
+        hints: [
+          "Apply the rule carefully: × 2 first, then − 3.",
+          "To go backwards, undo each step in reverse order: add 3, then halve.",
+          "For (c), what kind of number do you always get after '× 2'? What happens when you then take away 3?",
+        ],
+        solution: [
+          "(a) 5 × 2 − 3 = **7**, 7 × 2 − 3 = **11**, 11 × 2 − 3 = **19**.",
+          "(b) Work backwards. The inverse of '× 2, then − 3' is '+ 3, then ÷ 2' (undo the last step first).",
+          "4th term 43 → 3rd term (43 + 3) ÷ 2 = 23 → 2nd term (23 + 3) ÷ 2 = 13 → 1st term (13 + 3) ÷ 2 = **8**. Check forwards: 8 → 13 → 23 → 43 ✓",
+          "(c) and (d): **No.** Whatever whole number you start with, × 2 makes it even, and even − 3 is odd. So every term from the 2nd onwards is odd — and 100 is even.",
+          "Try it: starting from 50 gives 97, then 191, … — all odd. To get 100 you'd need 2 × (1st term) = 103, so the 1st term would be 51.5, which isn't a whole number.",
+        ],
+        commonError:
+          "Undoing the steps in the wrong order or with the wrong operation — to reverse '× 2 then − 3' you must add 3 first, then halve.",
+        strategy: "Work backwards",
+      },
+    ],
+  },
 ];
