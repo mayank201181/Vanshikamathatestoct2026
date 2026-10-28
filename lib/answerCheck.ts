@@ -397,9 +397,24 @@ function checkExpression(spec: Extract<AnswerSpec, { type: "expression" }>, inpu
   return { status: "correct" };
 }
 
+/** One-word verdicts that a learner usually follows with a reason ("No, it isn't — …"). */
+const VERDICTS = new Set(["yes", "no", "true", "false", "always", "sometimes", "never"]);
+const VERDICT_ALIASES: Record<string, string> = { yep: "yes", yeah: "yes", yup: "yes", nope: "no", nah: "no" };
+
+/** The verdict word an answer starts with, e.g. "No, he's wrong" → "no". */
+function leadingVerdict(input: string): string | undefined {
+  const w = input.trim().toLowerCase().match(/^[a-z]+/)?.[0];
+  if (!w) return undefined;
+  const v = VERDICT_ALIASES[w] ?? w;
+  return VERDICTS.has(v) ? v : undefined;
+}
+
 function checkText(spec: Extract<AnswerSpec, { type: "text" }>, input: string): CheckResult {
   const n = normText(input);
   if (spec.accept.some((a) => normText(a) === n)) return { status: "correct" };
+  // "No, it isn't", "Nope — the differences aren't constant": the verdict word decides it.
+  const lead = leadingVerdict(input);
+  if (lead && spec.accept.some((a) => normText(a) === lead)) return { status: "correct" };
   return { status: "incorrect" };
 }
 

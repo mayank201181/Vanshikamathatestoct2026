@@ -605,7 +605,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
         ],
         hints: [
           "Put e in brackets every time: e becomes (−3).",
-          "(−3)² = +9 but (−3)³ = −27. And taking away −3 is the same as adding 3.",
+          "Squaring a negative number gives a positive answer, but cubing it gives a negative answer. And taking away −3 is the same as adding 3.",
         ],
         solution: [
           "(a) {{3(10 - e) = 3(10 - (-3)) = 3 * 13}} = **39**.",
@@ -667,7 +667,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
         ],
         hints: [
           "Square v first, then multiply by m, then halve.",
-          "In (b), {{v^2 = 10^2 = 100}}. For (c), compare 20 J and 100 J — which letter in the formula is squared?",
+          "In (b), {{v^2 = 10^2 = 100}}. For (c), compare your answers to (a) and (b) — which letter in the formula is squared?",
         ],
         solution: [
           "(a) {{K = 1/2 * 10 * 2^2 = 1/2 * 10 * 4 = 1/2 * 40}} = **20 J**.",
@@ -1031,6 +1031,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
             verify: "(1+sqrt(1+8*28))/2",
             traps: [
               { spec: { type: "number", value: 56 }, feedback: "56 is n(n − 1) — doubling 28 was the right first step. Now find two numbers next to each other that multiply to make 56." },
+              { spec: { type: "number", value: 7 }, feedback: "7 people give only 7 × 6 ÷ 2 = 21 handshakes. In n(n − 1) = 56, n is the **bigger** of the two numbers next to each other — n − 1 is the smaller one." },
             ],
           },
         ],
@@ -1187,7 +1188,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
         hints: [
           "Put x in brackets: {{x^2 = (-0.4) * (-0.4)}}. Count the decimal places.",
           "A negative number squared is positive; cubed, it stays negative.",
-          "For (c), mark −0.4, −0.064 and 0.16 on a number line. Which is furthest left?",
+          "For (c), mark your three values on a number line. Which one is furthest left?",
         ],
         solution: [
           "(a) {{x^2 = (-0.4)^2 = (-0.4) * (-0.4)}} = **0.16** (4 × 4 = 16, two decimal places, and negative × negative = positive).",
@@ -1410,7 +1411,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
         topic: "su",
         section: "su-negatives",
         difficulty: "challenge",
-        question: "Two whole numbers p and q have {{p + q = 2}} and {{pq = -15}}. The number p is bigger than q.",
+        question: "Two integers p and q (whole numbers that can be positive or negative) have {{p + q = 2}} and {{pq = -15}}. The number p is bigger than q.",
         parts: [
           {
             label: "a",

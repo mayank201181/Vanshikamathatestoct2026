@@ -90,3 +90,10 @@ test("MCQ algebra options are read the way {{ }} displays them", () => {
   assert.deepEqual(verifyMcq(["{{3y/z}}", "{{3yz}}", "{{3/z}}", "{{y/z}}"], 0, "3xy/xz"), []);
   assert.deepEqual(verifyMcq(["{{f/2c}}", "{{f/(2c)}}x", "{{2f/c}}", "{{fc/2}}"], 0, "17cf/(34c^2)"), []);
 });
+
+test("yes/no answers may carry a reason", () => {
+  const no = { type: "text", accept: ["no"] } as const;
+  for (const a of ["No", "no, he's wrong", "No he’s not", "Nope", "no it isn't", "NO."]) assert.equal(st(no, a), "correct", a);
+  for (const a of ["yes", "Yes he is", "not sure"]) assert.notEqual(st(no, a), "correct", a);
+  assert.equal(st({ type: "text", accept: ["sometimes"] }, "Sometimes - e.g. x = 0.5"), "correct");
+});

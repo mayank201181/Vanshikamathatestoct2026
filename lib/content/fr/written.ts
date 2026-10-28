@@ -1050,4 +1050,374 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
       },
     ],
   },
+
+  // ─────────────── Set 4 · Stretch & challenge (core 3 · challenge 3) ───────────────
+  {
+    id: "fr-written-4",
+    title: "Written 4 · Stretch & challenge",
+    subtitle: "Reasoning and puzzles: unit-fraction logic, a rectangle puzzle, brackets-first patterns, a fraction magic square and working backwards with algebraic fractions.",
+    topic: "fr",
+    questions: [
+      {
+        id: "fr-w4-q01",
+        topic: "fr",
+        section: "fr-equivalent",
+        difficulty: "core",
+        question: "Jun is comparing unit fractions — fractions with 1 as the numerator. He says: 'If a > b, then {{1/a > 1/b}}.'",
+        parts: [
+          {
+            label: "a",
+            prompt: "Write {{1/5}}, {{1/12}}, {{1/3}} and {{1/8}} in order of size, starting with the smallest. Separate them with commas.",
+            marks: 2,
+            answer: { type: "list", values: [1 / 12, 1 / 8, 1 / 5, 1 / 3], ordered: true, display: "{{1/12}}, {{1/8}}, {{1/5}}, {{1/3}}" },
+            verify: "10/120, 15/120, 24/120, 40/120",
+            traps: [
+              { spec: { type: "list", values: [1 / 3, 1 / 5, 1 / 8, 1 / 12], ordered: true }, feedback: "That's largest first. For unit fractions, the BIGGER the denominator, the SMALLER the fraction — so {{1/12}} is the smallest." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Is Jun's statement true when a and b are positive whole numbers? Answer yes or no.",
+            marks: 1,
+            answer: { type: "text", accept: ["no", "false", "not true", "no it is not", "no its not", "no it isnt", "no it is false", "no, it is false", "no, it is not", "it is false", "no, false"] },
+          },
+          {
+            label: "c",
+            prompt: "Give a reason for your answer to part (b).",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Gives a counter-example, e.g. a = 2 and b = 1: 2 > 1, but {{1/2}} is smaller than 1.",
+                keywords: ["example", "counter", "2+1", "1/2", "half"],
+                feedback: "Test it with numbers: a = 2 and b = 1 gives 2 > 1, but {{1/2}} is SMALLER than {{1/1}}, which is 1.",
+              },
+              {
+                point: "Explains that dividing 1 by a bigger number gives a smaller answer (bigger denominator, smaller pieces), so {{1/a < 1/b}}.",
+                keywords: ["smaller", "less", "bigger denominator", "more pieces", "split into more", "shared between more"],
+                feedback: "Give the general reason: the bigger the denominator, the more pieces 1 is split into, so each piece is smaller. If a > b, then {{1/a < 1/b}}.",
+              },
+            ],
+            model: "No. For example, take a = 2 and b = 1. Then a > b, but {{1/2}} is smaller than 1, so {{1/a}} is smaller than {{1/b}}. This always happens with positive numbers: the bigger the denominator, the more pieces 1 is split into, so each piece is smaller. So if a > b, then {{1/a < 1/b}}.",
+          },
+        ],
+        hints: [
+          "Would you rather have {{1/3}} of a pizza or {{1/12}} of the same pizza?",
+          "Try numbers in Jun's statement: let a = 4 and b = 2. Is {{1/4}} bigger than {{1/2}}?",
+        ],
+        solution: [
+          "(a) A unit fraction is 1 whole split into equal pieces. More pieces means smaller pieces, so the order is {{1/12}}, {{1/8}}, {{1/5}}, {{1/3}}.",
+          "Check with a common denominator of 120: {{10/120}}, {{15/120}}, {{24/120}}, {{40/120}} ✓",
+          "(b) No — Jun's statement is false for positive numbers.",
+          "(c) Counter-example: a = 2 and b = 1. Then a > b, but {{1/a = 1/2}}, which is smaller than {{1/b = 1/1 = 1}}.",
+          "In general, dividing 1 by a bigger number gives a smaller answer. So if a > b, then {{1/a < 1/b}} — the opposite of what Jun says.",
+        ],
+        commonError: "Thinking a bigger denominator makes a bigger fraction — it makes each piece smaller.",
+        strategy: "Try small cases",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-w4-q02",
+        topic: "fr",
+        section: "fr-addsub",
+        difficulty: "core",
+        question: "A triangle has sides of length {{3 1/2}} cm, {{4 2/3}} cm and {{2 3/4}} cm.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out the perimeter of the triangle. Give your answer as a mixed number in its simplest form.",
+            marks: 2,
+            answer: { type: "fraction", n: 131, d: 12, form: "mixed", simplest: true },
+            verify: "(3+1/2)+(4+2/3)+(2+3/4)",
+            traps: [
+              { spec: { type: "fraction", n: 29, d: 3 }, feedback: "{{9 6/9}} comes from adding the tops (1 + 2 + 3) and the bottoms (2 + 3 + 4). Change the fractions to twelfths first." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "A rectangle has the same perimeter as the triangle. Its length is {{3 5/6}} cm. Work out its width. Give your answer as a mixed number in its simplest form.",
+            marks: 3,
+            answer: { type: "fraction", n: 13, d: 8, form: "mixed", simplest: true },
+            verify: "((3+1/2)+(4+2/3)+(2+3/4))/2-(3+5/6)",
+            traps: [
+              { spec: { type: "fraction", n: 85, d: 12 }, feedback: "{{7 1/12}} is the perimeter minus ONE length. A rectangle has two lengths and two widths, so halve the perimeter first, then subtract the length." },
+              { spec: { type: "fraction", n: 13, d: 4 }, feedback: "{{3 1/4}} is both widths together. Halve it to get one width." },
+            ],
+          },
+        ],
+        hints: [
+          "Add the whole numbers first, then add the fractions using twelfths.",
+          "Half the perimeter of a rectangle is one length + one width.",
+          "To halve {{10 11/12}}, write it as an improper fraction and multiply by {{1/2}}.",
+        ],
+        solution: [
+          "(a) Whole numbers: 3 + 4 + 2 = 9.",
+          "Fractions: {{1/2 + 2/3 + 3/4 = 6/12 + 8/12 + 9/12 = 23/12 = 1 11/12}}.",
+          "Perimeter = 9 + {{1 11/12}} = {{10 11/12}} cm.",
+          "(b) Length + width = half the perimeter: {{10 11/12 ÷ 2 = 131/12 * 1/2 = 131/24 = 5 11/24}} cm.",
+          "Width = {{5 11/24 - 3 5/6 = 5 11/24 - 3 20/24}}. Borrow a whole: {{4 35/24 - 3 20/24 = 1 15/24 = 1 5/8}} cm.",
+          "Check: 2 × {{3 5/6}} + 2 × {{1 5/8}} = {{7 2/3 + 3 1/4 = 10 11/12}} ✓",
+        ],
+        altMethod: {
+          label: "Take off both lengths first",
+          steps: [
+            "Two lengths: 2 × {{3 5/6}} = {{7 4/6 = 7 2/3}} cm.",
+            "Two widths: {{10 11/12 - 7 2/3 = 10 11/12 - 7 8/12 = 3 3/12 = 3 1/4}} cm.",
+            "One width: {{3 1/4 ÷ 2 = 13/4 * 1/2 = 13/8 = 1 5/8}} cm.",
+          ],
+        },
+        commonError: "Subtracting only one length from the perimeter (giving {{7 1/12}}) — a rectangle has two lengths and two widths.",
+        strategy: "Work backwards",
+      },
+      {
+        id: "fr-w4-q03",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "core",
+        question: "Simplify fully. If the bottom of your answer has more than one factor, type it in brackets, e.g. 5/(2a).",
+        parts: [
+          {
+            label: "a",
+            prompt: "{{5a/(6b) * 3b^2/(10a^2)}}",
+            marks: 2,
+            answer: { type: "expression", expr: "b/(4a)", form: "simplified" },
+            verify: "(5a/(6b))*(3b^2/(10a^2))",
+            traps: [
+              { spec: { type: "expression", expr: "a/(4b)" }, feedback: "Check where each leftover letter goes: {{b^2/b}} leaves b on the TOP, and {{a/a^2}} leaves a on the BOTTOM." },
+              { spec: { type: "expression", expr: "ab/4" }, feedback: "We read b/4a as {{b/4}} × a. If you mean b over 4a, type the bottom in brackets: b/(4a)." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "{{6x^2/y ÷ 3x/(2y)}}",
+            marks: 2,
+            answer: { type: "expression", expr: "4x", form: "simplified" },
+            verify: "(6x^2/y)/(3x/(2y))",
+            traps: [
+              { spec: { type: "expression", expr: "9x^3/y^2" }, feedback: "You multiplied without flipping. Keep, Change, Flip: {{6x^2/y * (2y)/(3x)}}." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Omar writes {{8a/(4a^2) = 2a}}. Explain the mistake Omar has made, and give the correct answer.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Explains that {{a^2}} = a × a, so only one a cancels and the other a is left on the bottom (the denominator), not the top.",
+                keywords: ["denominator", "on the bottom", "underneath", "below", "a times a", "a x a", "only one a", "one a cancels"],
+                feedback: "{{a^2}} means a × a. One a cancels with the a on top, but the other a stays on the bottom.",
+              },
+              {
+                point: "Gives the correct answer {{2/a}}.",
+                keywords: ["2/a", "2 over a", "2 divided by a"],
+                feedback: "8 ÷ 4 = 2 goes on top and the leftover a goes underneath: {{8a/(4a^2) = 2/a}}.",
+              },
+            ],
+            model: "Omar divided the numbers correctly (8 ÷ 4 = 2), but he put the leftover a on the top. {{a^2}} means a × a, so only one a cancels with the a on top, and the other a is left on the bottom, in the denominator. The correct answer is {{2/a}}.",
+          },
+        ],
+        hints: [
+          "Multiply the tops and the bottoms (flip the second fraction first if it's a division), then cancel numbers and letters.",
+          "Where does a leftover letter end up? Compare its power on the top with its power on the bottom.",
+        ],
+        solution: [
+          "(a) Tops: 5a × {{3b^2}} = {{15ab^2}}. Bottoms: 6b × {{10a^2}} = {{60a^2b}}.",
+          "{{15/60 = 1/4}}; {{b^2/b = b}} (stays on top); {{a/a^2 = 1/a}} (one a stays on the bottom). Answer: {{b/(4a)}}.",
+          "(b) Keep, Change, Flip: {{6x^2/y * (2y)/(3x) = 12x^2y/(3xy)}}.",
+          "12 ÷ 3 = 4, the y cancels, and {{x^2/x = x}}. Answer: 4x.",
+          "(c) 8 ÷ 4 = 2 is right, but {{a/a^2 = a/(a * a) = 1/a}}: after one a cancels, the other a is left on the bottom. The correct answer is {{2/a}}, not 2a.",
+        ],
+        commonError: "Putting a leftover letter on the wrong side of the fraction — like Omar, who wrote 2a instead of {{2/a}}.",
+        strategy: "Spot the common factor",
+      },
+      {
+        id: "fr-w4-q04",
+        topic: "fr",
+        section: "fr-muldiv",
+        difficulty: "challenge",
+        question: "Brackets first! Look at this calculation: {{1/3 - (1/3 * 1/3) + (1/3 ÷ 1/3)}}.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out {{1/3 - (1/3 * 1/3) + (1/3 ÷ 1/3)}}. Give your answer as a mixed number in its simplest form.",
+            marks: 2,
+            answer: { type: "fraction", n: 11, d: 9, form: "mixed", simplest: true },
+            verify: "1/3-(1/3*1/3)+(1/3)/(1/3)",
+            traps: [
+              { spec: { type: "fraction", n: 1, d: 3 }, feedback: "That's what you get if you work out {{1/3 ÷ 1/3}} as {{1/9}}. But {{1/3 ÷ 1/3 = 1}} — a third fits into a third exactly once." },
+              { spec: { type: "fraction", n: 7, d: 6 }, feedback: "{{1/3 * 1/3}} is {{1/9}} (multiply the bottoms), not {{1/6}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Now work out {{1/4 - (1/4 * 1/4) + (1/4 ÷ 1/4)}}. Give your answer as a mixed number in its simplest form.",
+            marks: 2,
+            answer: { type: "fraction", n: 19, d: 16, form: "mixed", simplest: true },
+            verify: "1/4-(1/4*1/4)+(1/4)/(1/4)",
+            traps: [
+              { spec: { type: "fraction", n: 9, d: 8 }, feedback: "{{1/4 * 1/4}} is {{1/16}} (multiply the bottoms), not {{1/8}}." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "The same pattern with {{1/n}} gives {{1/n - (1/n * 1/n) + (1/n ÷ 1/n) = 1 6/49}}. Find the whole number n.",
+            marks: 2,
+            answer: { type: "number", value: 7 },
+            verify: "sqrt(49)",
+            traps: [
+              { spec: { type: "number", value: 49 }, feedback: "49 is n × n — it's the bottom of {{1/n * 1/n}}. What number times itself makes 49?" },
+              { spec: { type: "number", value: 6 }, feedback: "Look back at (a) and (b): the denominator of the fraction part is n × n, and the numerator is one less than n. Here the denominator is 49." },
+            ],
+          },
+        ],
+        hints: [
+          "Brackets first: work out {{1/3 * 1/3}} and {{1/3 ÷ 1/3}} before anything else.",
+          "Any number (except 0) divided by itself is 1.",
+          "Compare the fraction parts of your answers to (a) and (b). How are their denominators linked to 3 and 4? How are their numerators linked?",
+        ],
+        solution: [
+          "(a) Brackets first: {{1/3 * 1/3 = 1/9}} and {{1/3 ÷ 1/3 = 1}}.",
+          "So the calculation is {{1/3 - 1/9 + 1 = 3/9 - 1/9 + 1 = 2/9 + 1 = 1 2/9}}.",
+          "(b) {{1/4 * 1/4 = 1/16}} and {{1/4 ÷ 1/4 = 1}}, so {{1/4 - 1/16 + 1 = 4/16 - 1/16 + 1 = 1 3/16}}.",
+          "(c) The pattern is {{1/n - 1/n^2 + 1}}. With thirds the fraction part was {{2/9}}; with quarters it was {{3/16}}. The bottom is n × n and the top is n − 1.",
+          "In {{6/49}}: 49 = 7 × 7 and 6 = 7 − 1, so n = 7.",
+          "Check: {{1/7 - 1/49 + 1 = 7/49 - 1/49 + 1 = 1 6/49}} ✓",
+        ],
+        commonError: "Thinking {{1/3 ÷ 1/3}} is {{1/9}} — any number (except 0) divided by itself is 1.",
+        strategy: "Find a pattern",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-w4-q05",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "challenge",
+        question: "In a magic square, every row, every column and both diagonals add up to the same number, called the magic total. P, Q, R and S stand for the missing numbers in this fraction magic square.",
+        diagram: `<svg viewBox="0 0 300 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A 3 by 3 fraction magic square. Top row: 1¼, 2½, P. Middle row: 1, 1½, Q. Bottom row: R, S, 1¾.">
+<rect x="0" y="0" width="300" height="210" fill="#ffffff"/>
+<rect x="190" y="15" width="80" height="60" fill="#fde68a"/>
+<rect x="190" y="75" width="80" height="60" fill="#fde68a"/>
+<rect x="30" y="135" width="80" height="60" fill="#fde68a"/>
+<rect x="110" y="135" width="80" height="60" fill="#fde68a"/>
+<rect x="30" y="15" width="240" height="180" fill="none" stroke="#1f2937" stroke-width="2"/>
+<line x1="110" y1="15" x2="110" y2="195" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="190" y1="15" x2="190" y2="195" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="30" y1="75" x2="270" y2="75" stroke="#1f2937" stroke-width="1.5"/>
+<line x1="30" y1="135" x2="270" y2="135" stroke="#1f2937" stroke-width="1.5"/>
+<g font-family="sans-serif" font-size="14" text-anchor="middle" fill="#1f2937">
+<text x="70" y="50">1¼</text>
+<text x="150" y="50">2½</text>
+<text x="230" y="50" font-weight="bold">P</text>
+<text x="70" y="110">1</text>
+<text x="150" y="110">1½</text>
+<text x="230" y="110" font-weight="bold">Q</text>
+<text x="70" y="170" font-weight="bold">R</text>
+<text x="150" y="170" font-weight="bold">S</text>
+<text x="230" y="170">1¾</text>
+</g>
+</svg>`,
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out the magic total. Give your answer as a mixed number.",
+            marks: 1,
+            answer: { type: "fraction", n: 9, d: 2, form: "mixed", simplest: true },
+            verify: "(1+1/4)+(1+1/2)+(1+3/4)",
+            traps: [
+              { spec: { type: "fraction", n: 7, d: 2 }, feedback: "{{3 1/2}} comes from adding the tops and the bottoms of the fraction parts. Use quarters: {{1/4 + 2/4 + 3/4 = 6/4 = 1 1/2}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find the value of P.",
+            marks: 1,
+            answer: { type: "fraction", n: 3, d: 4, simplest: true },
+            verify: "(1+1/4)+(1+1/2)+(1+3/4)-(1+1/4)-(2+1/2)",
+          },
+          {
+            label: "c",
+            prompt: "Find the value of R. Give your answer as a mixed number.",
+            marks: 2,
+            answer: { type: "fraction", n: 9, d: 4, form: "mixed", simplest: true },
+            verify: "(1+1/4)+(1+1/2)+(1+3/4)-(1+1/4)-1",
+          },
+          {
+            label: "d",
+            prompt: "Without finding Q and S, work out the total of all nine numbers in the square. Give your answer as a mixed number.",
+            marks: 2,
+            answer: { type: "fraction", n: 27, d: 2, form: "mixed", simplest: true },
+            verify: "3*((1+1/4)+(1+1/2)+(1+3/4))",
+            traps: [
+              { spec: { type: "fraction", n: 81, d: 2 }, feedback: "{{40 1/2}} is 9 × {{4 1/2}} — but {{4 1/2}} is the total of a whole ROW, not of one box. The nine boxes make three rows." },
+            ],
+          },
+        ],
+        hints: [
+          "Which line of three numbers is already complete? Add it up.",
+          "Each missing number = magic total − the other two numbers in its row, column or diagonal.",
+          "The nine numbers make exactly three rows. What does each row add up to?",
+        ],
+        solution: [
+          "(a) The diagonal from top-left to bottom-right is complete: {{1 1/4 + 1 1/2 + 1 3/4}}. Wholes: 3. Fractions: {{1/4 + 2/4 + 3/4 = 6/4 = 1 1/2}}. Magic total = {{4 1/2}}.",
+          "(b) Top row: P = {{4 1/2 - 1 1/4 - 2 1/2 = 3/4}}.",
+          "(c) Left column: R = {{4 1/2 - 1 1/4 - 1 = 2 1/4}}. Check with the other diagonal: {{3/4 + 1 1/2 + 2 1/4 = 4 1/2}} ✓",
+          "(d) The nine numbers make three rows, and each row adds up to {{4 1/2}}: 3 × {{4 1/2}} = {{13 1/2}}.",
+          "For checking, the full square is: top row {{1 1/4}}, {{2 1/2}}, {{3/4}}; middle row 1, {{1 1/2}}, 2; bottom row {{2 1/4}}, {{1/2}}, {{1 3/4}}.",
+        ],
+        commonError: "Multiplying the magic total by 9 in (d) — the magic total is already the sum of three boxes.",
+        strategy: "Work backwards",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-w4-q06",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "challenge",
+        question: "Algebraic fractions — working backwards. If the bottom of your answer has more than one factor, type it in brackets, e.g. 5/(3y).",
+        parts: [
+          {
+            label: "a",
+            prompt: "Find the missing expression: {{3a/(2b) * □ = 6a^2/b}}.",
+            marks: 2,
+            answer: { type: "expression", expr: "4a", form: "simplified" },
+            verify: "(6a^2/b)/(3a/(2b))",
+            traps: [
+              { spec: { type: "expression", expr: "9a^3/b^2" }, feedback: "You multiplied the two fractions together. To find a missing factor, DIVIDE: {{6a^2/b ÷ 3a/(2b)}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "A rectangle has length {{3x/4}} cm and area {{x^2/2}} cm². Find an expression for its width.",
+            marks: 2,
+            answer: { type: "expression", expr: "2x/3", form: "simplified" },
+            verify: "(x^2/2)/(3x/4)",
+            traps: [
+              { spec: { type: "expression", expr: "3x^3/8" }, feedback: "That's area × length. Since area = length × width, width = area ÷ length." },
+              { spec: { type: "expression", expr: "3/(2x)" }, feedback: "That's length ÷ area — upside down. Width = area ÷ length: {{x^2/2 ÷ 3x/4}}." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Simplify {{2a/b * b/(3c) * 6c/a}}.",
+            marks: 2,
+            answer: { type: "expression", expr: "4", form: "simplified" },
+            verify: "(2a/b)*(b/(3c))*(6c/a)",
+          },
+        ],
+        hints: [
+          "If {{3a/(2b) * □ = 6a^2/b}}, then □ = {{6a^2/b ÷ 3a/(2b)}}.",
+          "Area = length × width, so width = area ÷ length.",
+          "In (c), multiply all the tops and all the bottoms, then cancel — every letter appears on both the top and the bottom.",
+        ],
+        solution: [
+          "(a) Undo the multiplication by dividing: {{6a^2/b ÷ 3a/(2b) = 6a^2/b * (2b)/(3a) = 12a^2b/(3ab)}}.",
+          "12 ÷ 3 = 4, the b cancels, and {{a^2/a = a}}. So □ = 4a. Check: {{3a/(2b) * 4a = 12a^2/(2b) = 6a^2/b}} ✓",
+          "(b) Width = area ÷ length = {{x^2/2 ÷ 3x/4 = x^2/2 * 4/(3x) = 4x^2/(6x)}}.",
+          "{{4/6 = 2/3}} and {{x^2/x = x}}, so the width is {{2x/3}} cm. Check: {{3x/4 * 2x/3 = 6x^2/12 = x^2/2}} ✓",
+          "(c) Tops: 2a × b × 6c = 12abc. Bottoms: b × 3c × a = 3abc. So {{12abc/(3abc) = 4}} — every letter cancels.",
+        ],
+        commonError: "Multiplying instead of dividing when working backwards — to undo × {{3a/(2b)}} you must ÷ {{3a/(2b)}}.",
+        strategy: "Work backwards",
+      },
+    ],
+  },
 ];
