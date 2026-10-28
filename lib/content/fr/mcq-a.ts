@@ -154,7 +154,7 @@ export const MCQ_FR_A: QuestionSet<MCQ>[] = [
           "Adding {{1/2 + 1/3 + 1/4 + 1/5}} gives more than 1 — but each monkey ate a fraction of a *smaller* pile, not of the original pile. Track what's left instead.",
         ],
         explanation:
-          "Each monkey eats a fraction **of what's left**, so track what's left — and *of* means ×. A leaves {{1/2}} of the pile, B leaves {{2/3}} of that, C leaves {{3/4}} of that and D leaves {{4/5}} of that. So the fraction left is {{1/2 × 2/3 × 3/4 × 4/5}}, and the numbers cancel in a chain to give {{1/5}}. Check with 120 peanuts: 120 → 60 → 40 → 30 → 24, and 24 is {{1/5}} of 120 ✓",
+          "Each monkey eats a fraction **of what's left**, so track what's left — and *of* means ×. Monkey A leaves {{1/2}} of the pile, Monkey B leaves {{2/3}} of that, Monkey C leaves {{3/4}} of that and Monkey D leaves {{4/5}} of that. So the fraction left is {{1/2 × 2/3 × 3/4 × 4/5}}, and the numbers cancel in a chain to give {{1/5}}. Check with 120 peanuts: 120 → 60 → 40 → 30 → 24, and 24 is {{1/5}} of 120 ✓",
         hints: [
           "Don't add up the fractions eaten. After Monkey A, what fraction of the pile is left?",
           "Monkey B leaves {{2/3}} of what it finds. What fraction does each monkey leave, and how do you find a fraction of a fraction?",
