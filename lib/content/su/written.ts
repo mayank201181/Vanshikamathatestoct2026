@@ -742,7 +742,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
         topic: "su",
         section: "su-powers",
         difficulty: "challenge",
-        question: "Decide whether each statement is **always**, **sometimes** or **never** true. Type one word for each.",
+        question: "Decide whether each statement in (a) to (c) is **always**, **sometimes** or **never** true. Type one word for each.",
         parts: [
           {
             label: "a",
@@ -1473,7 +1473,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
         topic: "su",
         section: "su-basics",
         difficulty: "challenge",
-        question: "Use each of the numbers 2, 3 and 5 exactly once, as the values of a, b and c.",
+        question: "Use each of the numbers 2, 3 and 5 exactly once, as the values of a, b and c. You can choose a different arrangement in each part.",
         parts: [
           {
             label: "a",
