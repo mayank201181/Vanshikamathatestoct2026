@@ -1,4 +1,484 @@
 import type { MCQ, QuestionSet } from "../../types";
 
-// PLACEHOLDER — sets 1–2 (fr-mcq-1, fr-mcq-2), replaced by the MCQ author.
-export const MCQ_FR_A: QuestionSet<MCQ>[] = [];
+// Fractions (Unit 1) — multiple-choice sets 1–2 (sets 3–4 are in mcq-b.ts).
+// Sections: fr-equivalent, fr-addsub, fr-muldiv, fr-problems, fr-algebraic (2 per set).
+// Every numeric or algebraic key has a `verify` expression built from the question itself.
+
+export const MCQ_FR_A: QuestionSet<MCQ>[] = [
+  // ===========================================================================
+  // SET 1 · Foundations  (warm-up 4 / core 5 / challenge 1)
+  // ===========================================================================
+  {
+    id: "fr-mcq-1",
+    title: "Set 1 · Foundations",
+    subtitle: "Mixed numbers and improper fractions, adding and dividing fractions, fractions of amounts, the monkeys puzzle and first algebraic fractions",
+    topic: "fr",
+    questions: [
+      {
+        id: "fr-m1-q01",
+        topic: "fr",
+        section: "fr-equivalent",
+        difficulty: "warmup",
+        question: "Write {{23/4}} as a mixed number.",
+        options: ["{{5 3/23}}", "{{20 3/4}}", "{{5 3/4}}", "{{4 3/5}}"],
+        answerIndex: 2,
+        optionFeedback: [
+          "The remainder 3 has gone over 23. The pieces are still quarters, so the remainder sits over 4.",
+          "20 is the number of quarters in 5 wholes (5 × 4), not the number of wholes. 4 goes into 23 five times.",
+          "23 ÷ 4 = 5 remainder 3: that's 5 wholes and 3 quarters left over.",
+          "The 4 and the 5 have swapped places. The pieces are quarters, so the denominator stays 4, and 5 is the number of wholes.",
+        ],
+        explanation:
+          "Ask how many wholes you can make: 4 quarters make 1 whole, and 23 ÷ 4 = 5 remainder 3. So {{23/4}} is 5 wholes with 3 quarters left over, which is {{5 3/4}}. The denominator never changes — the pieces are still quarters. Check by going back: 5 × 4 + 3 = 23 ✓",
+        hints: ["How many times does 4 go into 23, and how many are left over?"],
+        verify: "23/4",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m1-q02",
+        topic: "fr",
+        section: "fr-equivalent",
+        difficulty: "warmup",
+        question: "Write {{4 2/3}} as an improper fraction.",
+        options: ["{{14/3}}", "{{8/3}}", "{{11/3}}", "{{12/3}}"],
+        answerIndex: 0,
+        optionFeedback: [
+          "4 wholes are 4 × 3 = 12 thirds, and the extra 2 thirds make 14 thirds.",
+          "8 comes from 4 × 2 — multiplying the whole number by the numerator. Multiply it by the denominator instead: 4 × 3 = 12 thirds, then add the 2.",
+          "11 comes from 4 × 2 + 3 — the numbers are mixed up. It's whole number × denominator + numerator: 4 × 3 + 2.",
+          "4 × 3 = 12 thirds is right for the 4 wholes, but you forgot to add the extra 2 thirds.",
+        ],
+        explanation:
+          "Count the thirds: one whole is {{3/3}}, so 4 wholes are 4 × 3 = 12 thirds. Add the 2 thirds from the fraction part: 12 + 2 = 14, so {{4 2/3 = 14/3}}. Memory trick: **multiply the whole number by the bottom, add the top, keep the bottom**. Check: 14 ÷ 3 = 4 remainder 2 ✓",
+        hints: ["How many thirds are there in 4 whole ones?"],
+        verify: "4+2/3",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m1-q03",
+        topic: "fr",
+        section: "fr-addsub",
+        difficulty: "warmup",
+        question: "Work out {{4/5 + 2/3}}.",
+        options: ["{{6/15}}", "{{1 7/22}}", "{{6/8}}", "{{1 7/15}}"],
+        answerIndex: 3,
+        optionFeedback: [
+          "You changed both denominators to 15 but left the tops as 4 and 2. Scale each top by the same number as its bottom: {{4/5 = 12/15}} and {{2/3 = 10/15}}.",
+          "{{22/15}} is right, but when you changed it to a mixed number the remainder 7 went over 22. It stays over 15 — the pieces are fifteenths.",
+          "{{6/8}} comes from adding the tops and adding the bottoms. You can only add the numerators once the denominators match.",
+          "{{4/5 = 12/15}} and {{2/3 = 10/15}}, so the total is {{22/15 = 1 7/15}}.",
+        ],
+        explanation:
+          "Fifths and thirds are different-sized pieces, so make them the same first. The LCM of 5 and 3 is 15: {{4/5 = 12/15}} and {{2/3 = 10/15}}. Now add the numerators only: {{12/15 + 10/15 = 22/15}}, and 15 goes into 22 once with 7 left over, so the answer is {{1 7/15}}. Quick check: both fractions are more than a half, so the total must be more than 1 ✓",
+        hints: ["Can you add fifths and thirds straight away, or do the pieces need to be the same size first?"],
+        strategy: "Find a common denominator",
+        verify: "4/5+2/3",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m1-q04",
+        topic: "fr",
+        section: "fr-muldiv",
+        difficulty: "warmup",
+        question: "A rain barrel holds 48 litres when it is full. At the moment it is {{3/8}} full. How many litres of water are in the barrel?",
+        options: ["6 litres", "18 litres", "30 litres", "128 litres"],
+        answerIndex: 1,
+        optionFeedback: [
+          "6 litres is {{1/8}} of the barrel. You need 3 of those eighths, so multiply by 3.",
+          "48 ÷ 8 = 6 litres in each eighth, and 3 eighths make 3 × 6 = 18 litres.",
+          "30 litres is {{5/8}} of the barrel — the empty part. The barrel is {{3/8}} full, so you need 3 eighths.",
+          "128 comes from dividing by 3 and multiplying by 8 — the fraction is upside down. {{3/8}} of something must be less than the whole thing.",
+        ],
+        explanation:
+          "To find a fraction of an amount, **divide by the denominator, then multiply by the numerator**. One eighth of 48 litres is 48 ÷ 8 = 6 litres, so three eighths is 3 × 6 = 18 litres. Sense check: {{3/8}} is a bit less than a half, and 18 is a bit less than 24 ✓",
+        hints: ["What is {{1/8}} of 48 litres?"],
+        strategy: "Use a bar model",
+        verify: "3/8*48",
+      },
+      {
+        id: "fr-m1-q05",
+        topic: "fr",
+        section: "fr-addsub",
+        difficulty: "core",
+        question: "Work out {{2 3/4 + 1 5/6}}.",
+        options: ["{{4 7/12}}", "{{3 7/12}}", "{{4 1/6}}", "{{3 8/10}}"],
+        answerIndex: 0,
+        optionFeedback: [
+          "2 + 1 = 3, and {{3/4 + 5/6 = 9/12 + 10/12 = 19/12 = 1 7/12}}, so the total is {{4 7/12}}.",
+          "{{19/12}} is more than a whole — it's {{1 7/12}}. You dropped that extra whole, so your total is 1 too small.",
+          "You changed {{5/6}} into {{5/12}} without scaling the top. Sixths become twelfths by doubling the top and the bottom: {{5/6 = 10/12}}.",
+          "{{8/10}} comes from adding the tops (3 + 5) and the bottoms (4 + 6). Use a common denominator, 12, first.",
+        ],
+        explanation:
+          "Add the whole numbers and the fractions separately: 2 + 1 = 3, and in twelfths {{3/4 + 5/6 = 9/12 + 10/12 = 19/12 = 1 7/12}}. That's another whole, so the total is 3 + {{1 7/12}} = {{4 7/12}}. Check with improper fractions: {{11/4 + 11/6 = 33/12 + 22/12 = 55/12 = 4 7/12}} ✓",
+        hints: ["Add the whole numbers first, then the fractions.", "Write both fractions as twelfths. Is the fraction total bigger than 1?"],
+        strategy: "Find a common denominator",
+        verify: "(2+3/4)+(1+5/6)",
+      },
+      {
+        id: "fr-m1-q06",
+        topic: "fr",
+        section: "fr-muldiv",
+        difficulty: "core",
+        question: "Work out {{5/6 ÷ 2/3}}.",
+        options: ["{{5/9}}", "{{4/5}}", "{{1 1/4}}", "{{1 4/5}}"],
+        answerIndex: 2,
+        optionFeedback: [
+          "{{5/9}} is {{5/6 × 2/3}} — you multiplied without flipping. To divide by {{2/3}}, multiply by {{3/2}}.",
+          "You flipped the first fraction instead of the second. Keep {{5/6}}, change ÷ to ×, and flip {{2/3}} into {{3/2}}.",
+          "{{5/6 × 3/2 = 15/12 = 5/4 = 1 1/4}}.",
+          "You flipped both fractions. Only the second one — the fraction you are dividing by — gets flipped.",
+        ],
+        explanation:
+          "Use **Keep, Change, Flip**: keep {{5/6}}, change ÷ into ×, and flip {{2/3}} into {{3/2}}. Then {{5/6 × 3/2 = 15/12}}, which simplifies to {{5/4 = 1 1/4}}. Sense check: how many lots of {{2/3}} fit into {{5/6}}? Since {{2/3 = 4/6}} is a bit less than {{5/6}}, the answer should be a bit more than 1 ✓",
+        hints: [
+          "Dividing by a fraction is the same as multiplying by its reciprocal. Which fraction gets flipped?",
+          "Keep {{5/6}}, change ÷ to ×, flip {{2/3}} — then simplify.",
+        ],
+        strategy: "Estimate first",
+        verify: "(5/6)/(2/3)",
+      },
+      {
+        id: "fr-m1-q07",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "core",
+        question:
+          "My four pet monkeys and I harvested a large pile of peanuts. In the night, Monkey A woke and ate half of them. Then Monkey B woke and ate one third of what remained. Then Monkey C woke and ate one quarter of the rest. Finally, Monkey D ate one fifth of the much diminished remaining pile. What fraction of the original harvest was left in the morning?",
+        options: ["{{1/120}}", "{{1/5}}", "{{4/5}}", "None — they ate the whole pile"],
+        answerIndex: 1,
+        optionFeedback: [
+          "{{1/120}} comes from multiplying the fractions that were *eaten*. Multiply the fractions that were *left* instead: {{1/2}}, {{2/3}}, {{3/4}} and {{4/5}}.",
+          "Each monkey leaves a fraction of what it finds: {{1/2 × 2/3 × 3/4 × 4/5 = 1/5}}.",
+          "{{4/5}} is the fraction that was *eaten* altogether. The question asks what was *left*.",
+          "Adding {{1/2 + 1/3 + 1/4 + 1/5}} gives more than 1 — but each monkey ate a fraction of a *smaller* pile, not of the original pile. Track what's left instead.",
+        ],
+        explanation:
+          "Each monkey eats a fraction **of what's left**, so track what's left — and *of* means ×. A leaves {{1/2}} of the pile, B leaves {{2/3}} of that, C leaves {{3/4}} of that and D leaves {{4/5}} of that. So the fraction left is {{1/2 × 2/3 × 3/4 × 4/5}}, and the numbers cancel in a chain to give {{1/5}}. Check with 120 peanuts: 120 → 60 → 40 → 30 → 24, and 24 is {{1/5}} of 120 ✓",
+        hints: [
+          "Don't add up the fractions eaten. After Monkey A, what fraction of the pile is left?",
+          "Monkey B leaves {{2/3}} of what it finds. What fraction does each monkey leave, and how do you find a fraction of a fraction?",
+        ],
+        strategy: "Find a pattern",
+        verify: "(1-1/2)*(1-1/3)*(1-1/4)*(1-1/5)",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m1-q08",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "core",
+        question: "Simplify {{3xy/xz}}.",
+        options: ["{{3}}", "{{3xy/z}}", "{{3y}}", "{{3y/z}}"],
+        answerIndex: 3,
+        optionFeedback: [
+          "You cancelled y with z, but only *matching* factors cancel. y and z are different letters, so they both stay.",
+          "You crossed out the x on the bottom but kept the x on the top. Cancelling removes one x from the top **and** one from the bottom, because {{x/x = 1}}.",
+          "The z has no partner on the top, so it can't cancel — it stays on the bottom.",
+          "x is a factor of the top and of the bottom, so it cancels: {{3xy/xz = 3y/z}}.",
+        ],
+        explanation:
+          "Write the top and the bottom as products: {{(3 × x × y)/(x × z)}}. There is an x on the top and an x on the bottom, and {{x/x = 1}}, so they cancel. Nothing else matches, so {{3xy/xz = 3y/z}}. Check by substituting x = 2, y = 5 and z = 3: {{30/6 = 5}} and {{15/3 = 5}} ✓",
+        hints: [
+          "Write the top as 3 × x × y and the bottom as x × z. Which factor appears in both?",
+          "A factor on the top cancels with the same factor on the bottom. What is left?",
+        ],
+        strategy: "Spot the common factor",
+        verify: "3xy/xz",
+        source: "Class example",
+      },
+      {
+        id: "fr-m1-q09",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "core",
+        question: "Work out {{3x/4 × 8/(9x^2)}}. Give your answer in its simplest form.",
+        options: ["{{2x/3}}", "{{2/3}}", "{{2/(3x)}}", "{{27x^3/32}}"],
+        answerIndex: 2,
+        optionFeedback: [
+          "The numbers are right, but {{x/x^2}} is {{1/x}}, not x. After cancelling, one x is left on the **bottom**.",
+          "You cancelled the {{x^2}} completely. {{x^2}} is x × x, so cancelling the one x on the top still leaves an x on the bottom.",
+          "{{(3x × 8)/(4 × 9x^2) = 24x/(36x^2)}}, and cancelling 12 and one x leaves {{2/(3x)}}.",
+          "{{27x^3/32}} comes from flipping the second fraction — that's for dividing. To multiply, multiply the tops and multiply the bottoms.",
+        ],
+        explanation:
+          "Multiply the tops and multiply the bottoms: {{(3x × 8)/(4 × 9x^2) = 24x/(36x^2)}}. Now cancel common factors: 24 and 36 share 12, giving {{2/3}}, and {{x/x^2 = x/(x × x) = 1/x}}. So the answer is {{2/(3x)}}. You can also cancel before multiplying: 3 with 9, 8 with 4, and x with {{x^2}}.",
+        hints: [
+          "Multiply the tops together and the bottoms together.",
+          "Cancel the numbers, then think about {{x/x^2}}: how many x's are on the top, and how many on the bottom?",
+        ],
+        strategy: "Spot the common factor",
+        verify: "3x/4*8/(9x^2)",
+      },
+      {
+        id: "fr-m1-q10",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "challenge",
+        question:
+          "Zara spent {{1/3}} of her pocket money on a book. Then she spent {{1/4}} of the money she had left on a cinema ticket. She now has £12. How much pocket money did she start with?",
+        options: ["£24", "£28.80", "£20", "£16"],
+        answerIndex: 0,
+        optionFeedback: [
+          "Before the ticket she had £12 ÷ {{3/4}} = £16, and before the book she had £16 ÷ {{2/3}} = £24.",
+          "This treats both fractions as fractions of all her pocket money ({{1 - 1/3 - 1/4 = 5/12}} left). But the {{1/4}} is a quarter of the money she had *left*, not of the original amount.",
+          "You added {{1/4}} of £12 and then {{1/3}} of £15 — but those fractions were of the *bigger* amounts. £12 is {{3/4}} of the money before the ticket, so undo it by dividing by {{3/4}}.",
+          "£16 is what she had after buying the book. You still need to undo the book: £16 is {{2/3}} of her pocket money.",
+        ],
+        explanation:
+          "Work backwards from the £12. The ticket cost {{1/4}} of what she had, so £12 is the {{3/4}} that was left: {{1/4}} is £4, so she had £16. The book cost {{1/3}} of her pocket money, so £16 is the {{2/3}} that was left: {{1/3}} is £8, so she started with £24. Check forwards: {{1/3}} of £24 is £8, leaving £16; {{1/4}} of £16 is £4, leaving £12 ✓",
+        hints: [
+          "Start at the end. £12 is what was left after the ticket — what fraction of her money *before* the ticket is that?",
+          "£12 is {{3/4}} of the money she had before the ticket. What is {{1/4}} of it, and so what is the whole?",
+          "Now undo the book in the same way: the money after the book is {{2/3}} of her pocket money.",
+        ],
+        strategy: "Work backwards",
+        verify: "12/(1-1/4)/(1-1/3)",
+      },
+    ],
+  },
+
+  // ===========================================================================
+  // SET 2 · Core skills  (warm-up 2 / core 6 / challenge 2)
+  // ===========================================================================
+  {
+    id: "fr-mcq-2",
+    title: "Set 2 · Core skills",
+    subtitle: "Ordering, the halfway fraction, mixed-number subtraction, multiplication and division, fraction problems, the badminton club and algebraic fractions",
+    topic: "fr",
+    questions: [
+      {
+        id: "fr-m2-q01",
+        topic: "fr",
+        section: "fr-equivalent",
+        difficulty: "warmup",
+        question: "Write these fractions in order of size, smallest first.\n\n{{3/4}}, {{5/6}}, {{2/3}}, {{7/12}}",
+        options: [
+          "{{2/3}}, {{3/4}}, {{5/6}}, {{7/12}}",
+          "{{7/12}}, {{2/3}}, {{3/4}}, {{5/6}}",
+          "{{5/6}}, {{3/4}}, {{2/3}}, {{7/12}}",
+          "{{7/12}}, {{5/6}}, {{3/4}}, {{2/3}}",
+        ],
+        answerIndex: 1,
+        optionFeedback: [
+          "This orders them by the size of the numbers in each fraction. Bigger numbers don't make a bigger fraction — in twelfths, {{7/12}} is the smallest of all.",
+          "In twelfths they are {{7/12}}, {{8/12}}, {{9/12}} and {{10/12}}, so this order is right.",
+          "These are in order from **largest** to smallest. The question asks for the smallest first.",
+          "Twelfths are the smallest pieces, but you also have to count how many pieces there are. In twelfths, {{2/3 = 8/12}} is smaller than {{5/6 = 10/12}}.",
+        ],
+        explanation:
+          "Rewrite every fraction with the same denominator. The LCM of 4, 6, 3 and 12 is 12, so {{3/4 = 9/12}}, {{5/6 = 10/12}}, {{2/3 = 8/12}} and {{7/12}} stays as it is. Now compare the numerators 7, 8, 9 and 10: the order is {{7/12}}, {{2/3}}, {{3/4}}, {{5/6}}.",
+        hints: ["Change all four fractions into twelfths, then compare the numerators."],
+        strategy: "Find a common denominator",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m2-q02",
+        topic: "fr",
+        section: "fr-addsub",
+        difficulty: "warmup",
+        question: "Work out {{7/10 - 1/4}}.",
+        options: ["{{6/6}}", "{{6/20}}", "{{13/20}}", "{{9/20}}"],
+        answerIndex: 3,
+        optionFeedback: [
+          "{{6/6}} comes from subtracting the tops (7 − 1) and the bottoms (10 − 4). You need a common denominator before you subtract.",
+          "You used 20 as the denominator but didn't scale the tops. {{7/10 = 14/20}} and {{1/4 = 5/20}}.",
+          "You changed {{7/10}} into {{14/20}} but then took away 1 instead of 5. In twentieths, {{1/4 = 5/20}}.",
+          "{{7/10 = 14/20}} and {{1/4 = 5/20}}, so the difference is {{9/20}}.",
+        ],
+        explanation:
+          "The LCM of 10 and 4 is 20. Multiply the top and bottom of {{7/10}} by 2 to get {{14/20}}, and the top and bottom of {{1/4}} by 5 to get {{5/20}}. Then subtract the numerators only: {{14/20 - 5/20 = 9/20}}. Check with decimals: 0.7 − 0.25 = 0.45, and {{9/20}} = 0.45 ✓",
+        hints: ["What is the lowest common multiple of 10 and 4?"],
+        strategy: "Find a common denominator",
+        verify: "7/10-1/4",
+      },
+      {
+        id: "fr-m2-q03",
+        topic: "fr",
+        section: "fr-equivalent",
+        difficulty: "core",
+        question: "Which fraction is exactly halfway between {{1/4}} and {{1/3}}?",
+        options: ["{{7/24}}", "{{2/7}}", "{{7/12}}", "{{1/12}}"],
+        answerIndex: 0,
+        optionFeedback: [
+          "{{1/4 = 6/24}} and {{1/3 = 8/24}}, and {{7/24}} is exactly in the middle — {{1/24}} from each.",
+          "{{2/7}} comes from adding the tops and adding the bottoms. It does lie between the two fractions, but not exactly halfway — compare them with a common denominator instead.",
+          "{{7/12}} is {{1/4 + 1/3}}. To find the number halfway between two numbers, add them **and then halve**.",
+          "{{1/12}} is the *gap* between {{1/4}} and {{1/3}}, not the number halfway between them.",
+        ],
+        explanation:
+          "Rewrite both fractions with a common denominator: {{1/4 = 3/12}} and {{1/3 = 4/12}}. There is no whole number between 3 and 4, so use smaller pieces — double the tops and bottoms to get {{6/24}} and {{8/24}}. Now {{7/24}} sits exactly in the middle. Check by adding and halving: {{(1/4 + 1/3) ÷ 2 = 7/12 ÷ 2 = 7/24}} ✓",
+        hints: [
+          "Write {{1/4}} and {{1/3}} with the same denominator. What lies between the two numerators?",
+          "If there's no whole number between the numerators, double the top and bottom of both fractions.",
+        ],
+        strategy: "Find a common denominator",
+        verify: "(1/4+1/3)/2",
+      },
+      {
+        id: "fr-m2-q04",
+        topic: "fr",
+        section: "fr-addsub",
+        difficulty: "core",
+        question: "Work out {{3 2/5 - 1 2/3}}.",
+        options: ["{{2 4/15}}", "{{4/5}}", "{{1 11/15}}", "{{2 11/15}}"],
+        answerIndex: 2,
+        optionFeedback: [
+          "You did 3 − 1 = 2 and then {{2/3 - 2/5}}, the wrong way round, because {{2/5}} is smaller than {{2/3}}. You can't swap a subtraction — borrow a whole instead.",
+          "{{4/5}} comes from {{17/15 - 5/15}}: you used 15 as the denominator but didn't scale the tops. {{17/5 = 51/15}} and {{5/3 = 25/15}}.",
+          "{{17/5 - 5/3 = 51/15 - 25/15 = 26/15 = 1 11/15}}.",
+          "You borrowed a whole to turn {{2/5}} into {{7/5}}, but forgot to take that whole off the 3. It becomes 2, and 2 − 1 = 1 whole.",
+        ],
+        explanation:
+          "Method 1, improper fractions: {{3 2/5 = 17/5}} and {{1 2/3 = 5/3}}. In fifteenths that's {{51/15 - 25/15 = 26/15}}, and 26 ÷ 15 = 1 remainder 11, so the answer is {{1 11/15}}. Method 2, borrow a whole: {{2/5}} is smaller than {{2/3}}, so rewrite {{3 2/5}} as {{2 7/5 = 2 21/15}}; then {{2 21/15 - 1 10/15 = 1 11/15}} ✓",
+        hints: [
+          "Change both mixed numbers into improper fractions first.",
+          "Rewrite {{17/5}} and {{5/3}} as fifteenths, then subtract the numerators.",
+        ],
+        strategy: "Find a common denominator",
+        verify: "(3+2/5)-(1+2/3)",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m2-q05",
+        topic: "fr",
+        section: "fr-muldiv",
+        difficulty: "core",
+        question: "Work out {{2 1/2 × 1 2/5}}.",
+        options: ["{{2 1/5}}", "{{9/10}}", "{{1 11/14}}", "{{3 1/2}}"],
+        answerIndex: 3,
+        optionFeedback: [
+          "You multiplied the whole numbers (2 × 1) and the fractions ({{1/2 × 2/5}}) separately. That misses parts of the product, such as 2 × {{2/5}} — change to improper fractions first.",
+          "{{9/10}} comes from {{3/2 × 3/5}}: you added the whole number to the numerator. {{2 1/2}} is {{5/2}} (2 × 2 + 1) and {{1 2/5}} is {{7/5}} (1 × 5 + 2).",
+          "{{1 11/14}} comes from flipping {{7/5}} — that's what you do to divide. To multiply, multiply straight across.",
+          "{{5/2 × 7/5 = 35/10 = 7/2 = 3 1/2}}.",
+        ],
+        explanation:
+          "Change mixed numbers into improper fractions before multiplying: {{2 1/2 = 5/2}} and {{1 2/5 = 7/5}}. Cancel the 5s first, then multiply: {{5/2 × 7/5 = 7/2 = 3 1/2}}. Decimal check: 2.5 × 1.4 = 3.5 ✓",
+        hints: ["Change both mixed numbers into improper fractions.", "In {{5/2 × 7/5}}, can anything cancel before you multiply?"],
+        strategy: "Spot the common factor",
+        verify: "(2+1/2)*(1+2/5)",
+      },
+      {
+        id: "fr-m2-q06",
+        topic: "fr",
+        section: "fr-muldiv",
+        difficulty: "core",
+        question: "Work out {{5 1/4 ÷ 3/8}}.",
+        options: ["14", "{{1 31/32}}", "{{13 1/3}}", "4"],
+        answerIndex: 0,
+        optionFeedback: [
+          "{{5 1/4 = 21/4}}, and {{21/4 × 8/3 = 168/12 = 14}}.",
+          "You multiplied by {{3/8}} instead of dividing. Keep, Change, Flip: multiply by {{8/3}}.",
+          "{{13 1/3}} comes from using {{20/4}} for {{5 1/4}} — you forgot to add the extra quarter. {{5 1/4}} is 21 quarters.",
+          "4 comes from writing {{5 1/4}} as {{6/4}} (adding the 5 and the 1). It's 5 × 4 + 1 = 21 quarters, so {{21/4}}.",
+        ],
+        explanation:
+          "First make the mixed number improper: {{5 1/4 = 21/4}}, because 5 × 4 + 1 = 21. Then Keep, Change, Flip: {{21/4 × 8/3}}. Cancel 21 with 3 (giving 7 and 1) and 8 with 4 (giving 2 and 1), so the answer is 7 × 2 = 14. Check: 14 × {{3/8}} = {{42/8 = 5 1/4}} ✓",
+        hints: [
+          "Change {{5 1/4}} into an improper fraction first.",
+          "Dividing by {{3/8}} is the same as multiplying by {{8/3}}. Can you cancel before multiplying?",
+        ],
+        strategy: "Spot the common factor",
+        verify: "(5+1/4)/(3/8)",
+      },
+      {
+        id: "fr-m2-q07",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "core",
+        question: "A water tank is {{3/5}} full. After 12 litres are used, it is {{1/3}} full. How many litres does the tank hold when it is full?",
+        options: ["36 litres", "45 litres", "90 litres", "20 litres"],
+        answerIndex: 1,
+        optionFeedback: [
+          "36 litres treats the 12 litres as {{1/3}} of the tank. But 12 litres is the part that was *used* — the drop from {{3/5}} to {{1/3}}.",
+          "The 12 litres is {{3/5 - 1/3 = 4/15}} of the tank, so {{1/15}} is 3 litres and the full tank is 15 × 3 = 45 litres.",
+          "{{3/15 - 1/15 = 2/15}} uses 15 as the denominator without scaling the tops. {{3/5 = 9/15}} and {{1/3 = 5/15}}, so the drop is {{4/15}}.",
+          "20 litres treats the 12 litres as {{3/5}} of the tank. The 12 litres is only the part used — the difference between {{3/5}} and {{1/3}}.",
+        ],
+        explanation:
+          "The 12 litres is the *drop* from {{3/5}} full to {{1/3}} full. In fifteenths, {{3/5 - 1/3 = 9/15 - 5/15 = 4/15}} of the tank. So {{4/15}} is 12 litres, {{1/15}} is 12 ÷ 4 = 3 litres, and the full tank is 15 × 3 = 45 litres. Check: {{3/5}} of 45 = 27 and {{1/3}} of 45 = 15, and 27 − 15 = 12 ✓",
+        hints: [
+          "What fraction of the tank do the 12 litres make up?",
+          "Work out {{3/5 - 1/3}}. If that fraction of the tank is 12 litres, what is {{1/15}} of the tank?",
+        ],
+        strategy: "Use a bar model",
+        verify: "12/(3/5-1/3)",
+      },
+      {
+        id: "fr-m2-q08",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "core",
+        question: "Simplify {{42xyz/56}}.",
+        options: ["{{3/4}}", "{{4xyz/3}}", "{{3xyz/4}}", "{{3xyz/56}}"],
+        answerIndex: 2,
+        optionFeedback: [
+          "The letters can't just disappear. There is no x, y or z on the bottom to cancel with, so they all stay on the top.",
+          "This is upside down — the 42 is on the top. {{42/56}} simplifies to {{3/4}}, not {{4/3}}.",
+          "The HCF of 42 and 56 is 14: 42 ÷ 14 = 3 and 56 ÷ 14 = 4. No letters cancel, so it's {{3xyz/4}}.",
+          "You divided the top by 14 but not the bottom. To simplify, divide the top **and** the bottom by the same number.",
+        ],
+        explanation:
+          "Only common factors cancel. The letters x, y and z are on the top only, so they all stay. The numbers simplify: the HCF of 42 and 56 is 14, and 42 ÷ 14 = 3, 56 ÷ 14 = 4, so {{42xyz/56 = 3xyz/4}}. If you don't spot 14 straight away, cancel in steps: {{42/56 = 21/28 = 3/4}}.",
+        hints: [
+          "Is there an x, y or z on the bottom for the letters to cancel with?",
+          "What is the highest common factor of 42 and 56?",
+        ],
+        strategy: "Spot the common factor",
+        verify: "42xyz/56",
+        source: "Class example",
+      },
+      {
+        id: "fr-m2-q09",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "challenge",
+        question:
+          "{{7/12}} of the members of a badminton club are women. {{3/8}} of the members wear glasses. What is the smallest possible number of members of the badminton club?",
+        options: ["24", "96", "20", "12"],
+        answerIndex: 0,
+        optionFeedback: [
+          "24 is the smallest number that both 12 and 8 divide into: {{7/12}} of 24 = 14 women and {{3/8}} of 24 = 9 people with glasses.",
+          "96 = 12 × 8 does work, but it isn't the *smallest*. 24 is a smaller number that both 12 and 8 go into.",
+          "20 = 12 + 8, but {{7/12}} of 20 isn't a whole number of people. The total must be a multiple of 12 *and* of 8.",
+          "With 12 members, {{3/8}} of 12 = 4.5 people would wear glasses — impossible! The total must also be a multiple of 8.",
+        ],
+        explanation:
+          "You can't have part of a person, so {{7/12}} of the members must be a whole number — the total must be a multiple of 12. In the same way, {{3/8}} of the members must be whole, so the total is also a multiple of 8. The multiples of 12 are 12, 24, 36, …, and the first one that 8 also goes into is 24 — the LCM of 12 and 8. Check: {{7/12}} of 24 = 14 and {{3/8}} of 24 = 9 ✓",
+        hints: [
+          "Can {{7/12}} of the members be part of a person? What does that tell you about the total?",
+          "The total must be a multiple of 12 and also a multiple of 8.",
+          "List the multiples of 12. Which is the first one that 8 also divides into?",
+        ],
+        strategy: "Try small cases",
+        verify: "12*8/4",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-m2-q10",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "challenge",
+        question: "What must you multiply {{6x/5}} by to get {{2x^2}}?",
+        options: ["{{12x^3/5}}", "{{5x/3}}", "{{3/(5x)}}", "{{5/3}}"],
+        answerIndex: 1,
+        optionFeedback: [
+          "{{12x^3/5}} is {{2x^2 × 6x/5}} — you multiplied. To find the missing fraction, undo the multiplication: **divide** {{2x^2}} by {{6x/5}}.",
+          "{{2x^2 ÷ 6x/5 = 2x^2 × 5/(6x) = 10x^2/(6x) = 5x/3}}. Check: {{6x/5 × 5x/3 = 30x^2/15 = 2x^2}} ✓",
+          "{{3/(5x)}} is {{6x/5 ÷ 2x^2}} — the division is the wrong way round. You need {{2x^2 ÷ 6x/5}}.",
+          "The numbers are right, but {{x^2/x}} is x, not 1. One x is left on the top.",
+        ],
+        explanation:
+          "If {{6x/5 × □ = 2x^2}}, then the missing fraction is {{2x^2 ÷ 6x/5}}. Keep, Change, Flip: {{2x^2 × 5/(6x) = 10x^2/(6x)}}. Cancel 2 from 10 and 6, and one x from {{x^2}} and x, which leaves {{5x/3}}. Check by multiplying back: {{6x/5 × 5x/3 = 30x^2/15 = 2x^2}} ✓",
+        hints: [
+          "Undo the multiplication: which operation takes you from {{2x^2}} back to the missing fraction?",
+          "Work out {{2x^2 ÷ 6x/5}} using Keep, Change, Flip.",
+          "After flipping you have {{10x^2/(6x)}}. Cancel the numbers, then think about {{x^2/x}}.",
+        ],
+        strategy: "Work backwards",
+        verify: "2x^2/(6x/5)",
+      },
+    ],
+  },
+];
