@@ -97,3 +97,8 @@ test("yes/no answers may carry a reason", () => {
   for (const a of ["yes", "Yes he is", "not sure"]) assert.notEqual(st(no, a), "correct", a);
   assert.equal(st({ type: "text", accept: ["sometimes"] }, "Sometimes - e.g. x = 0.5"), "correct");
 });
+
+test("a mixed number inside algebra means whole + fraction", () => {
+  assert.equal(st({ type: "expression", expr: "3x/2" }, "1 1/2 x"), "correct");
+  assert.equal(st({ type: "expression", expr: "2.5n^2-2.5n+1" }, "2 1/2n^2 - 2 1/2n + 1"), "correct");
+});

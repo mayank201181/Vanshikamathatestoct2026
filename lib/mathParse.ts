@@ -233,6 +233,8 @@ function tokenizeExpr(input: string): Tok[] | null {
 
 /** Parse an algebraic expression (implicit multiplication allowed). Null on failure. */
 export function parseExpr(input: string): Expr | null {
+  // A mixed number typed in algebra ("1 1/2 x", "2 3/4") means 1 + 1/2, not 1 × 1/2.
+  input = normalizeInput(input).replace(/(^|[^\d.\s]\s*|^\s*)(\d+)\s+(\d+)\s*\/\s*(\d+)(?![\d.])/g, "$1($2+$3/$4)");
   const toks = tokenizeExpr(input);
   if (!toks || toks.length === 0) return null;
   let pos = 0;

@@ -425,12 +425,12 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "Substitutes correctly: x = 0 gives 4 + 6 = 10 and x = 5 gives 24 − 14 = 10",
-                keywords: ["4+6", "24+14", "24 14"],
+                keywords: ["4 6", "4 0 1", "4 5 1", "24+14", "24 14"],
                 feedback: "Put each value into the original expression: x = 0 gives 4 × 1 − 2 × (−3) = 4 + 6 = 10, and x = 5 gives 4 × 6 − 2 × 7 = 24 − 14 = 10.",
               },
               {
                 point: "Concludes that she is right: the x terms cancel (4x − 4x = 0), so it always equals 10 — an identity",
-                keywords: ["yes", "she is right", "is right", "correct", "always 10", "cancel", "identity", "every value", "all values", "any value", "4x+4x"],
+                keywords: ["yes", "she is right", "is right", "correct", "always 10", "cancel", "identity", "every value", "all values", "any value", "4x 4x"],
                 feedback: "Finish with a conclusion: yes, she's right — 4x − 4x = 0, so the expression is 10 for every value of x. It's an identity: 4(x + 1) − 2(2x − 3) ≡ 10.",
               },
             ],
@@ -588,7 +588,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "Rectangle A has area {{(12x - 8)}} cm² and width 4 cm. Write an expression for its length.",
+            prompt: "Rectangle A has area {{(12x - 8)}} cm² and width 4 cm. Write an expression for its length. Simplify it fully, with no brackets.",
             marks: 1,
             answer: { type: "expression", expr: "3x-2", form: "simplified" },
             verify: "(12x-8)/4",
@@ -599,7 +599,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
           },
           {
             label: "b",
-            prompt: "Rectangle B has area {{(x^2 + 7x)}} cm² and width x cm. Write an expression for its length.",
+            prompt: "Rectangle B has area {{(x^2 + 7x)}} cm² and width x cm. Write an expression for its length. Simplify it fully, with no brackets.",
             marks: 1,
             answer: { type: "expression", expr: "x+7", form: "simplified" },
             verify: "(x^2+7x)/x",
@@ -707,7 +707,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
             prompt: "The angles in a triangle add up to 180°. Use this to find the value of x.",
             marks: 2,
             answer: { type: "number", value: 25, display: "x = 25" },
-            verify: "(180-30)/6",
+            verify: "(180-(10-5+25))/(2+3+1)",
             traps: [
               { spec: { type: "number", value: 35 }, feedback: "6x + 30 = 180, so subtract 30 (don't add it): 6x = 150." },
               { spec: { type: "number", value: 30 }, feedback: "Don't forget the + 30: 6x + 30 = 180 gives 6x = 150, so x = 150 ÷ 6." },
@@ -718,7 +718,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
             prompt: "Work out the size of the largest angle.",
             marks: 1,
             answer: { type: "number", value: 70, display: "70°" },
-            verify: "3*((180-30)/6)-5",
+            verify: "3*((180-(10-5+25))/(2+3+1))-5",
             traps: [
               { spec: { type: "number", value: 75 }, feedback: "Don't forget the − 5: 3x − 5 = 75 − 5 = 70." },
               { spec: { type: "number", value: 60 }, feedback: "60° is the angle 2x + 10. Work out all three angles — 60°, 70° and 50° — then pick the largest." },
@@ -948,14 +948,14 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
             marks: 2,
             markScheme: [
               {
-                point: "Jun's expression is equivalent to the area: 2x(3x + 6) expands to 6x² + 12x",
-                keywords: ["equivalent", "expands to", "expand+12x", "multiplies out", "is correct", "still equal", "same as"],
-                feedback: "Say what Jun got right: 2x(3x + 6) does expand to 6x² + 12x, so it is equivalent to the area.",
+                point: "Jun's answer is not fully factorised: the bracket (3x + 6) still has a common factor of 3",
+                keywords: ["not fully", "fully factoris", "common factor", "factor of 3", "3 in common", "still has", "take out 3", "taken out 3", "divided by 3", "divide by 3", "divisible by 3", "multiple of 3"],
+                feedback: "Say what's wrong: 2x(3x + 6) does expand to 6x² + 12x, but the bracket 3x + 6 still has a common factor of 3, so it isn't fully factorised.",
               },
               {
-                point: "But it is not fully factorised: (3x + 6) still has a common factor of 3, so the HCF is 6x and the answer is 6x(x + 2)",
-                keywords: ["not fully", "fully factoris", "common factor", "factor of 3", "3 in common", "hcf", "highest common factor", "still has", "take out 3", "divided by 3", "divide by 3", "6x x 2"],
-                feedback: "Explain what's missing: the bracket 3x + 6 still has a common factor of 3. The HCF of 6x² and 12x is 6x, so it should be 6x(x + 2).",
+                point: "The HCF of 6x² and 12x is 6x, so the fully factorised answer is 6x(x + 2)",
+                keywords: ["6x x 2", "hcf+6x", "highest common factor+6x", "take out 6x", "taken out 6x", "6x outside"],
+                feedback: "Finish with the full answer: the HCF of 6x² and 12x is 6x (not 2x), so the area fully factorised is 6x(x + 2).",
               },
             ],
             model: "Jun's answer is equivalent to the area, because 2x(3x + 6) expands to 6x² + 12x. But it is not fully factorised: the bracket (3x + 6) still has a common factor of 3. The highest common factor of 6x² and 12x is 6x, so the fully factorised answer is 6x(x + 2).",
@@ -1175,7 +1175,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
                 keywords: [
                   "negative times a negative", "negative times negative", "negative x negative", "negative negative",
                   "negative multiplied by a negative", "minus times a minus", "minus times minus", "minus minus",
-                  "two negatives", "should be 12", "should be plus", "plus 12", "positive 12", "makes a positive",
+                  "two negatives", "should be 12", "should be plus", "plus 12", "positive 12", "12 not 12", "makes a positive",
                   "gives a positive", "is a positive", "is positive",
                 ],
                 feedback: "Look at −3 × (−4): a negative times a negative is a positive, so the last term should be +12, not −12.",
@@ -1390,8 +1390,8 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
           },
         ],
         hints: [
-          "Use a grid for each pair of brackets. Both expansions should start {{n^2 + 8n}}.",
-          "Subtract the whole of the second expansion. What is left once the {{n^2}} and 8n terms cancel?",
+          "Use a grid for each pair of brackets, then compare the two expansions term by term. What do they have in common?",
+          "Both expansions start {{n^2 + 8n}}. Subtract the whole of the second expansion — what is left once the {{n^2}} and 8n terms cancel?",
           "For (d): 2 + 10 = 4 + 8 = 12, so both expansions start {{n^2 + 12n}}. Compare the number terms 2 × 10 and 4 × 8.",
         ],
         solution: [
@@ -1436,7 +1436,10 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
             marks: 1,
             answer: { type: "number", value: 2 },
             verify: "(4*(7+5)-12)/4-7",
-            traps: [{ spec: { type: "number", value: 9 }, feedback: "That's the result after step 5 if you start with 7. Don't forget step 6: subtract the number you first thought of." }],
+            traps: [
+              { spec: { type: "number", value: 9 }, feedback: "That's the result after step 5 if you start with 7. Don't forget step 6: subtract the number you first thought of." },
+              { spec: { type: "number", value: 8 }, feedback: "8 comes from not dividing the 8 by 4 in step 5. Step 5 divides **every** term: (4n + 8) ÷ 4 = n + 2, so step 6 gives n + 2 − n = 2." },
+            ],
           },
           {
             label: "d",
