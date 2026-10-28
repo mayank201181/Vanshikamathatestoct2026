@@ -180,7 +180,7 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             prompt: "The number of boys is what fraction of the number of girls? Give your answer in its simplest form.",
             marks: 1,
             answer: { type: "fraction", n: 2, d: 5, simplest: true },
-            verify: "2/5",
+            verify: "(35/(2+5)*2)/(35/(2+5)*5)",
             traps: [
               { spec: { type: "fraction", n: 2, d: 7 }, feedback: "{{2/7}} is the boys as a fraction of the whole choir. Here you compare boys with girls only: 2 parts against 5 parts." },
             ],
@@ -245,8 +245,8 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             marks: 2,
             markScheme: [
               {
-                point: "Compares the jugs fairly with numbers, e.g. {{33/88}} and {{32/88}}, or 12 : 20 and 12 : 21, or 0.375 and 0.364",
-                keywords: ["33/88+32/88", "12 to 20+12 to 21", "21 to 35+20 to 35", "0.375+0.364", "0.375+0.36", "37.5+36.4", "common denominator", "same amount of squash"],
+                point: "Compares the jugs fairly with numbers, e.g. {{33/88}} and {{32/88}}, or 12 : 20 and 12 : 21, or 0.375 and 0.364 (or squash ÷ water: 0.6 and 0.57)",
+                keywords: ["33/88+32/88", "12 to 20+12 to 21", "20+21", "21 to 35+20 to 35", "0.375+0.364", "0.375+0.36", "0.375+0.3636", "0.375+0.363", "0.38+0.36", "37.5+36.4", "37.5+36", "0.6+0.57", "0.6+0.571", "common denominator", "same amount of squash"],
                 feedback: "Compare like with like: write {{3/8}} and {{4/11}} with the same denominator ({{33/88}} and {{32/88}}), or scale both jugs to 12 cups of squash (12 : 20 and 12 : 21).",
               },
               {
@@ -760,17 +760,17 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             marks: 2,
             markScheme: [
               {
-                point: "Finds that Mary gets £20 less than Nancy (£60 − £40)",
-                keywords: ["20", "60-40", "60 minus 40"],
+                point: "Uses the actual shares: Nancy gets £60 and Mary gets £40, so Mary gets £20 less than Nancy",
+                keywords: ["20", "60-40", "60 minus 40", "40+60"],
                 feedback: "Start with the amounts: Nancy has £60 and Mary has £40, so Mary gets £20 less than Nancy.",
               },
               {
-                point: "Compares the £20 with Nancy's £60: {{20/60}} = {{1/3}}, about 33%, not 50% — so Mary is wrong",
-                keywords: ["1/3", "one third", "a third", "33", "33.3", "33.33", "20/60"],
-                feedback: "'Less than Nancy' compares with Nancy's amount: £20 out of £60 is {{1/3}}, about 33% — not 50%. So Mary is wrong.",
+                point: "Compares with Nancy's £60: £20 is {{20/60}} = {{1/3}} of it, about 33%, not 50% (or: 50% less than £60 would be £30, not Mary's £40) — so Mary is wrong",
+                keywords: ["1/3", "one third", "a third", "33", "33.3", "33.33", "20/60", "30+40"],
+                feedback: "'Less than Nancy' compares with Nancy's amount: £20 out of £60 is {{1/3}}, about 33% — not 50%. (Check: 50% less than £60 would be £30, but Mary has £40.) So Mary is wrong.",
               },
             ],
-            model: "No, Mary is wrong. Nancy gets £60 and Mary gets £40, so Mary gets £20 less than Nancy. As a fraction of Nancy's share that is {{20/60}} = {{1/3}}, which is about 33% — not 50%. The 50% was worked out from Mary's smaller amount; going the other way you compare with Nancy's bigger amount.",
+            model: "No, Mary is wrong. Nancy gets £60 and Mary gets £40, so Mary gets £20 less than Nancy. As a fraction of Nancy's share that is {{20/60}} = {{1/3}}, which is about 33% — not 50%. (Quick check: 50% less than £60 would be £30, but Mary has £40.) The 50% was worked out from Mary's smaller amount; going the other way you compare with Nancy's bigger amount.",
           },
         ],
         hints: [
@@ -1033,7 +1033,20 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             marks: 1,
             answer: {
               type: "text",
-              accept: ["no", "no he is not", "no, he is not", "no he isnt", "no, he isnt", "no he isn’t", "no, he isn’t", "no he is wrong", "no, he is wrong", "he is wrong", "no it is not", "no, it is not", "not right", "wrong", "false"],
+              // Spaces and straight apostrophes are ignored when marking ("hes" also matches "he's"),
+              // but commas and curly apostrophes (’, typed by tablet keyboards) are not — so list both.
+              accept: [
+                "no", "nope", "wrong", "false", "not right", "incorrect", "not equivalent",
+                "no he is not", "no, he is not", "no he isnt", "no, he isnt", "no he isn’t", "no, he isn’t",
+                "no hes not", "no, hes not", "no he’s not", "no, he’s not",
+                "no he is wrong", "no, he is wrong", "no hes wrong", "no, hes wrong", "no he’s wrong", "no, he’s wrong",
+                "he is wrong", "hes wrong", "he’s wrong", "no he is incorrect", "no, he is incorrect",
+                "no he is not right", "no, he is not right", "no hes not right", "no, hes not right", "no he’s not right", "no, he’s not right",
+                "no it is not", "no, it is not", "no it isnt", "no, it isnt", "no it isn’t", "no, it isn’t",
+                "no its not", "no, its not", "no it’s not", "no, it’s not",
+                "no it is not equivalent", "no, it is not equivalent", "no its not equivalent", "no, its not equivalent", "no it’s not equivalent", "no, it’s not equivalent",
+                "no they are not equivalent", "no, they are not equivalent", "no not equivalent", "no, not equivalent",
+              ],
               display: "No",
             },
           },
@@ -1044,7 +1057,7 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "Equivalent ratios come from multiplying (or dividing) both parts by the same number — not adding",
-                keywords: ["multipl", "times", "divid", "scale", "same number"],
+                keywords: ["multipl", "times both", "times by", "divide both", "dividing both", "scale", "same number"],
                 feedback: "Equivalent ratios are made by multiplying or dividing both parts by the same number (3 : 4 = 6 : 8 = 9 : 12). Adding the same number doesn't keep the parts in proportion.",
               },
               {
@@ -1261,7 +1274,7 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "The two races last different amounts of time: Amina's 12 s in (a) but Bhavi's 15 s in (b)",
-                keywords: ["different time", "different amount of time", "different lengths of time", "takes longer", "lasts longer", "longer race", "more time", "race lasts"],
+                keywords: ["different time", "different amount of time", "different lengths of time", "takes longer", "lasts longer", "longer race", "more time", "race lasts", "race takes", "race is longer", "takes 15", "lasts 15"],
                 feedback: "Say what changes: in (a) the race lasts Amina's 12 seconds, but in (b) it lasts Bhavi's 15 seconds — a longer race.",
               },
               {

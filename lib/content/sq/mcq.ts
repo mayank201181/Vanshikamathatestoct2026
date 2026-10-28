@@ -612,7 +612,7 @@ export const MCQ_SQ: QuestionSet<MCQ>[] = [
           "Pattern n uses 5n + 1 matchsticks, and 5 × 15 + 1 = 76.",
           "You used the first term as the constant (5n + 6 = 76). The zeroth term is 6 − 5 = 1, so solve 5n + 1 = 76.",
           "This comes from n + 5 = 76 — the 'n + difference' slip. Each new hexagon adds 5 matchsticks, so it's 5n.",
-          "76 ÷ 6 treats every hexagon as needing 6 matchsticks, but joined hexagons share a side, so each new one needs only 5.",
+          "76 ÷ 6 ≈ 12.7, which you rounded to 13 — but dividing by 6 treats every hexagon as needing its own 6 matchsticks. Joined hexagons share a side, so each new one needs only 5: Pattern 13 uses 5 × 13 + 1 = 66.",
         ],
         explanation:
           "The matchsticks go 6, 11, 16: the difference is 5, because each new hexagon shares one side with the last. The zeroth term is 6 − 5 = 1, so Pattern n uses 5n + 1 matchsticks. Solve 5n + 1 = 76: 5n = 75, so n = 15. Check: 5 × 15 + 1 = 76 ✓.",

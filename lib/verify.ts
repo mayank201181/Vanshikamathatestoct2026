@@ -127,11 +127,19 @@ export function generates(expr: string, terms: number[]): true | string {
   return ok ? true : `gives ${got.map((g) => +g.toFixed(6)).join(", ")}`;
 }
 
-/** Parse an option as algebra ("28x − 9", "{{6x^2+x-12}}"); null if it isn't plain algebra. */
+/**
+ * Read {{ }} maths the way the page shows it: a run like 2xz after "/" is the whole
+ * denominator ({{3xy/xz}} is 3xy over xz), so wrap it in brackets before parsing.
+ */
+export function asDisplayed(s: string): string {
+  return s.replace(/\/\s*(\d*(?:\.\d+)?[a-z](?:\^\d+)?(?:[a-z](?:\^\d+)?)*)(?![a-z(])/gi, "/($1)");
+}
+
+/** Parse an option as algebra ("28x − 9", "{{6x^2+x-12}}", "{{3xyz/4}}"); null if it isn't plain algebra. */
 function optionExpr(text: string) {
   const s = normalizeInput(plainOption(text));
-  if (/[a-z]{3,}/i.test(s.replace(/sqrt|cbrt/g, ""))) return null; // words
-  return parseExpr(s);
+  if (/[a-z]{4,}/i.test(s.replace(/sqrt|cbrt/g, ""))) return null; // words
+  return parseExpr(asDisplayed(s));
 }
 
 /** Check an MCQ key against its verify expression. Returns a list of problems (empty = fine). */
@@ -148,7 +156,7 @@ export function verifyMcq(options: string[], answerIndex: number, verify: string
     });
     return problems;
   }
-  const ve = parseExpr(v);
+  const ve = parseExpr(asDisplayed(v));
   if (!ve) return [`verify "${v}" could not be parsed`];
   if (exprVars(ve).size > 0) {
     // algebra: keyed option must be equivalent to the verify expression, and no other option may be

@@ -665,7 +665,7 @@ export const MCQ_EX: QuestionSet<MCQ>[] = [
         options: ["3", "12", "4", "−4"],
         answerIndex: 2,
         optionFeedback: [
-          "The x-terms already match (8x + 3x = 11x). The box has to fix the **numbers**: 4(2x − 3) gives −12, so 3 × □ must be +12.",
+          "3 would only cancel the −3 inside the first bracket, but both brackets get multiplied out: 4(2x − 3) gives −12, so 3 × □ must be +12. With 3 in the box you get 8x − 12 + 3x + 9 = 11x − 3.",
           "You need 3 × □ = 12, so □ = 12 ÷ 3 = 4. With 12 in the box, 3(x + 12) = 3x + 36, which leaves + 24 over.",
           "4(2x − 3) = 8x − 12 and 3(x + 4) = 3x + 12. Adding gives 11x − 12 + 12 = 11x for every value of x.",
           "With −4, both number terms are negative: 8x − 12 + 3x − 12 = 11x − 24. You need + 12 to cancel the − 12.",
@@ -803,7 +803,7 @@ export const MCQ_EX: QuestionSet<MCQ>[] = [
           "x³ can't come out because 15x² only has x². Take out the highest power of x that goes into **every** term — the smaller power, x². This expands to 10x³ − 15x⁴.",
         ],
         explanation:
-          "Find the HCF of the numbers and of the letters. The HCF of 10 and 15 is 5. For the letters, x³ = x × x × x and x² = x × x share x × x = x², so the smaller power wins. The HCF is 5x². Divide: 10x³ ÷ 5x² = 2x and 15x² ÷ 5x² = 3, so the answer is 5x²(2x − 3). Check: 5x² × 2x = 10x³ and 5x² × 3 = 15x² ✓.",
+          "Find the HCF of the numbers and of the letters. The HCF of 10 and 15 is 5. For the letters, x³ = x × x × x and x² = x × x share x × x = x², so the smaller power wins. The HCF is 5x². Divide: 10x³ ÷ 5x² = 2x and 15x² ÷ 5x² = 3, so the answer is 5x²(2x − 3). Check: 5x² × 2x = 10x³ and 5x² × −3 = −15x² ✓.",
         hints: [
           "Find the HCF of 10 and 15, then the highest power of x that goes into both x³ and x².",
           "Divide each term by the HCF, then expand your answer to check.",

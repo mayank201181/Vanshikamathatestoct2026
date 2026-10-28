@@ -84,3 +84,9 @@ test("a multiplier may be typed with a times sign", () => {
   assert.equal(st({ type: "number", value: 1.05, allowFraction: false }, "×1.05"), "correct");
   assert.equal(st({ type: "number", value: 0.9, allowFraction: false }, "x 0.9"), "correct");
 });
+
+test("MCQ algebra options are read the way {{ }} displays them", () => {
+  assert.deepEqual(verifyMcq(["{{3xyz/4}}", "{{3/4}}", "{{6xyz/8}}x", "{{42xyz}}"], 0, "42xyz/56"), []);
+  assert.deepEqual(verifyMcq(["{{3y/z}}", "{{3yz}}", "{{3/z}}", "{{y/z}}"], 0, "3xy/xz"), []);
+  assert.deepEqual(verifyMcq(["{{f/2c}}", "{{f/(2c)}}x", "{{2f/c}}", "{{fc/2}}"], 0, "17cf/(34c^2)"), []);
+});
