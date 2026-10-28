@@ -949,7 +949,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "Jun's answer is not fully factorised: the bracket (3x + 6) still has a common factor of 3",
-                keywords: ["not fully", "fully factoris", "common factor", "factor of 3", "3 in common", "still has", "take out 3", "taken out 3", "divided by 3", "divide by 3", "divisible by 3", "multiple of 3"],
+                keywords: ["not fully", "isnt fully", "didnt factoris", "fully factoris", "common factor", "factor of 3", "3 in common", "still has", "take out 3", "take 3 out", "taken out 3", "divided by 3", "divide by 3", "divisible by 3", "multiple of 3", "not the hcf", "isnt the hcf"],
                 feedback: "Say what's wrong: 2x(3x + 6) does expand to 6x² + 12x, but the bracket 3x + 6 still has a common factor of 3, so it isn't fully factorised.",
               },
               {
@@ -1478,7 +1478,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "Find an expression for the length of the top edge, P.",
+            prompt: "Find an expression for the length of the top edge, P. Simplify it fully, with no brackets.",
             marks: 1,
             answer: { type: "expression", expr: "x+5", form: "simplified" },
             verify: "(2x+5)-x",
@@ -1486,7 +1486,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
           },
           {
             label: "b",
-            prompt: "Find an expression for the length of the right-hand edge, Q.",
+            prompt: "Find an expression for the length of the right-hand edge, Q. Simplify it fully, with no brackets.",
             marks: 1,
             answer: { type: "expression", expr: "x+4", form: "simplified" },
             verify: "(x+6)-2",
@@ -1516,7 +1516,7 @@ export const WRITTEN_EX: QuestionSet<QA>[] = [
           },
         ],
         hints: [
-          "Label every edge of the L-shape. The top edge is shorter than the bottom edge because x was cut away.",
+          "Label every edge of the L-shape. Which edges along the top add up to the same length as the bottom edge?",
           "Perimeter: add all six edges. Area: big rectangle − cut-out, where the big rectangle is (2x + 5)(x + 6).",
           "Surprise check: the perimeter of the L-shape equals the perimeter of the big rectangle. Can you see why?",
         ],
