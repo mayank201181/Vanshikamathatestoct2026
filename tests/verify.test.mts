@@ -72,3 +72,10 @@ test("a short label before the number is ignored", () => {
   assert.equal(st({ type: "number", value: 24 }, "term 24"), "correct");
   assert.equal(st({ type: "number", value: -5 }, "minus 5"), "invalid");
 });
+
+test("labels before list values are ignored", () => {
+  assert.equal(st({ type: "list", values: [1, 7, 19], ordered: true }, "U1=1, U2=7, U3=19"), "correct");
+  assert.equal(st({ type: "list", values: [80, 40, 60], ordered: true }, "Lucy = £80, Mary = £40, Nancy = £60"), "correct");
+  assert.equal(st({ type: "list", values: [2, -3] }, "x = 2 or x = -3"), "correct");
+  assert.equal(st({ type: "list", values: [28, 35] }, "28, 35"), "correct");
+});

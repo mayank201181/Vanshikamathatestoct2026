@@ -257,7 +257,9 @@ function expandPowerProduct(input: string): number[] | null {
   return out;
 }
 
-function checkList(spec: Extract<AnswerSpec, { type: "list" }>, input: string): CheckResult {
+function checkList(spec: Extract<AnswerSpec, { type: "list" }>, rawInput: string): CheckResult {
+  // Labels typed before each value ("U1 = 1, U2 = 7", "T_3=19", "Lucy = £80") are not answers.
+  const input = rawInput.replace(/\b[a-z]{1,8}\s*_?\s*\(?\s*\d{0,2}\s*\)?\s*=\s*/gi, "");
   // A list of prime factors may be typed as a product in index form.
   const product = !spec.ordered && spec.values.length > 1 && spec.values.every(isPrimeInt) ? expandPowerProduct(input) : null;
   let got = product ?? extractNumbers(input);
