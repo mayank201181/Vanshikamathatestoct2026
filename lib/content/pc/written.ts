@@ -1155,7 +1155,7 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             verify: "0.6*100, 5/8*100, 65, 2/3*100",
             traps: [
               { spec: { type: "list", values: [58, 60, 65, 66.7], ordered: true, tolerance: 0.05 }, feedback: "{{5/8}} is not 58%. {{1/8}} = 12.5%, so {{5/8}} = 5 × 12.5% = 62.5%." },
-              { spec: { type: "list", values: [60, 62.5, 65, 66], ordered: true }, feedback: "{{2/3}} is 66.666…%, which is 66.7% to 1 decimal place — not 66%." },
+              { spec: { type: "list", values: [60, 62.5, 65, 66.3], ordered: true, tolerance: 0.35 }, feedback: "Right order! But {{2/3}} = 66.666…%, which rounds to 66.7% to 1 decimal place — not 66% or 66.6% (round, don't chop)." },
             ],
           },
         ],
