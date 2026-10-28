@@ -68,7 +68,7 @@ export const MCQ_FR_B: QuestionSet<MCQ>[] = [
         optionFeedback: [
           "{{2 1/15}} multiplies the wholes (1 × 2) and the fractions ({{1/5 × 1/3}}) separately. That misses the parts 1 × {{1/3}} and {{1/5}} × 2 (think of the grid method), so convert to improper fractions first.",
           "{{18/35}} comes from flipping {{7/3}} as if you were dividing. Only flip for ÷; for × just multiply tops and bottoms: {{6/5 × 7/3}}.",
-          "{{2/5}} comes from turning {{1 1/5}} into {{2/5}} by adding the whole number to the top. One whole is 5 fifths, so {{1 1/5 = 6/5}} (and {{2 1/3 = 7/3}}).",
+          "{{2/5}} comes from adding each whole number to the top: {{1 1/5}} becomes {{2/5}} and {{2 1/3}} becomes {{3/3}} = 1. One whole is 5 fifths, so {{1 1/5 = 6/5}} (and {{2 1/3 = 7/3}}).",
           "Convert first, then multiply: {{6/5 × 7/3 = 42/15 = 14/5 = 2 4/5}}.",
         ],
         explanation:
@@ -255,17 +255,17 @@ export const MCQ_FR_B: QuestionSet<MCQ>[] = [
         options: ["{{1 6/35}}", "{{1/35}}", "{{6/35}}", "{{29/35}}"],
         answerIndex: 2,
         optionFeedback: [
-          "{{1 6/35}} is {{4/7 + 3/5}}. The two shaded parts together are more than one whole rectangle, so take away 1: the extra is the overlap, which is B's strip.",
+          "{{1 6/35}} is {{4/7 + 3/5}}. The two shaded parts together are more than one whole rectangle, so take away 1: the extra is the overlap, which is rectangle B's strip.",
           "{{1/35}} is the difference {{3/5 - 4/7}}. Subtracting the two shaded fractions doesn't give the strip; add them and take away the whole rectangle.",
-          "{{4/7 + 3/5 = 41/35}}, which is {{6/35}} more than one whole rectangle. That overlap is exactly the strip shaded in B.",
-          "{{29/35}} is the **unshaded** part of B ({{1 - 6/35}}). The question asks for the shaded strip.",
+          "{{4/7 + 3/5 = 41/35}}, which is {{6/35}} more than one whole rectangle. That overlap is exactly the strip shaded in rectangle B.",
+          "{{29/35}} is the **unshaded** part of rectangle B ({{1 - 6/35}}). The question asks for the shaded strip.",
         ],
         explanation:
-          "A is shaded from the bottom up to the upper line, and C is shaded from the top down to the lower line. Put together, they cover the whole rectangle once and the strip between the lines twice, so the strip is {{4/7 + 3/5 - 1 = 20/35 + 21/35 - 35/35 = 6/35}}. Check: the lower line is {{2/5}} of the way up, so the strip is {{4/7 - 2/5 = 20/35 - 14/35 = 6/35}} ✓",
+          "Rectangle A is shaded from the bottom up to the upper line, and rectangle C is shaded from the top down to the lower line. Put together, they cover the whole rectangle once and the strip between the lines twice, so the strip is {{4/7 + 3/5 - 1 = 20/35 + 21/35 - 35/35 = 6/35}}. Check: the lower line is {{2/5}} of the way up, so the strip is {{4/7 - 2/5 = 20/35 - 14/35 = 6/35}} ✓",
         hints: [
-          "Imagine laying C's shading on top of A's. What do they cover between them?",
+          "Imagine laying rectangle C's shading on top of rectangle A's. What do they cover between them?",
           "{{4/7 + 3/5}} is more than 1. Which part of the rectangle has been counted twice?",
-          "The part counted twice is B's strip. Work out {{4/7 + 3/5 - 1}} using 35ths.",
+          "The part counted twice is rectangle B's strip. Work out {{4/7 + 3/5 - 1}} using 35ths.",
         ],
         strategy: "Draw a diagram",
         verify: "4/7+3/5-1",
@@ -550,7 +550,7 @@ export const MCQ_FR_B: QuestionSet<MCQ>[] = [
         answerIndex: 3,
         optionFeedback: [
           "{{1/14}} = {{5/70}} comes from adding all the tops and all the bottoms. Fractions can only be added once their denominators match.",
-          "{{1/6}} = {{5/30}}: you used 30 as the common denominator but just added the tops (1 + 1 + 1 + 1 + 1). Each top must be scaled up too, e.g. {{1/2 = 15/30}}.",
+          "{{1/6}} = {{5/30}} comes from adding the tops (1 + 1 + 1 + 1 + 1) and keeping the biggest denominator, 30. The tops must be scaled up to a common denominator, and 30 won't do (12 and 20 don't go into it): use 60, so {{1/2 = 30/60}}.",
           "{{4/5}} is the running total after only four of the fractions. You still need to add {{1/30}}: {{4/5 + 1/30 = 24/30 + 1/30 = 5/6}}.",
           "The running totals go {{1/2}}, {{2/3}}, {{3/4}}, {{4/5}}, {{5/6}}: five fractions give {{5/6}}.",
         ],
