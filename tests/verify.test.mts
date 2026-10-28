@@ -109,3 +109,11 @@ test("x2 typed for x², and brackets round a whole answer", () => {
   assert.equal(st({ type: "expression", expr: "3x-2", form: "simplified" }, "3x-2"), "correct");
   assert.equal(st({ type: "expression", expr: "6x(x+2)", form: "factorised" }, "2x(3x+6)"), "close");
 });
+
+test("tablet punctuation, 'the 12th term' and a typed x for times", () => {
+  assert.equal(st({ type: "text", accept: ["it isnt"] }, "it isn’t!"), "correct");
+  assert.equal(st({ type: "text", accept: ["no"] }, "No!"), "correct");
+  assert.equal(st({ type: "number", value: 12 }, "the 12th term"), "correct");
+  assert.equal(st({ type: "expression", expr: "3n+2" }, "3 x n + 2"), "correct");
+  assert.equal(st({ type: "expression", expr: "3x+2" }, "3x + 2"), "correct");
+});

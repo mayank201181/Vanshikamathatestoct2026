@@ -215,14 +215,14 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             marks: 2,
             markScheme: [
               {
-                point: "Writes the increase as a fraction of the ORIGINAL price: {{40/160}}",
-                keywords: ["40/160", "40 divided by 160", "40 out of 160", "40 over 160", "1/4", "quarter", "0.25"],
-                feedback: "Percentage change = change ÷ original. The original (last year's) price is £160, so work out {{40/160}}, which simplifies to {{1/4}}.",
+                point: "Compares with the ORIGINAL price: {{40/160}} (or the multiplier £200 ÷ £160 = 1.25)",
+                keywords: ["40/160", "40 divided by 160", "40 out of 160", "1/4", "quarter", "0.25", "200 divided by 160", "1.25"],
+                feedback: "Percentage change = change ÷ original. The original (last year's) price is £160, so work out {{40/160}}, which simplifies to {{1/4}}. (Or find the multiplier: £200 ÷ £160 = 1.25.)",
               },
               {
-                point: "Converts to a percentage: × 100 gives 25% (or {{1/4}} = 25%)",
-                keywords: ["100", "x 100", "times 100", "1/4+25", "0.25+25", "quarter+25"],
-                feedback: "Finish by turning the fraction into a percentage: {{40/160}} × 100 = 25%, which matches Anna's claim.",
+                point: "Converts to a percentage: × 100 gives 25% (or {{1/4}} = 25%, or × 1.25 is a 25% increase)",
+                keywords: ["100", "x 100", "times 100", "1/4+25", "0.25+25", "quarter+25", "1.25+25", "125+25"],
+                feedback: "Finish by turning the fraction into a percentage: {{40/160}} × 100 = 25%, which matches Anna's claim. (A multiplier of 1.25 means 125% of the old price — a 25% increase.)",
               },
             ],
             model: "The increase is £200 − £160 = £40. Percentage increase = increase ÷ original × 100 = {{40/160}} × 100. {{40/160 = 1/4}} = 0.25, and 0.25 × 100 = 25%. So Anna is correct.",
@@ -558,7 +558,10 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             marks: 2,
             answer: { type: "number", value: 25, display: "25%" },
             verify: "(320-240)/320*100",
-            traps: [{ spec: { type: "number", value: 33.33, tolerance: 0.35 }, feedback: "You divided by the selling price (£240). Percentage loss = loss ÷ what he *paid* × 100 = {{80/320}} × 100 = 25%." }],
+            traps: [
+              { spec: { type: "number", value: 33.33, tolerance: 0.35 }, feedback: "You divided by the selling price (£240). Percentage loss = loss ÷ what he *paid* × 100 = {{80/320}} × 100 = 25%." },
+              { spec: { type: "number", value: 75 }, feedback: "75% is the part of the £320 he got *back* (240 ÷ 320 = 0.75). The loss is the rest: 100% − 75% = 25%." },
+            ],
           },
           {
             label: "b",
@@ -566,7 +569,10 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             marks: 2,
             answer: { type: "number", value: 36, display: "36%" },
             verify: "(204-150)/150*100",
-            traps: [{ spec: { type: "number", value: 26.47, tolerance: 0.5 }, feedback: "You divided by the selling price (£204). Use what he paid: {{54/150}} × 100 = 36%." }],
+            traps: [
+              { spec: { type: "number", value: 26.47, tolerance: 0.5 }, feedback: "You divided by the selling price (£204). Use what he paid: {{54/150}} × 100 = 36%." },
+              { spec: { type: "number", value: 136 }, feedback: "£204 is 136% *of* what he paid (204 ÷ 150 = 1.36). The profit is only the extra part: 136% − 100% = 36%." },
+            ],
           },
         ],
         hints: [
@@ -622,7 +628,7 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "The 20% is worked out on the smaller, discounted price (£7200)",
-                keywords: ["7200", "discounted price", "smaller amount", "after the discount", "lower price", "less than 8000"],
+                keywords: ["7200", "discounted price", "reduced price", "smaller amount", "different amount", "after the discount", "lower price", "less than 8000"],
                 feedback: "The VAT is 20% of £7200, not 20% of £8000 — the two percentages are of different amounts.",
               },
               {
@@ -635,7 +641,7 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
           },
         ],
         hints: [
-          "Do the discount first: what is 90% of £8000?",
+          "Do the discount first: after a 10% discount, what percentage of the £8000 is left to pay?",
           "Now increase that amount by 20% (× 1.2).",
           "For (c): is the 20% worked out on £8000, or on a different amount?",
         ],
@@ -872,7 +878,10 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             marks: 1,
             answer: { type: "number", value: 75, display: "75%" },
             verify: "(14-8)/8*100",
-            traps: [{ spec: { type: "number", value: 42.86, tolerance: 0.5 }, feedback: "You divided by the selling price. Divide the profit by the *cost* price: {{6/8}} × 100 = 75%." }],
+            traps: [
+              { spec: { type: "number", value: 42.86, tolerance: 0.5 }, feedback: "You divided by the selling price. Divide the profit by the *cost* price: {{6/8}} × 100 = 75%." },
+              { spec: { type: "number", value: 175 }, feedback: "£14 is 175% *of* the £8 cost (14 ÷ 8 = 1.75). The profit is only the extra part: 175% − 100% = 75%." },
+            ],
           },
           {
             label: "b",
@@ -880,7 +889,10 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
             marks: 1,
             answer: { type: "number", value: 80, display: "80%" },
             verify: "(90-50)/50*100",
-            traps: [{ spec: { type: "number", value: 44.44, tolerance: 0.5 }, feedback: "You divided by the selling price. Use the cost price: {{40/50}} × 100 = 80%." }],
+            traps: [
+              { spec: { type: "number", value: 44.44, tolerance: 0.5 }, feedback: "You divided by the selling price. Use the cost price: {{40/50}} × 100 = 80%." },
+              { spec: { type: "number", value: 180 }, feedback: "£90 is 180% *of* the £50 cost (90 ÷ 50 = 1.8). The profit is only the extra part: 180% − 100% = 80%." },
+            ],
           },
           {
             label: "c",
@@ -895,9 +907,13 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
           },
           {
             label: "d",
-            prompt: "Which item makes the most profit in pounds (£)?",
+            prompt: "Which item makes the most profit in pounds (£)? Type the name of the item.",
             marks: 1,
-            answer: { type: "text", accept: ["helmet", "the helmet", "helmets", "bike helmet", "the bike helmet"], display: "The helmet" },
+            answer: {
+              type: "text",
+              accept: ["helmet", "the helmet", "helmets", "bike helmet", "the bike helmet", "helmet £40", "the helmet £40", "helmet (£40)", "the helmet (£40)", "helmet, £40", "the helmet, £40", "helmet 40", "helmet (40)"],
+              display: "The helmet",
+            },
           },
         ],
         hints: [
@@ -968,7 +984,7 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
           },
         ],
         hints: [
-          "A 20% decrease leaves 80% of the value. What decimal is that?",
+          "Start from 100%. What percentage of the value is left after a 20% decrease? Write that as a decimal.",
           "Year 1: × 0.8. Year 2: × 0.8 again — applied to the new value.",
           "For (c), how much money is lost in year 1, and how much in year 2?",
         ],
@@ -1129,7 +1145,7 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
         topic: "pc",
         section: "pc-fdp",
         difficulty: "core",
-        question: "Useful facts: {{1/8}} = 0.125 = 12.5%, and {{1/3}} = 0.333… ≈ 33.3%, so {{2/3}} = 0.666… ≈ 66.7%.",
+        question: "Useful facts: {{1/8}} = 0.125 = 12.5%, and {{1/3}} = 0.333… = 33.33…% (the 3s go on for ever).",
         parts: [
           {
             label: "a",
@@ -1347,8 +1363,8 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
         altMethod: {
           label: "Use multipliers",
           steps: [
-            "Year 1: 130 ÷ 40 = 3.25, so the price became 325% of the start — a 225% increase.",
-            "Year 2: 52 ÷ 130 = 0.4, so the price became 40% of the start — a 60% decrease.",
+            "Year 1: 130 ÷ 40 = 3.25, so the price became 325% of its starting price (40p) — a 225% increase.",
+            "Year 2: 52 ÷ 130 = 0.4, so the price became 40% of its price at the start of year 2 (130p) — a 60% decrease.",
             "Overall: 3.25 × 0.4 = 1.3 — a 30% increase.",
           ],
         },
@@ -1396,7 +1412,7 @@ export const WRITTEN_PC: QuestionSet<QA>[] = [
           },
         ],
         hints: [
-          "The area depends on base × height. If the base is multiplied by 1.25, what must the height be multiplied by to keep the product the same?",
+          "The area depends on base × height. If the base gets 25% bigger, what must happen to the height to keep base × height the same?",
           "1.25 × ? = 1. Write 1.25 as {{5/4}}: what do you multiply {{5/4}} by to get 1?",
           "A multiplier of 0.8 means 80% is left. What percentage has gone?",
         ],

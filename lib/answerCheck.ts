@@ -79,8 +79,8 @@ export function normText(s: string): string {
   return normalizeInput(s)
     .toLowerCase()
     .replace(/\s+/g, "")
-    .replace(/\.$/, "")
-    .replace(/[“”"']/g, "");
+    .replace(/[.!?]+$/, "")
+    .replace(/[“”"'’‘`]/g, "");
 }
 
 export function checkAnswer(spec: AnswerSpec, raw: string): CheckResult {
@@ -183,7 +183,7 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
 }
 
 /** A label word typed before the number: "Pattern 33", "term 24", "it's 40". (Never "minus".) */
-const LEADING_LABEL = /^\s*(?:pattern|term|position|diagram|day|week|year|n|it'?s|it is|answer|about)\s+(?=[-−]?\s*[£$]?\d)/i;
+const LEADING_LABEL = /^\s*(?:the\s+)?(?:pattern|term|position|diagram|day|week|year|n|it['’]?s|it is|answer|about|the)\s+(?=[-−]?\s*[£$]?\d)/i;
 
 /**
  * "e³ = −27", "8e² + 3 = 75": the learner restated the expression before the answer.
@@ -352,9 +352,11 @@ function stripTrailingUnit(input: string, vars: Set<string>): string | null {
   return m[1];
 }
 
-function checkExpression(spec: Extract<AnswerSpec, { type: "expression" }>, input: string): CheckResult {
+function checkExpression(spec: Extract<AnswerSpec, { type: "expression" }>, rawInput: string): CheckResult {
   const expected = parseExpr(stripEquation(spec.expr));
   if (!expected) return { status: "invalid", feedback: "This question's answer couldn't be checked automatically." };
+  // "3 x n + 2": a spaced letter x means "times" when x isn't one of the answer's letters.
+  const input = exprVars(expected).has("x") ? rawInput : rawInput.replace(/(\S)\s+[xX]\s+(?=\S)/g, "$1 * ");
   let got = parseExpr(stripEquation(input));
   if (!got || !exprEquivalent(expected, got)) {
     // Allow a unit typed after the answer, e.g. "60 + 9π m²".
