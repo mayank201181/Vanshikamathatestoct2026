@@ -7,20 +7,20 @@ import { normalizeInput } from "@/lib/mathParse";
 
 // No π for number answers: they want the decimal value (exact "in terms of π" answers are expressions).
 const KEYS_BY_TYPE: Record<AnswerSpec["type"], string[]> = {
-  number: ["−", "/", ".", "×10^"],
+  number: ["−", "/", ".", "%"],
   fraction: ["−", "/", "␣"],
   list: [",", "−", "/", "(", ")"],
   ratio: [":", "/", "."],
-  expression: ["x", "y", "n", "^", "(", ")", "−", "/", "√", "π"],
-  text: ["<", ">", "≤", "≥", "−", "x"],
+  expression: ["x", "n", "²", "^", "(", ")", "−", "/"],
+  text: [],
 };
 
 const PLACEHOLDER: Record<AnswerSpec["type"], string> = {
-  number: "e.g. 12, −3.5 or 3/4",
-  fraction: "e.g. 3/4 or 1 2/3",
+  number: "e.g. 12, −3.5, 3/4 or 25%",
+  fraction: "e.g. 3/4 or 1 2/3 (space before the fraction)",
   list: "e.g. 28, 35",
   ratio: "e.g. 3 : 4",
-  expression: "e.g. 3x + 2 or 2(x − 1)",
+  expression: "e.g. 3x + 2, 2(x − 1) or n² + 3",
   text: "Type your answer",
 };
 
@@ -49,7 +49,7 @@ export function AnswerInput({
   const id = useId();
   const ref = useRef<HTMLInputElement>(null);
   const keys = KEYS_BY_TYPE[type] ?? [];
-  const showPreview = value.trim().length > 0 && /[/^√π*×]|sqrt|\d\s+\d+\//.test(value);
+  const showPreview = value.trim().length > 0 && /[/^√π*×²³]|sqrt|\d\s+\d+\//.test(value);
 
   function insert(key: string) {
     const el = ref.current;
