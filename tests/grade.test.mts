@@ -45,3 +45,10 @@ test("grades a written explanation point by point", () => {
   );
   assert.deepEqual(r.credited, [true, true]);
 });
+
+test("numbers glued to units or letters still match", () => {
+  assert.ok(hit("the energy is 20J", "20 j"));
+  assert.ok(hit("the energy is 20 J", "20j"));
+  assert.ok(hit("nth term is 3n+2", "3n"));
+  assert.ok(!hit("4(x + 1)", "4x"));
+});

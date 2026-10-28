@@ -39,7 +39,9 @@ const SPELLING: [RegExp, string][] = [
 ];
 
 export function normalise(input: string): string {
-  let s = ` ${input.toLowerCase()} `;
+  // a unit glued to a number: "20J", "40cm", "5kg" → "20 j", "40 cm", "5 kg" (answers and keywords alike;
+  // algebra like "3n" or "4x" is left as one token)
+  let s = ` ${input.toLowerCase()} `.replace(/(\d)(j|mm|cm|km|m|kg|g|ml|l|s|h|mins?|p|mph)\b/g, "$1 $2");
   s = s.replace(/(→|⟶|⇒|=>|-+>|—>|–>)/g, " yields ");
   s = s.replace(/[’'`]/g, "");
   // maths symbols that must survive as words: ratios, equals, percent, powers
