@@ -158,7 +158,7 @@ export const MCQ_FR_B: QuestionSet<MCQ>[] = [
         topic: "fr",
         section: "fr-equivalent",
         difficulty: "core",
-        question: "What number is the arrow pointing to? Give your answer as a mixed number in its simplest form.",
+        question: "What number is the arrow pointing to?",
         diagram: `<svg viewBox="0 0 480 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A number line from 2 to 3 divided into 8 equal parts. An arrow points to the 6th mark after 2.">
 <rect x="0" y="0" width="480" height="120" fill="#ffffff"/>
 <g stroke="#1f2937" stroke-width="2">
@@ -502,7 +502,7 @@ export const MCQ_FR_B: QuestionSet<MCQ>[] = [
           "64 comes from flipping all three fractions, including the first. Keep the first fraction and only flip the ones you divide by: {{1/2 × 4 × 8}}.",
         ],
         explanation:
-          "Divisions in a row are worked out from left to right, and dividing by a fraction means multiplying by its reciprocal. {{1/2 ÷ 1/4 = 1/2 × 4 = 2}} (two quarters fit into a half), then {{2 ÷ 1/8 = 2 × 8 = 16}} (sixteen eighths fit into 2). In one line: {{1/2 × 4/1 × 8/1 = 16}}.",
+          "Divisions in a row are worked out from left to right, and dividing by a fraction means multiplying by its reciprocal. {{1/2 ÷ 1/4 = 1/2 × 4 = 2}} (two quarters fit into a half), then {{2 ÷ 1/8 = 2 × 8 = 16}} (sixteen eighths fit into 2). In one line: {{1/2 × 4/1 × 8/1 = 16}}. Sense check: dividing by numbers less than 1 makes the answer bigger, so it must be more than {{1/2}} ✓",
         hints: [
           "Work from left to right. How many quarters fit into a half?",
           "Now divide that answer by {{1/8}}. How many eighths fit into it?",
