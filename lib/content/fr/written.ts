@@ -89,7 +89,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
               },
               {
                 point: "Says you need a common denominator first, giving {{8/12 + 3/12 = 11/12}}.",
-                keywords: ["common denominator", "same denominator", "11/12", "8/12", "twelfths", "lcm", "same size"],
+                keywords: ["common denominator", "same denominator", "denominator+same", "11/12", "8/12", "twelfths", "lcm", "same size"],
                 feedback: "Say what he should have done: rewrite both fractions with a common denominator (12), then add the numerators: {{8/12 + 3/12 = 11/12}}.",
               },
             ],
@@ -649,7 +649,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
           },
           {
             label: "d",
-            prompt: "More monkeys arrive and the pattern continues: Monkey E eats {{1/6}} of what is left, Monkey F eats {{1/7}} of what is then left, and so on, until the ninth monkey eats {{1/10}} of what is left. What fraction of the original harvest is left now?",
+            prompt: "More monkeys arrive and the pattern continues: Monkey E eats {{1/6}} of what is left, Monkey F eats {{1/7}} of what is then left, and so on, until the ninth monkey eats {{1/10}} of what is left. What fraction of the original harvest is left now? Give your answer in its simplest form.",
             marks: 2,
             answer: { type: "fraction", n: 1, d: 10, simplest: true },
             verify: "(1/2)*(2/3)*(3/4)*(4/5)*(5/6)*(6/7)*(7/8)*(8/9)*(9/10)",
@@ -812,7 +812,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "{{15m^2n/(25mn^2)}}",
+            prompt: "{{(15m^2n)/(25mn^2)}}",
             marks: 1,
             answer: { type: "expression", expr: "3m/(5n)", form: "simplified" },
             verify: "15m^2n/(25mn^2)",
@@ -848,7 +848,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
           "For (b), multiply the tops and the bottoms, then cancel. For (c), flip the second fraction and multiply.",
         ],
         solution: [
-          "(a) Numbers: {{15/25 = 3/5}}. m's: {{m^2/m = m}} (stays on top). n's: {{n/n^2 = 1/n}} (one n stays on the bottom). So {{15m^2n/(25mn^2) = 3m/(5n)}}.",
+          "(a) Numbers: {{15/25 = 3/5}}. m's: {{m^2/m = m}} (stays on top). n's: {{n/n^2 = 1/n}} (one n stays on the bottom). So {{(15m^2n)/(25mn^2) = 3m/(5n)}}.",
           "(b) Tops: 4a × {{9b^2}} = {{36ab^2}}. Bottoms: 3b × {{2a^2}} = {{6a^2b}}.",
           "In {{36ab^2/(6a^2b)}}: 36 ÷ 6 = 6, one a cancels and leaves a on the bottom, one b cancels and leaves b on top. Answer: {{6b/a}}.",
           "(c) Keep, Change, Flip: {{8x/y * y/(2x^2) = 8xy/(2x^2y)}}.",
@@ -892,7 +892,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "Works out that {{3/8}} of 60 is 22.5, which is not a whole number of people.",
-                keywords: ["22.5", "not a whole", "isnt a whole", "not whole", "half a person", "decimal", "half"],
+                keywords: ["22.5", "not a whole", "isnt a whole", "not whole", "half a person", "cant have half", "decimal", "half"],
                 feedback: "Test it: {{3/8}} of 60 = 60 ÷ 8 × 3 = 22.5 — you can't have half a person wearing glasses.",
               },
               {
@@ -948,7 +948,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
           },
           {
             label: "c",
-            prompt: "How much lassi is left over? Give your answer in litres, as a fraction.",
+            prompt: "How much lassi is left over? Give your answer in litres, as a fraction in its simplest form.",
             marks: 2,
             answer: { type: "fraction", n: 1, d: 2, simplest: true },
             verify: "(10+1/2)-15*(2/3)",
@@ -960,7 +960,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         hints: [
           "Write {{10 1/2}} as an improper fraction, then Keep, Change, Flip.",
           "Your answer to (a) is a mixed number. What does its whole-number part tell you about full glasses?",
-          "15 glasses use 15 × {{2/3}} litres. How much of the {{10 1/2}} litres is that?",
+          "For (c), work out how many litres the full glasses use altogether (number of full glasses × {{2/3}}), then take that away from {{10 1/2}} litres.",
         ],
         solution: [
           "(a) {{10 1/2 = 21/2}}, so {{21/2 ÷ 2/3 = 21/2 * 3/2 = 63/4 = 15 3/4}}.",
@@ -994,7 +994,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "What fraction of rectangle C is **not** shaded?",
+            prompt: "What fraction of rectangle C is **not** shaded? Give your answer in its simplest form.",
             marks: 1,
             answer: { type: "fraction", n: 2, d: 5, simplest: true },
             verify: "1-3/5",
@@ -1034,7 +1034,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         ],
         hints: [
           "Measure everything from the bottom. How far up is the upper dashed line? How far up is the lower one?",
-          "The upper line is {{4/7}} of the way up. The lower line is {{2/5}} of the way up (that's your answer to part a).",
+          "The upper line is {{4/7}} of the way up, because A is shaded up to it. C is shaded from the TOP down to the lower line, so the part of C below that line is the part that is NOT shaded — your answer to part (a).",
           "The band in B is the difference between those two heights. Use 35ths.",
         ],
         solution: [
@@ -1147,7 +1147,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         hints: [
           "Add the whole numbers first, then add the fractions using twelfths.",
           "Half the perimeter of a rectangle is one length + one width.",
-          "To halve {{10 11/12}}, write it as an improper fraction and multiply by {{1/2}}.",
+          "To halve a mixed number, write it as an improper fraction first, then multiply by {{1/2}}.",
         ],
         solution: [
           "(a) Whole numbers: 3 + 4 + 2 = 9.",
@@ -1222,7 +1222,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         solution: [
           "(a) Tops: 5a × {{3b^2}} = {{15ab^2}}. Bottoms: 6b × {{10a^2}} = {{60a^2b}}.",
           "{{15/60 = 1/4}}; {{b^2/b = b}} (stays on top); {{a/a^2 = 1/a}} (one a stays on the bottom). Answer: {{b/(4a)}}.",
-          "(b) Keep, Change, Flip: {{6x^2/y * (2y)/(3x) = 12x^2y/(3xy)}}.",
+          "(b) Keep, Change, Flip: {{6x^2/y * (2y)/(3x) = (12x^2y)/(3xy)}}.",
           "12 ÷ 3 = 4, the y cancels, and {{x^2/x = x}}. Answer: 4x.",
           "(c) 8 ÷ 4 = 2 is right, but {{a/a^2 = a/(a * a) = 1/a}}: after one a cancels, the other a is left on the bottom. The correct answer is {{2/a}}, not 2a.",
         ],
@@ -1318,7 +1318,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         parts: [
           {
             label: "a",
-            prompt: "Work out the magic total. Give your answer as a mixed number.",
+            prompt: "Work out the magic total. Give your answer as a mixed number in its simplest form.",
             marks: 1,
             answer: { type: "fraction", n: 9, d: 2, form: "mixed", simplest: true },
             verify: "(1+1/4)+(1+1/2)+(1+3/4)",
@@ -1328,21 +1328,21 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
           },
           {
             label: "b",
-            prompt: "Find the value of P.",
+            prompt: "Find the value of P. Give your answer as a fraction in its simplest form.",
             marks: 1,
             answer: { type: "fraction", n: 3, d: 4, simplest: true },
             verify: "(1+1/4)+(1+1/2)+(1+3/4)-(1+1/4)-(2+1/2)",
           },
           {
             label: "c",
-            prompt: "Find the value of R. Give your answer as a mixed number.",
+            prompt: "Find the value of R. Give your answer as a mixed number in its simplest form.",
             marks: 2,
             answer: { type: "fraction", n: 9, d: 4, form: "mixed", simplest: true },
             verify: "(1+1/4)+(1+1/2)+(1+3/4)-(1+1/4)-1",
           },
           {
             label: "d",
-            prompt: "Without finding Q and S, work out the total of all nine numbers in the square. Give your answer as a mixed number.",
+            prompt: "Without finding Q and S, work out the total of all nine numbers in the square. Give your answer as a mixed number in its simplest form.",
             marks: 2,
             answer: { type: "fraction", n: 27, d: 2, form: "mixed", simplest: true },
             verify: "3*((1+1/4)+(1+1/2)+(1+3/4))",
@@ -1372,7 +1372,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         topic: "fr",
         section: "fr-algebraic",
         difficulty: "challenge",
-        question: "Algebraic fractions — working backwards. If the bottom of your answer has more than one factor, type it in brackets, e.g. 5/(3y).",
+        question: "Algebraic fractions — working backwards. Give each answer in its simplest form. If the bottom of your answer has more than one factor, type it in brackets, e.g. 5/(3y).",
         parts: [
           {
             label: "a",
@@ -1409,7 +1409,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
           "In (c), multiply all the tops and all the bottoms, then cancel — every letter appears on both the top and the bottom.",
         ],
         solution: [
-          "(a) Undo the multiplication by dividing: {{6a^2/b ÷ 3a/(2b) = 6a^2/b * (2b)/(3a) = 12a^2b/(3ab)}}.",
+          "(a) Undo the multiplication by dividing: {{6a^2/b ÷ 3a/(2b) = 6a^2/b * (2b)/(3a) = (12a^2b)/(3ab)}}.",
           "12 ÷ 3 = 4, the b cancels, and {{a^2/a = a}}. So □ = 4a. Check: {{3a/(2b) * 4a = 12a^2/(2b) = 6a^2/b}} ✓",
           "(b) Width = area ÷ length = {{x^2/2 ÷ 3x/4 = x^2/2 * 4/(3x) = 4x^2/(6x)}}.",
           "{{4/6 = 2/3}} and {{x^2/x = x}}, so the width is {{2x/3}} cm. Check: {{3x/4 * 2x/3 = 6x^2/12 = x^2/2}} ✓",
