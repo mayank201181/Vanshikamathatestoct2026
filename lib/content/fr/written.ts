@@ -474,7 +474,7 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
               },
               {
                 point: "So {{3 1/2}} doesn't fit into {{2 1/4}} even once.",
-                keywords: ["once", "fit", "goes into", "go into", "not even one", "not even 1", "less than one whole"],
+                keywords: ["once", "fit", "goes into", "cant fit", "doesnt fit", "cant go", "doesnt go", "not even"],
                 feedback: "Division asks how many lots of {{3 1/2}} fit into {{2 1/4}}. It doesn't fit even once, so the answer is less than 1.",
               },
             ],
@@ -682,6 +682,370 @@ export const WRITTEN_FR: QuestionSet<QA>[] = [
         },
         commonError: "Multiplying (or adding) the fractions EATEN instead of multiplying the fractions LEFT each time.",
         strategy: "Find a pattern",
+        source: "Class worksheet",
+      },
+    ],
+  },
+
+  // ─────────────── Set 3 · Exam practice (warm-up 1 · core 3 · challenge 2) ───────────────
+  {
+    id: "fr-written-3",
+    title: "Written 3 · Exam practice",
+    subtitle: "Test-style multi-part questions: walking distances, the badminton club, sharing lassi, shaded shapes and algebraic fractions.",
+    topic: "fr",
+    questions: [
+      {
+        id: "fr-w3-q01",
+        topic: "fr",
+        section: "fr-equivalent",
+        difficulty: "warmup",
+        question: "Equivalent fractions: answer each part.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Find the missing number: {{5/6 = □/42}}.",
+            marks: 1,
+            answer: { type: "number", value: 35 },
+            verify: "5*42/6",
+            traps: [
+              { spec: { type: "number", value: 41 }, feedback: "41 comes from adding 36 to the top because 36 was added to the bottom. Equivalent fractions MULTIPLY the top and bottom by the same number: 6 × 7 = 42, so 5 × 7." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Which is bigger, {{7/9}} or {{4/5}}? Type the bigger fraction.",
+            marks: 1,
+            answer: { type: "fraction", n: 4, d: 5 },
+            verify: "36/45",
+            traps: [
+              { spec: { type: "fraction", n: 7, d: 9 }, feedback: "Write both with denominator 45: {{7/9 = 35/45}} and {{4/5 = 36/45}}. So {{4/5}} is bigger — just!" },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Write {{48/180}} in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 4, d: 15, simplest: true },
+            verify: "48/180",
+          },
+        ],
+        hints: [
+          "(a) What do you multiply 6 by to get 42?",
+          "(b) Use 45 as a common denominator. (c) Keep dividing the top and bottom by common factors, or find the HCF of 48 and 180.",
+        ],
+        solution: [
+          "(a) 6 × 7 = 42, so multiply the top by 7 too: 5 × 7 = 35. {{5/6 = 35/42}}.",
+          "(b) The LCM of 9 and 5 is 45. {{7/9 = 35/45}} and {{4/5 = 36/45}}, so {{4/5}} is bigger, by {{1/45}}.",
+          "(c) The HCF of 48 and 180 is 12: 48 ÷ 12 = 4 and 180 ÷ 12 = 15. So {{48/180 = 4/15}}.",
+          "In steps: ÷ 2 gives {{24/90}}, ÷ 2 gives {{12/45}}, ÷ 3 gives {{4/15}}.",
+        ],
+        commonError: "Adding the same number to the top and the bottom instead of multiplying — for example writing {{41/42}} in (a).",
+        strategy: "Find a common denominator",
+      },
+      {
+        id: "fr-w3-q02",
+        topic: "fr",
+        section: "fr-addsub",
+        difficulty: "core",
+        question: "Hana walks {{4 1/6}} km on Saturday and {{2 3/4}} km on Sunday.",
+        parts: [
+          {
+            label: "a",
+            prompt: "How far does she walk altogether? Give your answer as a mixed number in its simplest form.",
+            marks: 1,
+            answer: { type: "fraction", n: 83, d: 12, form: "mixed", simplest: true },
+            verify: "(4+1/6)+(2+3/4)",
+            traps: [
+              { spec: { type: "fraction", n: 32, d: 5 }, feedback: "{{6 4/10}} comes from adding the tops and the bottoms of {{1/6}} and {{3/4}}. Use twelfths: {{2/12 + 9/12}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "How much further does she walk on Saturday than on Sunday? Give your answer as a mixed number in its simplest form.",
+            marks: 2,
+            answer: { type: "fraction", n: 17, d: 12, form: "mixed", simplest: true },
+            verify: "(4+1/6)-(2+3/4)",
+            traps: [
+              { spec: { type: "fraction", n: 31, d: 12 }, feedback: "{{2 7/12}} comes from working out {{3/4 - 1/6}} instead of {{1/6 - 3/4}}. {{2/12}} is less than {{9/12}}, so borrow a whole: {{4 2/12 = 3 14/12}}." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Hana's target for the weekend was 8 km. How much further would she have needed to walk to reach it? Give your answer as a mixed number in its simplest form.",
+            marks: 2,
+            answer: { type: "fraction", n: 13, d: 12, form: "mixed", simplest: true },
+            verify: "8-(4+1/6)-(2+3/4)",
+            traps: [
+              { spec: { type: "fraction", n: 35, d: 12 }, feedback: "{{2 11/12}} comes from doing 8 − 6 = 2 and then keeping the {{11/12}}. You need to take the {{11/12}} away too: {{2 - 11/12 = 1 1/12}}." },
+            ],
+          },
+        ],
+        hints: [
+          "Use twelfths: {{1/6 = 2/12}} and {{3/4 = 9/12}}.",
+          "In (b) you can't take {{9/12}} from {{2/12}} — borrow 1 whole as {{12/12}}.",
+          "In (c), write 8 as 7 + {{12/12}}.",
+        ],
+        solution: [
+          "Twelfths: {{1/6 = 2/12}} and {{3/4 = 9/12}}.",
+          "(a) {{4 2/12 + 2 9/12 = 6 11/12}} km.",
+          "(b) {{4 2/12 - 2 9/12}}: {{2/12}} is less than {{9/12}}, so borrow a whole: {{4 2/12 = 3 14/12}}. Then {{3 14/12 - 2 9/12 = 1 5/12}} km.",
+          "(c) {{8 - 6 11/12}}: write 8 as {{7 12/12}}. Then {{7 12/12 - 6 11/12 = 1 1/12}} km.",
+          "Check (c): {{6 11/12 + 1 1/12 = 7 12/12 = 8}} ✓",
+        ],
+        altMethod: {
+          label: "Improper fractions",
+          steps: [
+            "{{4 1/6 = 50/12}} and {{2 3/4 = 33/12}}.",
+            "(a) {{50/12 + 33/12 = 83/12 = 6 11/12}}. (b) {{50/12 - 33/12 = 17/12 = 1 5/12}}.",
+            "(c) 8 = {{96/12}}, so {{96/12 - 83/12 = 13/12 = 1 1/12}}.",
+          ],
+        },
+        commonError: "Taking the smaller fraction from the bigger one instead of borrowing a whole — for example {{2 7/12}} in (b).",
+        strategy: "Find a common denominator",
+      },
+      {
+        id: "fr-w3-q03",
+        topic: "fr",
+        section: "fr-algebraic",
+        difficulty: "core",
+        question: "Simplify each expression fully. If the bottom of your answer has more than one factor, type it in brackets, e.g. 7/(2y).",
+        parts: [
+          {
+            label: "a",
+            prompt: "{{15m^2n/(25mn^2)}}",
+            marks: 1,
+            answer: { type: "expression", expr: "3m/(5n)", form: "simplified" },
+            verify: "15m^2n/(25mn^2)",
+            traps: [
+              { spec: { type: "expression", expr: "3m/5" }, feedback: "{{n^2}} is n × n. Only one n cancels with the n on top, so one n is left on the bottom." },
+              { spec: { type: "expression", expr: "3mn/5" }, feedback: "We read 3m/5n as {{3m/5}} × n. If you mean 3m over 5n, type the bottom in brackets: 3m/(5n)." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "{{4a/(3b) * 9b^2/(2a^2)}}",
+            marks: 2,
+            answer: { type: "expression", expr: "6b/a", form: "simplified" },
+            verify: "(4a/(3b))*(9b^2/(2a^2))",
+            traps: [
+              { spec: { type: "expression", expr: "6a/b" }, feedback: "Check where each leftover letter goes: {{b^2/b}} leaves b on the TOP, and {{a/a^2}} leaves a on the BOTTOM." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "{{8x/y ÷ 2x^2/y}}",
+            marks: 2,
+            answer: { type: "expression", expr: "4/x", form: "simplified" },
+            verify: "(8x/y)/(2x^2/y)",
+            traps: [
+              { spec: { type: "expression", expr: "16x^3/y^2" }, feedback: "You multiplied without flipping. Keep, Change, Flip: {{8x/y * y/(2x^2)}}." },
+              { spec: { type: "expression", expr: "4x" }, feedback: "After cancelling, the leftover x is on the BOTTOM: {{8xy/(2x^2y) = 4/x}}." },
+            ],
+          },
+        ],
+        hints: [
+          "Numbers first: what's the HCF? Then letters: which cancel, and where does any leftover letter end up?",
+          "For (b), multiply the tops and the bottoms, then cancel. For (c), flip the second fraction and multiply.",
+        ],
+        solution: [
+          "(a) Numbers: {{15/25 = 3/5}}. m's: {{m^2/m = m}} (stays on top). n's: {{n/n^2 = 1/n}} (one n stays on the bottom). So {{15m^2n/(25mn^2) = 3m/(5n)}}.",
+          "(b) Tops: 4a × {{9b^2}} = {{36ab^2}}. Bottoms: 3b × {{2a^2}} = {{6a^2b}}.",
+          "In {{36ab^2/(6a^2b)}}: 36 ÷ 6 = 6, one a cancels and leaves a on the bottom, one b cancels and leaves b on top. Answer: {{6b/a}}.",
+          "(c) Keep, Change, Flip: {{8x/y * y/(2x^2) = 8xy/(2x^2y)}}.",
+          "The y cancels, 8 ÷ 2 = 4, and {{x/x^2 = 1/x}}. Answer: {{4/x}}.",
+        ],
+        commonError: "Cancelling a power completely — thinking {{n/n^2}} cancels to nothing — instead of leaving one letter on the bottom.",
+        strategy: "Spot the common factor",
+      },
+      {
+        id: "fr-w3-q04",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "core",
+        question: "{{7/12}} of the members of a badminton club are women. {{3/8}} of the members wear glasses.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out the smallest possible number of members of the badminton club.",
+            marks: 2,
+            answer: { type: "number", value: 24 },
+            verify: "12*8/4",
+            traps: [
+              { spec: { type: "number", value: 96 }, feedback: "96 = 12 × 8 works, but it isn't the smallest. Look for the LOWEST common multiple of 12 and 8." },
+              { spec: { type: "number", value: 20 }, feedback: "20 = 12 + 8, but {{7/12}} of 20 isn't a whole number. You need a number that both 12 and 8 divide into." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "The club actually has 72 members. How many of the members are men?",
+            marks: 2,
+            answer: { type: "number", value: 30 },
+            verify: "72-7/12*72",
+            traps: [
+              { spec: { type: "number", value: 42 }, feedback: "42 is the number of women ({{7/12}} of 72). The men are the rest: 72 − 42." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Explain why the club cannot have 60 members.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Works out that {{3/8}} of 60 is 22.5, which is not a whole number of people.",
+                keywords: ["22.5", "not a whole", "isnt a whole", "not whole", "half a person", "decimal", "half"],
+                feedback: "Test it: {{3/8}} of 60 = 60 ÷ 8 × 3 = 22.5 — you can't have half a person wearing glasses.",
+              },
+              {
+                point: "States the number of members must be a multiple of 8 (and of 12), and 60 is not a multiple of 8.",
+                keywords: ["multiple of 8", "not a multiple", "isnt a multiple", "divisible by 8", "8 times table", "60 divided by 8", "multiple of 24", "lcm"],
+                feedback: "Give the general reason: the number of members must divide exactly by 8 (and by 12), and 60 ÷ 8 is not a whole number.",
+              },
+            ],
+            model: "{{3/8}} of 60 is 60 ÷ 8 × 3 = 22.5, which is not a whole number — you can't have half a person wearing glasses. The number of members has to be a multiple of 8 (and of 12, so a multiple of 24), and 60 is not a multiple of 8.",
+          },
+        ],
+        hints: [
+          "The number of members must divide exactly by 12 (to find {{7/12}}) and by 8 (to find {{3/8}}).",
+          "List the multiples of 12: 12, 24, 36, … Which is the first one that 8 also divides into?",
+          "For (b), the men are the members who are not women: {{1 - 7/12 = 5/12}} of the club.",
+        ],
+        solution: [
+          "(a) {{7/12}} of the members must be a whole number, so the total is a multiple of 12. {{3/8}} of the members must be a whole number too, so the total is a multiple of 8.",
+          "Multiples of 12: 12, 24, … 24 is also a multiple of 8. The LCM of 12 and 8 is 24, so the smallest possible number of members is 24.",
+          "(b) Women: {{7/12}} of 72 = 72 ÷ 12 × 7 = 42. Men: 72 − 42 = 30. (Or {{5/12}} of 72 = 30.)",
+          "(c) {{3/8}} of 60 = 60 ÷ 8 × 3 = 22.5, which isn't a whole number of people. The total must be a multiple of 8 (and of 12), and 60 isn't a multiple of 8.",
+        ],
+        commonError: "Multiplying 12 × 8 = 96 in (a) — that's a common multiple, but not the LOWEST common multiple.",
+        strategy: "Try small cases",
+        source: "Class worksheet",
+      },
+      {
+        id: "fr-w3-q05",
+        topic: "fr",
+        section: "fr-muldiv",
+        difficulty: "challenge",
+        question: "A café has {{10 1/2}} litres of mango lassi. It pours the lassi into glasses that each hold {{2/3}} of a litre.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out {{10 1/2 ÷ 2/3}}. Give your answer as a mixed number in its simplest form.",
+            marks: 2,
+            answer: { type: "fraction", n: 63, d: 4, form: "mixed", simplest: true },
+            verify: "(10+1/2)/(2/3)",
+            traps: [
+              { spec: { type: "fraction", n: 7, d: 1 }, feedback: "7 comes from multiplying by {{2/3}} instead of dividing. Keep, Change, Flip: {{21/2 * 3/2}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "How many glasses can the café fill completely?",
+            marks: 1,
+            answer: { type: "number", value: 15 },
+            verify: "10/(2/3)",
+            traps: [
+              { spec: { type: "number", value: 16 }, feedback: "The 16th glass would only be {{3/4}} full, so it isn't filled completely. Round DOWN: 15 glasses." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "How much lassi is left over? Give your answer in litres, as a fraction.",
+            marks: 2,
+            answer: { type: "fraction", n: 1, d: 2, simplest: true },
+            verify: "(10+1/2)-15*(2/3)",
+            traps: [
+              { spec: { type: "fraction", n: 3, d: 4 }, feedback: "{{3/4}} is what's left as a fraction of a GLASS. One glass holds {{2/3}} of a litre, so {{3/4}} of a glass is {{3/4 * 2/3}} of a litre." },
+            ],
+          },
+        ],
+        hints: [
+          "Write {{10 1/2}} as an improper fraction, then Keep, Change, Flip.",
+          "Your answer to (a) is a mixed number. What does its whole-number part tell you about full glasses?",
+          "15 glasses use 15 × {{2/3}} litres. How much of the {{10 1/2}} litres is that?",
+        ],
+        solution: [
+          "(a) {{10 1/2 = 21/2}}, so {{21/2 ÷ 2/3 = 21/2 * 3/2 = 63/4 = 15 3/4}}.",
+          "(b) {{15 3/4}} glasses' worth means 15 full glasses and a 16th glass that is only {{3/4}} full. So 15 glasses are filled completely.",
+          "(c) 15 glasses use 15 × {{2/3}} = 10 litres, so {{10 1/2 - 10 = 1/2}} litre is left over.",
+          "Check: the leftover is {{3/4}} of a glass, and {{3/4 * 2/3 = 1/2}} of a litre ✓",
+        ],
+        commonError: "Answering {{3/4}} of a litre in (c) — the {{3/4}} in {{15 3/4}} counts GLASSES, not litres.",
+        strategy: "Draw a diagram",
+      },
+      {
+        id: "fr-w3-q06",
+        topic: "fr",
+        section: "fr-problems",
+        difficulty: "challenge",
+        question: "Here are three identical rectangles, A, B and C. The same two dashed lines are drawn across all three.\n\n- {{4/7}} of A is shaded: everything **below the upper** dashed line.\n- {{3/5}} of C is shaded: everything **above the lower** dashed line.\n- In B, only the band **between** the two dashed lines is shaded.",
+        diagram: `<svg viewBox="0 0 440 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three identical tall rectangles labelled A, B and C, with two dashed lines drawn across all three. In A everything below the upper dashed line is shaded. In C everything above the lower dashed line is shaded. In B only the band between the two dashed lines is shaded.">
+<rect x="0" y="0" width="440" height="210" fill="#ffffff"/>
+<rect x="40" y="90" width="80" height="80" fill="#c7d2fe"/>
+<rect x="180" y="90" width="80" height="24" fill="#c7d2fe"/>
+<rect x="320" y="30" width="80" height="84" fill="#c7d2fe"/>
+<line x1="25" y1="90" x2="415" y2="90" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 4"/>
+<line x1="25" y1="114" x2="415" y2="114" stroke="#334155" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="40" y="30" width="80" height="140" fill="none" stroke="#1f2937" stroke-width="2"/>
+<rect x="180" y="30" width="80" height="140" fill="none" stroke="#1f2937" stroke-width="2"/>
+<rect x="320" y="30" width="80" height="140" fill="none" stroke="#1f2937" stroke-width="2"/>
+<text x="80" y="196" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" fill="#1f2937">A</text>
+<text x="220" y="196" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" fill="#1f2937">B</text>
+<text x="360" y="196" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle" fill="#1f2937">C</text>
+</svg>`,
+        parts: [
+          {
+            label: "a",
+            prompt: "What fraction of rectangle C is **not** shaded?",
+            marks: 1,
+            answer: { type: "fraction", n: 2, d: 5, simplest: true },
+            verify: "1-3/5",
+            traps: [
+              { spec: { type: "fraction", n: 3, d: 5 }, feedback: "{{3/5}} is the shaded part of C. The part that is NOT shaded is {{1 - 3/5}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "What fraction of rectangle B is shaded? Give your answer in its simplest form.",
+            marks: 3,
+            answer: { type: "fraction", n: 6, d: 35, simplest: true },
+            verify: "4/7+3/5-1",
+            traps: [
+              { spec: { type: "fraction", n: 41, d: 35 }, feedback: "{{41/35}} = {{4/7 + 3/5}} is more than a whole rectangle, so it can't be the band. Subtract the whole rectangle (1) to leave the overlap." },
+              { spec: { type: "fraction", n: 1, d: 35 }, feedback: "{{1/35}} is the gap between {{3/5}} and {{4/7}}. But C is shaded from the TOP, so the lower line is only {{2/5}} of the way up. Compare {{4/7}} with {{2/5}}." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Mei says you can also get the answer to part (b) by working out {{4/7 + 3/5 - 1}}. Explain why Mei's method works.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "{{4/7 + 3/5 = 41/35}}, which is more than 1 whole rectangle.",
+                keywords: ["more than 1", "more than one", "bigger than 1", "bigger than one", "greater than 1", "1 6/35", "41/35", "over 1"],
+                feedback: "Add them first: {{4/7 + 3/5 = 20/35 + 21/35 = 41/35}}, which is MORE than one whole rectangle.",
+              },
+              {
+                point: "The shaded parts of A and C overlap — B's band is counted twice — so taking away 1 whole leaves just the band.",
+                keywords: ["counted twice", "twice", "overlap", "double", "both", "two times"],
+                feedback: "Explain the extra: if you put A's shading and C's shading on one rectangle they overlap, and the overlap (B's band) gets counted twice. Subtracting the 1 whole rectangle leaves just that overlap.",
+              },
+            ],
+            model: "{{4/7 + 3/5 = 20/35 + 21/35 = 41/35}}, which is more than 1 whole rectangle. That's because A's shading and C's shading overlap: the band that is shaded in B is in both of them, so it gets counted twice. Taking away 1 whole rectangle leaves just the double-counted band, {{6/35}}.",
+          },
+        ],
+        hints: [
+          "Measure everything from the bottom. How far up is the upper dashed line? How far up is the lower one?",
+          "The upper line is {{4/7}} of the way up. The lower line is {{2/5}} of the way up (that's your answer to part a).",
+          "The band in B is the difference between those two heights. Use 35ths.",
+        ],
+        solution: [
+          "Measure heights from the bottom of each rectangle.",
+          "(a) {{3/5}} of C is shaded from the top, so {{1 - 3/5 = 2/5}} is not shaded — the lower dashed line is {{2/5}} of the way up.",
+          "The upper dashed line is {{4/7}} of the way up, because A is shaded from the bottom up to it.",
+          "(b) The band in B goes from {{2/5}} up to {{4/7}}: {{4/7 - 2/5 = 20/35 - 14/35 = 6/35}}.",
+          "(c) {{4/7 + 3/5 = 41/35}} is more than 1 whole. The two shaded parts overlap, and the overlap is exactly B's band, so it has been counted twice. Subtracting the whole rectangle leaves {{41/35 - 35/35 = 6/35}}.",
+        ],
+        commonError: "Working out {{4/7 - 3/5}} — forgetting that C is shaded from the TOP, so its line is {{2/5}} of the way up, not {{3/5}}.",
+        strategy: "Draw a diagram",
         source: "Class worksheet",
       },
     ],

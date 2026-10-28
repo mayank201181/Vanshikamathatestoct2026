@@ -761,12 +761,12 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
             markScheme: [
               {
                 point: "Uses the actual shares: Nancy gets £60 and Mary gets £40, so Mary gets £20 less than Nancy",
-                keywords: ["20", "60-40", "60 minus 40", "40+60"],
+                keywords: ["20", "60-40", "60 minus 40", "40+60", "nancy+60"],
                 feedback: "Start with the amounts: Nancy has £60 and Mary has £40, so Mary gets £20 less than Nancy.",
               },
               {
                 point: "Compares with Nancy's £60: £20 is {{20/60}} = {{1/3}} of it, about 33%, not 50% (or: 50% less than £60 would be £30, not Mary's £40) — so Mary is wrong",
-                keywords: ["1/3", "one third", "a third", "33", "33.3", "33.33", "20/60", "30+40"],
+                keywords: ["1/3", "one third", "a third", "33", "33.3", "33.33", "20/60", "30+40", "30+60"],
                 feedback: "'Less than Nancy' compares with Nancy's amount: £20 out of £60 is {{1/3}}, about 33% — not 50%. (Check: 50% less than £60 would be £30, but Mary has £40.) So Mary is wrong.",
               },
             ],
@@ -1287,7 +1287,7 @@ export const WRITTEN_RA: QuestionSet<QA>[] = [
           },
         ],
         hints: [
-          "In (a), Amina runs exactly 100 m, so the race lasts her 12 seconds. How far does Bhavi run in 12 seconds?",
+          "In each race, one runner covers exactly 100 m. In (a), which runner is that — so how long does the race last?",
           "Bhavi runs 100 m in 15 s, so in 12 s she runs {{12/15}} of 100 m. In (b) the race lasts 15 seconds — how far does Amina run in that time?",
           "Amina runs 100 m every 12 s, so in 15 s she runs {{15/12}} of 100 m.",
         ],
