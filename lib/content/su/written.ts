@@ -599,7 +599,7 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
             answer: { type: "number", value: 3.75, display: "3.75 (or {{3 3/4}})" },
             verify: "(2*6-(-3))/4",
             traps: [
-              { spec: { type: "number", value: 2.25 }, feedback: "2.25 is {{9/4}}, from 12 − 3. But e = −3, so 2c − e = 12 − (−3) = 15, and {{15/4}} = 3.75." },
+              { spec: { type: "number", value: 2.25 }, feedback: "That's {{9/4}} = 2.25, from 12 − 3. But e = −3, so 2c − e = 12 − (−3) = 15, and {{15/4}} = 3.75." },
             ],
           },
         ],
