@@ -366,6 +366,8 @@ function checkExpression(spec: Extract<AnswerSpec, { type: "expression" }>, inpu
     return { status: "invalid", feedback: "I couldn't read that expression. Use * or nothing for ×, ^ for powers, e.g. 3x^2 + 2(x − 1)." };
   }
   if (!exprEquivalent(expected, got)) return { status: "incorrect" };
+  // Brackets round the whole answer, "(3x − 2) cm", are just notation.
+  while (got.t === "group") got = got.a;
   // "In terms of π": a calculator decimal has the right value but not the asked-for form.
   if (/pi/i.test(normalizeInput(spec.expr)) && !/pi/i.test(normalizeInput(input))) {
     return { status: "close", feedback: "Right value — but leave your answer in terms of π (keep π as a symbol)." };

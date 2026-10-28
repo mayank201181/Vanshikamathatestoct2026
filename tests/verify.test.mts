@@ -102,3 +102,10 @@ test("a mixed number inside algebra means whole + fraction", () => {
   assert.equal(st({ type: "expression", expr: "3x/2" }, "1 1/2 x"), "correct");
   assert.equal(st({ type: "expression", expr: "2.5n^2-2.5n+1" }, "2 1/2n^2 - 2 1/2n + 1"), "correct");
 });
+
+test("x2 typed for x², and brackets round a whole answer", () => {
+  assert.equal(st({ type: "expression", expr: "x^2+7x+12", form: "expanded" }, "x2+7x+12"), "correct");
+  assert.equal(st({ type: "expression", expr: "3x-2", form: "simplified" }, "(3x − 2) cm"), "correct");
+  assert.equal(st({ type: "expression", expr: "3x-2", form: "simplified" }, "3x-2"), "correct");
+  assert.equal(st({ type: "expression", expr: "6x(x+2)", form: "factorised" }, "2x(3x+6)"), "close");
+});

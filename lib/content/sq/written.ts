@@ -197,7 +197,24 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
             marks: 1,
             answer: {
               type: "text",
-              accept: ["no", "no it is not", "no, it is not", "no it isn't", "no, it isn't", "no it's not", "no, it's not", "not a term"],
+              accept: [
+                "no",
+                "no it is not",
+                "no, it is not",
+                "no it isn't",
+                "no, it isn't",
+                "no it's not",
+                "no, it's not",
+                "not a term",
+                "no it is not a term",
+                "no, it is not a term",
+                "no it isn't a term",
+                "no, it isn't a term",
+                "no 100 is not a term",
+                "no, 100 is not a term",
+                "no 100 isn't a term",
+                "no, 100 isn't a term",
+              ],
               display: "No",
             },
           },
@@ -214,7 +231,7 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
               {
                 point:
                   "n = 32.67 (32 remainder 2) is not a whole number, so 100 is not a term — it falls between the 32nd term (98) and the 33rd term (101)",
-                keywords: ["32.6", "32.67", "not a whole", "isnt a whole", "not whole", "decimal", "remainder", "101"],
+                keywords: ["32.6", "32.67", "32.7", "isnt a whole", "not whole", "decimal", "remainder", "101"],
                 feedback:
                   "n is a position (1st, 2nd, 3rd …) so it must be a whole number. 98 ÷ 3 = 32.67 isn't whole — 100 falls between the 32nd term (98) and the 33rd term (101).",
               },
@@ -436,7 +453,7 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
               },
               {
                 point: "One of two consecutive numbers is always even, and even × any whole number is even — so the number of dots is always even",
-                keywords: ["one is even", "one of them is even", "one must be even", "odd+even", "even times", "times an even", "multiple of 2"],
+                keywords: ["one is even", "one of+even", "one must be even", "either+even", "odd+even", "even times", "times an even", "multiple of 2"],
                 feedback:
                   "Say *why* that's even: of two consecutive numbers one must be even, and an even number times any whole number is even (e.g. 4 × 5 = 20, 5 × 6 = 30).",
               },
@@ -514,11 +531,15 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
                 spec: { type: "number", value: 2 },
                 feedback: "2 is the last positive term. One more step: 2 − 6 = −4.",
               },
+              {
+                spec: { type: "number", value: 10 },
+                feedback: "10 is the term's **position**. The question asks for the term itself — the number that sits in that position.",
+              },
             ],
           },
         ],
         hints: [
-          "How many jumps are there from 50 to 32? Count the arrows, not the blanks.",
+          "How many jumps are there from 50 to 32? Count the gaps between the terms, not the blanks.",
           "Once you know the size of each jump, keep subtracting it until you go below zero.",
         ],
         solution: [
@@ -694,7 +715,24 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
             marks: 1,
             answer: {
               type: "text",
-              accept: ["no", "no it is not", "no, it is not", "no it isn't", "no, it isn't", "no it's not", "no, it's not", "not quadratic"],
+              accept: [
+                "no",
+                "no it is not",
+                "no, it is not",
+                "no it isn't",
+                "no, it isn't",
+                "no it's not",
+                "no, it's not",
+                "not quadratic",
+                "no not quadratic",
+                "no, not quadratic",
+                "no it is not quadratic",
+                "no, it is not quadratic",
+                "no it isn't quadratic",
+                "no, it isn't quadratic",
+                "no it's not quadratic",
+                "no, it's not quadratic",
+              ],
               display: "No",
             },
           },
@@ -975,7 +1013,7 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
               },
               {
                 point: "The difference 4 should multiply n (4n, the 4 times table), then add the zeroth term 2: 4n + 2",
-                keywords: ["4n", "4 times table", "times table", "in front of n", "multiply n", "times n", "multiplied by n", "coefficient"],
+                keywords: ["4n", "multiply by 4", "times table", "in front of n", "multiply n", "times n", "multiplied by n", "coefficient"],
                 feedback:
                   "The difference 4 belongs **in front of n**: 4n is the 4 times table (4, 8, 12, 16), and each term is 2 more than that, so the nth term is 4n + 2.",
               },
@@ -1077,6 +1115,13 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
                 "no, it is cubic",
                 "no it's cubic",
                 "no, it's cubic",
+                "not quadratic",
+                "no it is not quadratic",
+                "no, it is not quadratic",
+                "no it isn't quadratic",
+                "no, it isn't quadratic",
+                "no it's not quadratic",
+                "no, it's not quadratic",
               ],
               display: "No",
             },
@@ -1087,9 +1132,10 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
             marks: 2,
             markScheme: [
               {
-                point: "Multiplying out gives an {{n^3}} term (n × {{n^2}} = {{n^3}})",
-                keywords: ["cubed", "cube", "power of 3", "power 3", "n3", "3rd power"],
-                feedback: "Look at the biggest power when you multiply out: n × {{n^2}} = {{n^3}}, so D has an {{n^3}} (n cubed) term.",
+                point: "Multiplying out gives an {{n^3}} term (n × {{n^2}} = {{n^3}}) — or works out D's terms (0, −3, 0, 15, 48) and their differences",
+                keywords: ["cubed", "cube", "power of 3", "power 3", "n3", "3rd power", "15+48", "3+15+33"],
+                feedback:
+                  "Look at the biggest power when you multiply out: n × {{n^2}} = {{n^3}}, so D has an {{n^3}} (n cubed) term. (Or work out D's terms — 0, −3, 0, 15, 48 — and their differences.)",
               },
               {
                 point:
@@ -1494,6 +1540,15 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
                 "yes 8th term",
                 "yes it's the 8th term",
                 "yes, it's the 8th term",
+                "yes, 8th term",
+                "yes it is the 8th term",
+                "yes, it is the 8th term",
+                "yes it's a term",
+                "yes, it's a term",
+                "yes 190 is a term",
+                "yes, 190 is a term",
+                "yes 190 is the 8th term",
+                "yes, 190 is the 8th term",
               ],
               display: "Yes",
             },
@@ -1521,7 +1576,7 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
         ],
         hints: [
           "{{3n^2}} means square n first, then multiply by 3.",
-          "For (b), estimate: {{3n^2}} has to be just over 1000, so {{n^2}} must be just over 334. Which square number is that?",
+          "For (b), estimate: {{3n^2 - 2}} must be over 1000, so {{3n^2}} must be over 1002 and {{n^2}} over 334. What is the first square number bigger than 334?",
           "For (c), solve {{3n^2 - 2 = 190}}. Is n a whole number?",
         ],
         solution: [
@@ -1816,7 +1871,24 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
             marks: 1,
             answer: {
               type: "text",
-              accept: ["no", "no it can't", "no, it can't", "no it cannot", "no, it cannot", "no never", "no, never", "never"],
+              accept: [
+                "no",
+                "no it can't",
+                "no, it can't",
+                "no it cannot",
+                "no, it cannot",
+                "no never",
+                "no, never",
+                "never",
+                "no it could not",
+                "no, it could not",
+                "no it couldn't",
+                "no, it couldn't",
+                "no it can never",
+                "no, it can never",
+                "no it can never be 100",
+                "no, it can never be 100",
+              ],
               display: "No",
             },
           },
@@ -1851,7 +1923,7 @@ export const WRITTEN_SQ: QuestionSet<QA>[] = [
           "(b) Work backwards. The inverse of '× 2, then − 3' is '+ 3, then ÷ 2' (undo the last step first).",
           "4th term 43 → 3rd term (43 + 3) ÷ 2 = 23 → 2nd term (23 + 3) ÷ 2 = 13 → 1st term (13 + 3) ÷ 2 = **8**. Check forwards: 8 → 13 → 23 → 43 ✓",
           "(c) and (d): **No.** Whatever whole number you start with, × 2 makes it even, and even − 3 is odd. So every term from the 2nd onwards is odd — and 100 is even.",
-          "Try it: starting from 50 gives 97, then 191, … — all odd. To get 100 you'd need 2 × (1st term) = 103, so the 1st term would be 51.5, which isn't a whole number.",
+          "Try it: starting from 50 gives 97, then 191, … — all odd. To get 100 you'd need 2 × (the term before) − 3 = 100, so the term before would be 51.5 — but every term is a whole number.",
         ],
         commonError:
           "Undoing the steps in the wrong order or with the wrong operation — to reverse '× 2 then − 3' you must add 3 first, then halve.",

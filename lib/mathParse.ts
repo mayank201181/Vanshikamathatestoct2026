@@ -231,10 +231,16 @@ function tokenizeExpr(input: string): Tok[] | null {
   return toks;
 }
 
+/** "x2 + 7x" typed without the ^ means x² (a letter followed by a lone 2 or 3). */
+export function squaredShorthand(s: string): string {
+  return s.replace(/([a-z])([23])(?![\d.])/gi, "$1^$2");
+}
+
 /** Parse an algebraic expression (implicit multiplication allowed). Null on failure. */
 export function parseExpr(input: string): Expr | null {
   // A mixed number typed in algebra ("1 1/2 x", "2 3/4") means 1 + 1/2, not 1 × 1/2.
   input = normalizeInput(input).replace(/(^|[^\d.\s]\s*|^\s*)(\d+)\s+(\d+)\s*\/\s*(\d+)(?![\d.])/g, "$1($2+$3/$4)");
+  input = squaredShorthand(input);
   const toks = tokenizeExpr(input);
   if (!toks || toks.length === 0) return null;
   let pos = 0;

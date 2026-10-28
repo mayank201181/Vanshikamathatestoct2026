@@ -3,7 +3,7 @@
 import { useId, useRef } from "react";
 import type { AnswerSpec } from "@/lib/types";
 import { typedToMathML } from "@/lib/mathml";
-import { normalizeInput } from "@/lib/mathParse";
+import { normalizeInput, squaredShorthand } from "@/lib/mathParse";
 
 // No π for number answers: they want the decimal value (exact "in terms of π" answers are expressions).
 const KEYS_BY_TYPE: Record<AnswerSpec["type"], string[]> = {
@@ -26,7 +26,8 @@ const PLACEHOLDER: Record<AnswerSpec["type"], string> = {
 
 /** Convert typed input into display maths for the preview, read the way the marker reads it. */
 function previewMarkup(raw: string, type: AnswerSpec["type"]): string {
-  return typedToMathML(normalizeInput(raw), type === "expression");
+  const s = normalizeInput(raw);
+  return typedToMathML(type === "expression" ? squaredShorthand(s) : s, type === "expression");
 }
 
 export function AnswerInput({
@@ -49,7 +50,7 @@ export function AnswerInput({
   const id = useId();
   const ref = useRef<HTMLInputElement>(null);
   const keys = KEYS_BY_TYPE[type] ?? [];
-  const showPreview = value.trim().length > 0 && /[/^√π*×²³]|sqrt|\d\s+\d+\//.test(value);
+  const showPreview = value.trim().length > 0 && (/[/^√π*×²³]|sqrt|\d\s+\d+\//.test(value) || (type === "expression" && /[a-z][23](?![\d.])/i.test(value)));
 
   function insert(key: string) {
     const el = ref.current;

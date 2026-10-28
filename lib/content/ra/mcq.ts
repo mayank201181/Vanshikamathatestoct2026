@@ -572,7 +572,7 @@ export const MCQ_RA: QuestionSet<MCQ>[] = [
           "There are 60 away fans, so 1 part of away : home is 12 and the home fans are 6 × 12 = 72.",
           "50 comes from turning away : home round (60 ÷ 6 × 5). The away fans are the 5 parts, so 5 parts = 60.",
         ],
-        explanation: "Work with one ratio at a time. Away adults : children = 11 : 4, and the 28 extra adults are 11 − 4 = 7 parts, so 1 part = 4 fans and there are 15 × 4 = 60 away fans. Now use away : home = 5 : 6: 5 parts = 60, so 1 part = 12 and home fans = 6 × 12 = 72. Notice that the 'parts' in the two ratios are different sizes (4 fans and 12 fans) — don't mix them up.",
+        explanation: "Work with one ratio at a time. Away adults : children = 11 : 4, and the 28 extra adults are 11 − 4 = 7 parts, so 1 part = 4 fans and there are 15 × 4 = 60 away fans. Now use away : home = 5 : 6. The away fans are 5 parts = 60, so 1 part = 12 and home fans = 6 × 12 = 72. Notice that the 'parts' in the two ratios are different sizes (4 fans and 12 fans) — don't mix them up.",
         hints: [
           "Start with the away fans. The 28 extra adults are how many parts of 11 : 4?",
           "7 parts = 28. Find 1 part, then the total number of away fans.",
@@ -685,7 +685,7 @@ export const MCQ_RA: QuestionSet<MCQ>[] = [
         topic: "ra",
         section: "ra-proportion",
         difficulty: "core",
-        question: "In a bag of balls, the ratio of red balls to blue balls is 2 : 3. 50% of the red balls are striped and 20% of the blue balls are striped. What percentage of all the balls are striped?",
+        question: "A bag contains only red balls and blue balls. The ratio of red balls to blue balls is 2 : 3. 50% of the red balls are striped and 20% of the blue balls are striped. What percentage of all the balls are striped?",
         options: ["35%", "32%", "70%", "38%"],
         answerIndex: 1,
         optionFeedback: [
@@ -754,8 +754,8 @@ export const MCQ_RA: QuestionSet<MCQ>[] = [
         ],
         explanation: "Try Ali = £3: {{2/3}} of £3 = £2. Then {{1/2}} of Ben's money is £2, so Ben has £4, and Ali : Ben = 3 : 4. Algebra check: {{2/3}}A = {{1/2}}B; multiply both sides by 6 to get 4A = 3B, so A : B = 3 : 4. Ali has **less** money, because a bigger fraction of his money makes the same amount.",
         hints: [
-          "Try a number: suppose Ali has £3. What is {{2/3}} of it?",
-          "That amount is {{1/2}} of Ben's money. So how much does Ben have?",
+          "Try a number: suppose Ali has £6. What is {{2/3}} of it?",
+          "That amount is {{1/2}} of Ben's money. So how much does Ben have? Write Ali : Ben and simplify.",
           "Check your ratio: take {{2/3}} of Ali's amount and {{1/2}} of Ben's amount — are they equal?",
         ],
         strategy: "Try small cases",
