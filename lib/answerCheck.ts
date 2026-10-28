@@ -269,7 +269,7 @@ function checkList(spec: Extract<AnswerSpec, { type: "list" }>, input: string): 
     if (ok) return { status: "correct" };
     const reversed = spec.values.every((v, i) => near(got[got.length - 1 - i], v, spec.tolerance));
     if (reversed && spec.values.length === 2) {
-      return { status: "incorrect", feedback: "Right numbers, wrong order — (x, y): across first, then up/down." };
+      return { status: "incorrect", feedback: "Right numbers, wrong order — give them in the order the question asks for." };
     }
     return { status: "incorrect" };
   }

@@ -797,4 +797,801 @@ export const WRITTEN_SU: QuestionSet<QA>[] = [
       },
     ],
   },
+
+  // ===========================================================================
+  // SET 3 · Exam practice — warm-up 1 / core 3 / challenge 2
+  // ===========================================================================
+  {
+    id: "su-written-3",
+    title: "Written 3 · Exam practice",
+    subtitle: "Decimals from the class recap, spot the error, science formulae, handshakes, °F to °C, and powers of −0.4.",
+    topic: "su",
+    questions: [
+      {
+        id: "su-w3-q01",
+        topic: "su",
+        section: "su-negatives",
+        difficulty: "warmup",
+        question: "{{a = 1.5}}, {{b = 4}}, {{c = 6}} and {{d = 0.5}}. Work out the value of each expression.",
+        parts: [
+          {
+            label: "a",
+            prompt: "{{4(a + d)}}",
+            marks: 1,
+            answer: { type: "number", value: 8 },
+            verify: "4*(1.5+0.5)",
+            traps: [
+              { spec: { type: "number", value: 6.5 }, feedback: "6.5 is 4 × 1.5 + 0.5 — only a was multiplied by 4. The 4 multiplies the whole bracket: 1.5 + 0.5 = 2, then 4 × 2." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "{{abc}}",
+            marks: 1,
+            answer: { type: "number", value: 36 },
+            verify: "1.5*4*6",
+            traps: [
+              { spec: { type: "number", value: 11.5 }, feedback: "11.5 is a + b + c — you added. abc means a × b × c: 1.5 × 4 = 6, then 6 × 6." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "{{d^2}}",
+            marks: 1,
+            answer: { type: "number", value: 0.25 },
+            verify: "0.5^2",
+            traps: [
+              { spec: { type: "number", value: 1 }, feedback: "1 is 0.5 × 2. d² means d × d = 0.5 × 0.5 — a half of a half." },
+              { spec: { type: "number", value: 2.5 }, feedback: "Check the decimal point: 5 × 5 = 25, and 0.5 × 0.5 has two decimal places in total, so it is 0.25." },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "{{(10d + 4b)/7}}",
+            marks: 1,
+            answer: { type: "number", value: 3 },
+            verify: "(10*0.5+4*4)/7",
+            traps: [
+              { spec: { type: "number", value: 51 / 7, tolerance: 0.01 }, feedback: "That's 5 + {{16/7}} — only 4b was divided by 7. The fraction line covers the whole top: (5 + 16) ÷ 7 = 21 ÷ 7." },
+            ],
+          },
+        ],
+        hints: [
+          "Swap each letter for its value, keeping the decimals exactly as they are, then follow BIDMAS.",
+          "{{d^2 = 0.5 * 0.5}} — a half of a half. In (d), work out the whole top before dividing by 7.",
+        ],
+        solution: [
+          "(a) {{4(a + d) = 4(1.5 + 0.5) = 4 * 2}} = **8**.",
+          "(b) {{abc = 1.5 * 4 * 6 = 6 * 6}} = **36**. Quick check: 1.5 is a bit less than 2, and 2 × 4 × 6 = 48, so 36 is sensible.",
+          "(c) {{d^2 = 0.5^2 = 0.5 * 0.5}} = **0.25** — a half of a half is a quarter.",
+          "(d) {{(10d + 4b)/7 = (10 * 0.5 + 4 * 4)/7 = (5 + 16)/7 = 21/7}} = **3**.",
+        ],
+        commonError: "Writing d² = 1 (that's 0.5 × 2) or 2.5 (decimal point slip). Squaring means 0.5 × 0.5 = 0.25.",
+        strategy: "Estimate first",
+        source: "Class worksheet",
+      },
+      {
+        id: "su-w3-q02",
+        topic: "su",
+        section: "su-basics",
+        difficulty: "core",
+        question: "Arjun substitutes {{x = 3}} into three expressions. Each line of his working has a mistake.\n\n    Line A:  {{2x^2 = 6^2 = 36}}\n    Line B:  {{4x - 1 = 43 - 1 = 42}}\n    Line C:  {{(x + 5)/2 = 3 + 2.5 = 5.5}}",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out the correct value of {{2x^2}}.",
+            marks: 1,
+            answer: { type: "number", value: 18 },
+            verify: "2*3^2",
+            traps: [
+              { spec: { type: "number", value: 36 }, feedback: "36 is Arjun's answer — he squared 2 × 3 = 6. Square x first: 3² = 9, then 2 × 9 = 18." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out the correct value of {{4x - 1}}.",
+            marks: 1,
+            answer: { type: "number", value: 11 },
+            verify: "4*3-1",
+            traps: [
+              { spec: { type: "number", value: 42 }, feedback: "42 is Arjun's answer — he read 4x as 43. 4x means 4 × 3 = 12, so the answer is 12 − 1." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Work out the correct value of {{(x + 5)/2}}.",
+            marks: 1,
+            answer: { type: "number", value: 4 },
+            verify: "(3+5)/2",
+            traps: [
+              { spec: { type: "number", value: 5.5 }, feedback: "5.5 is Arjun's answer — he halved only the 5. The fraction line means (3 + 5) ÷ 2." },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "Explain the mistake Arjun made in Line A.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Says Arjun multiplied 2 × 3 first and then squared, so the 2 was squared as well as the x",
+                keywords: ["then squared", "squared it", "squared the 6", "squared 6", "squared the 2", "squared both", "before squaring", "doubled"],
+                feedback: "Name the mistake: he worked out 2 × 3 = 6 first and then squared it, so the 2 got squared too — that's (2x)², not 2x².",
+              },
+              {
+                point: "Says only the x should be squared: 2 × 3² = 2 × 9 = 18",
+                keywords: ["18", "only the x", "only x", "just the x", "just x", "3 squared", "9+18", "x squared first"],
+                feedback: "Say what he should have done: in 2x² only the x is squared, so 3² = 9 first, then × 2 = 18.",
+              },
+            ],
+            model: "Arjun worked out 2 × 3 = 6 first and then squared it, so he found (2x)² = 36. But in 2x² only the x is squared, because powers come before multiplying. He should square first, 3² = 9, and then multiply by 2 to get 18.",
+          },
+        ],
+        hints: [
+          "Redo each line yourself, writing x as (3).",
+          "In {{2x^2}}, BIDMAS says powers come before multiplying — so which number gets squared?",
+        ],
+        solution: [
+          "(a) {{2x^2 = 2 * (3)^2 = 2 * 9}} = **18**.",
+          "(b) {{4x - 1 = 4 * 3 - 1 = 12 - 1}} = **11**. 4x means 4 × x — not the digits 4 and 3 side by side.",
+          "(c) {{(x + 5)/2 = (3 + 5)/2 = 8/2}} = **4**. The fraction line means the whole top is divided by 2.",
+          "(d) Arjun did 2 × 3 = 6 first and then squared, which gives (2x)² = 36. Powers come before multiplying, so only the x is squared: 3² = 9, then 2 × 9 = 18.",
+        ],
+        commonError: "Treating 2x² as (2x)²: with x = 3 that gives 36 instead of 18.",
+        strategy: "Check by substituting",
+      },
+      {
+        id: "su-w3-q03",
+        topic: "su",
+        section: "su-formulae",
+        difficulty: "core",
+        question: "A car is braking. Its starting speed is {{u = 20}} m/s and its acceleration is {{a = -4}} m/s² (negative because it is slowing down). After t seconds, its speed v (in m/s) and the distance s it has travelled (in metres) are given by the formulae\n\n    {{v = u + at}}     and     {{s = ut + 1/2 at^2}}",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out v when {{t = 3}}.",
+            marks: 1,
+            answer: { type: "number", value: 8, display: "8 m/s" },
+            verify: "20+(-4)*3",
+            traps: [
+              { spec: { type: "number", value: 32 }, feedback: "32 uses a = +4. The car is slowing down: at = (−4) × 3 = −12, so v = 20 − 12." },
+              { spec: { type: "number", value: 48 }, feedback: "48 is (20 − 4) × 3 — multiply a × t first, then add it to u." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out s when {{t = 3}}.",
+            marks: 2,
+            answer: { type: "number", value: 42, display: "42 m" },
+            verify: "20*3+1/2*(-4)*3^2",
+            traps: [
+              { spec: { type: "number", value: 78 }, feedback: "78 is 60 + 18. But {{1/2}} × (−4) × 9 = −18, so s = 60 − 18." },
+              { spec: { type: "number", value: 54 }, feedback: "54 forgets to square t. t² = 3² = 9, so {{1/2}} × (−4) × 9 = −18 and s = 60 − 18." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "The car stops when {{v = 0}}. After how many seconds does it stop?",
+            marks: 1,
+            answer: { type: "number", value: 5, display: "5 seconds" },
+            verify: "(0-20)/(-4)",
+          },
+        ],
+        hints: [
+          "Put the negative acceleration in brackets: {{at = (-4) * 3}}.",
+          "In {{1/2 at^2}} only t is squared: work out t² first, then × a, then halve.",
+          "For (c), the speed drops by 4 m/s every second. How long until all 20 m/s has gone?",
+        ],
+        solution: [
+          "(a) {{v = u + at = 20 + (-4) * 3 = 20 - 12}} = **8 m/s**.",
+          "(b) {{s = ut + 1/2 at^2 = 20 * 3 + 1/2 * (-4) * 3^2 = 60 + 1/2 * (-4) * 9 = 60 - 18}} = **42 m**.",
+          "(c) The car stops when v = 0: {{20 + (-4)t = 0}}, so 4t = 20 and t = **5 seconds**.",
+          "Check (c): {{20 + (-4) * 5 = 20 - 20 = 0}} ✓",
+        ],
+        commonError: "Using a = +4 (the car is slowing down, so a is −4), or squaring a as well as t in {{1/2 at^2}}.",
+        strategy: "Work backwards",
+      },
+      {
+        id: "su-w3-q04",
+        topic: "su",
+        section: "su-basics",
+        difficulty: "core",
+        question: "At a party, everyone shakes hands with everyone else exactly once. When there are n people, the number of handshakes is {{H = (n(n - 1))/2}}. The table shows some small parties.",
+        table: {
+          caption: "Small parties",
+          headers: ["Number of people, n", "2", "3", "4"],
+          rows: [["Handshakes, H", "1", "3", "6"]],
+        },
+        parts: [
+          {
+            label: "a",
+            prompt: "How many handshakes are there when 5 people are at the party?",
+            marks: 1,
+            answer: { type: "number", value: 10 },
+            verify: "5*(5-1)/2",
+            traps: [
+              { spec: { type: "number", value: 20 }, feedback: "20 is 5 × 4 — you still need to divide by 2. Each handshake involves two people, so 5 × 4 counts every handshake twice." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "How many handshakes are there when 12 people are at the party?",
+            marks: 1,
+            answer: { type: "number", value: 66 },
+            verify: "12*(12-1)/2",
+            traps: [
+              { spec: { type: "number", value: 132 }, feedback: "132 is 12 × 11 — now divide by 2." },
+              { spec: { type: "number", value: 72 }, feedback: "72 is 12 × 12 ÷ 2 — but the bracket is n − 1 = 11, so it's 12 × 11 ÷ 2." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "At another party there were 28 handshakes. How many people were there?",
+            marks: 2,
+            answer: { type: "number", value: 8, display: "8 people" },
+            verify: "(1+sqrt(1+8*28))/2",
+            traps: [
+              { spec: { type: "number", value: 56 }, feedback: "56 is n(n − 1) — doubling 28 was the right first step. Now find two numbers next to each other that multiply to make 56." },
+            ],
+          },
+        ],
+        hints: [
+          "Work out the top first, n × (n − 1), then divide by 2.",
+          "For (c), work backwards: double 28 to undo the ÷ 2. Which two numbers next to each other multiply to give that?",
+        ],
+        solution: [
+          "(a) {{H = (5(5 - 1))/2 = (5 * 4)/2 = 20/2}} = **10**.",
+          "(b) {{H = (12(12 - 1))/2 = (12 * 11)/2 = 132/2}} = **66**.",
+          "(c) Work backwards: n(n − 1) = 28 × 2 = 56. The two consecutive numbers that multiply to 56 are 8 and 7, so there were **8 people**.",
+          "Check (c): {{(8 * 7)/2 = 56/2 = 28}} ✓",
+        ],
+        altMethod: {
+          label: "Build up the table (find a pattern)",
+          steps: [
+            "Each new person shakes hands with everyone already there: 2 people → 1 handshake, 3 → 1 + 2 = 3, 4 → 3 + 3 = 6.",
+            "Keep going: 5 → 6 + 4 = 10, 6 → 10 + 5 = 15, 7 → 15 + 6 = 21, 8 → 21 + 7 = 28 ✓",
+            "So 28 handshakes means 8 people — the same answer as working backwards with the formula.",
+          ],
+        },
+        commonError: "Forgetting to divide by 2 (getting 20 in part (a)). Each handshake is shared by two people, so n(n − 1) counts it twice.",
+        strategy: "Try small cases",
+      },
+      {
+        id: "su-w3-q05",
+        topic: "su",
+        section: "su-formulae",
+        difficulty: "challenge",
+        question: "To change a temperature from degrees Fahrenheit (°F) to degrees Celsius (°C), you can use the formula {{C = (5(F - 32))/9}}.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Change 50 °F to °C.",
+            marks: 1,
+            answer: { type: "number", value: 10, display: "10 °C" },
+            verify: "5*(50-32)/9",
+            traps: [
+              { spec: { type: "number", value: 218 / 9, tolerance: 0.25 }, feedback: "That's (5 × 50 − 32) ÷ 9 — the bracket wasn't done first. Work out F − 32 = 18 first, then 5 × 18 = 90, then ÷ 9." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Change 14 °F to °C.",
+            marks: 1,
+            answer: { type: "number", value: -10, display: "−10 °C" },
+            verify: "5*(14-32)/9",
+            traps: [
+              { spec: { type: "number", value: 10 }, feedback: "14 − 32 = −18 is negative, so the answer is negative: 5 × (−18) ÷ 9 = −10. (14 °F is below freezing.)" },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Change −40 °F to °C.",
+            marks: 1,
+            answer: { type: "number", value: -40, display: "−40 °C" },
+            verify: "5*((-40)-32)/9",
+            traps: [
+              { spec: { type: "number", value: -40 / 9, tolerance: 0.05 }, feedback: "That comes from −40 − 32 = −8. Going 32 further down from −40 gives −72; then 5 × (−72) ÷ 9 = −40." },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "Work backwards: what is 25 °C in °F?",
+            marks: 2,
+            answer: { type: "number", value: 77, display: "77 °F" },
+            verify: "25*9/5+32",
+            traps: [
+              { spec: { type: "number", value: 45 }, feedback: "45 is F − 32. Add the 32 back on: 45 + 32 = 77." },
+              { spec: { type: "number", value: -35 / 9, tolerance: 0.01 }, feedback: "You put 25 in for F — but 25 is the Celsius temperature. Work backwards from C = 25: × 9, then ÷ 5, then + 32." },
+            ],
+          },
+        ],
+        hints: [
+          "Work out the bracket {{F - 32}} first, then × 5, then ÷ 9.",
+          "With F = −40, the bracket is (−40) − 32 — you go even further below zero.",
+          "For (d), undo the steps in reverse order: × 9, then ÷ 5, then + 32.",
+        ],
+        solution: [
+          "(a) {{C = (5(50 - 32))/9 = (5 * 18)/9 = 90/9}} = **10 °C**.",
+          "(b) {{C = (5(14 - 32))/9 = (5 * (-18))/9 = -90/9}} = **−10 °C**.",
+          "(c) {{C = (5((-40) - 32))/9 = (5 * (-72))/9 = -360/9}} = **−40 °C**. Fun fact: −40 is the one temperature that has the same number on both scales!",
+          "(d) Start from C = 25 and undo each step in reverse: × 9 gives 225, ÷ 5 gives 45 (that's F − 32), then + 32 gives **77 °F**.",
+          "Check (d): {{(5(77 - 32))/9 = (5 * 45)/9 = 225/9 = 25}} ✓",
+        ],
+        altMethod: {
+          label: "Rearrange the formula for (d)",
+          steps: [
+            "Undoing ÷ 9, × 5 and − 32 in reverse order gives {{F = (9C)/5 + 32}}.",
+            "{{F = (9 * 25)/5 + 32 = 225/5 + 32 = 45 + 32 = 77}} ✓",
+          ],
+        },
+        commonError: "Not doing the bracket first: 5 × 50 − 32 = 218 and 218 ÷ 9 ≈ 24.2. Always work out F − 32 before multiplying by 5.",
+        strategy: "Work backwards",
+      },
+      {
+        id: "su-w3-q06",
+        topic: "su",
+        section: "su-powers",
+        difficulty: "challenge",
+        question: "Let {{x = -0.4}}.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out {{x^2}}.",
+            marks: 1,
+            answer: { type: "number", value: 0.16 },
+            verify: "(-0.4)^2",
+            traps: [
+              { spec: { type: "number", value: -0.16 }, feedback: "(−0.4)² = (−0.4) × (−0.4). A negative times a negative is positive, so it's +0.16." },
+              { spec: { type: "number", value: 1.6 }, feedback: "Check the decimal point: 4 × 4 = 16, and 0.4 × 0.4 has two decimal places in total, so it is 0.16." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out {{x^3}}.",
+            marks: 1,
+            answer: { type: "number", value: -0.064 },
+            verify: "(-0.4)^3",
+            traps: [
+              { spec: { type: "number", value: 0.064 }, feedback: "Three negatives multiplied give a negative: (−0.4)³ = 0.16 × (−0.4) = −0.064." },
+              { spec: { type: "number", value: -0.64 }, feedback: "Count the decimal places: 0.4 × 0.4 × 0.4 has three, so 4 × 4 × 4 = 64 becomes 0.064." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Write the values of {{x}}, {{x^2}} and {{x^3}} in order, smallest first.",
+            marks: 1,
+            answer: { type: "list", values: [-0.4, -0.064, 0.16], ordered: true },
+            verify: "(-0.4), (-0.4)^3, (-0.4)^2",
+            traps: [
+              { spec: { type: "list", values: [-0.064, -0.4, 0.16], ordered: true }, feedback: "−0.064 is *bigger* than −0.4 — it is closer to zero. On a number line −0.4 is further left, so it comes first." },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "Lily says, 'Cubing a number always makes it smaller.' Use your answers to explain why Lily is wrong when {{x = -0.4}}.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "States that x³ = −0.064 is bigger than x = −0.4",
+                keywords: ["0.064+bigger", "0.064+greater", "0.064+larger", "0.064+more", "0.064+higher"],
+                feedback: "Use your answers: {{x^3 = -0.064}} is **bigger** than {{x = -0.4}}, so cubing made this number bigger.",
+              },
+              {
+                point: "Explains why: −0.064 is closer to zero on a number line (it is less negative)",
+                keywords: ["closer to 0", "closer to zero", "nearer to 0", "nearer to zero", "nearer zero", "less negative", "number line", "right of"],
+                feedback: "Give the reason: −0.064 is closer to zero than −0.4 (further right on a number line), so it is the bigger number.",
+              },
+            ],
+            model: "{{x^3 = -0.064}} and {{x = -0.4}}. On a number line −0.064 is closer to zero than −0.4, so −0.064 is **bigger** than −0.4 (it is less negative). So cubing −0.4 made it bigger, not smaller, and Lily is wrong.",
+          },
+        ],
+        hints: [
+          "Put x in brackets: {{x^2 = (-0.4) * (-0.4)}}. Count the decimal places.",
+          "A negative number squared is positive; cubed, it stays negative.",
+          "For (c), mark −0.4, −0.064 and 0.16 on a number line. Which is furthest left?",
+        ],
+        solution: [
+          "(a) {{x^2 = (-0.4)^2 = (-0.4) * (-0.4)}} = **0.16** (4 × 4 = 16, two decimal places, and negative × negative = positive).",
+          "(b) {{x^3 = (-0.4)^3 = 0.16 * (-0.4)}} = **−0.064** (16 × 4 = 64, three decimal places, and the answer is negative).",
+          "(c) On a number line −0.4 is furthest left, then −0.064 (just below zero), then 0.16. In order: **−0.4, −0.064, 0.16**.",
+          "(d) {{x^3 = -0.064}} is **bigger** than {{x = -0.4}} because it is closer to zero. Cubing made the *size* smaller (0.064 is less than 0.4), but for a negative number a smaller size means a bigger value — so Lily is wrong.",
+        ],
+        commonError: "Thinking −0.064 is smaller than −0.4 because 0.064 is smaller than 0.4. With negative numbers, the one closer to zero is bigger.",
+        strategy: "Draw a diagram",
+      },
+    ],
+  },
+
+  // ===========================================================================
+  // SET 4 · Stretch & challenge — core 3 / challenge 3
+  // ===========================================================================
+  {
+    id: "su-written-4",
+    title: "Written 4 · Stretch & challenge",
+    subtitle: "Class Task 2 negatives, powers and roots of fractions, a perimeter puzzle, number detective work, and working backwards.",
+    topic: "su",
+    questions: [
+      {
+        id: "su-w4-q01",
+        topic: "su",
+        section: "su-negatives",
+        difficulty: "core",
+        question: "{{w = 7}}, {{T = -6}}, {{x = 4}} and {{y = -3}}. Work out the value of each expression.",
+        parts: [
+          {
+            label: "a",
+            prompt: "{{2xy - 3T}}",
+            marks: 1,
+            answer: { type: "number", value: -6 },
+            verify: "2*4*(-3)-3*(-6)",
+            traps: [
+              { spec: { type: "number", value: -42 }, feedback: "−42 is −24 − 18. But −3T = −3 × (−6) = +18, so the answer is −24 + 18." },
+              { spec: { type: "number", value: 42 }, feedback: "42 uses 2xy = +24. y is negative, so 2 × 4 × (−3) = −24; then −24 + 18 = −6." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "{{x^2 + y^2 - 3w}}",
+            marks: 1,
+            answer: { type: "number", value: 4 },
+            verify: "4^2+(-3)^2-3*7",
+            traps: [
+              { spec: { type: "number", value: -14 }, feedback: "−14 uses y² = −9. (−3)² = (−3) × (−3) = +9, so it's 16 + 9 − 21." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "{{y^2 + x(2w - T)}}",
+            marks: 2,
+            answer: { type: "number", value: 89 },
+            verify: "(-3)^2+4*(2*7-(-6))",
+            traps: [
+              { spec: { type: "number", value: 41 }, feedback: "41 uses 2w − T = 14 − 6 = 8. But T = −6, so 14 − (−6) = 20, and 9 + 4 × 20 = 89." },
+              { spec: { type: "number", value: 260 }, feedback: "260 is (9 + 4) × 20 — multiply before you add: 4 × 20 = 80, then 9 + 80." },
+            ],
+          },
+        ],
+        hints: [
+          "Bracket every negative before you start: y becomes (−3) and T becomes (−6).",
+          "−3T = −3 × (−6) = +18, and inside the bracket, 2w − T = 14 − (−6).",
+        ],
+        solution: [
+          "(a) {{2xy - 3T = 2 * 4 * (-3) - 3 * (-6) = -24 + 18}} = **−6**.",
+          "(b) {{x^2 + y^2 - 3w = 4^2 + (-3)^2 - 3 * 7 = 16 + 9 - 21}} = **4**.",
+          "(c) {{y^2 + x(2w - T) = (-3)^2 + 4(2 * 7 - (-6)) = 9 + 4 * 20 = 9 + 80}} = **89**. Bracket first, then × 4, then add.",
+        ],
+        commonError: "Writing (−3)² as −9, or 14 − (−6) as 8. A negative squared is positive, and subtracting a negative adds.",
+        strategy: "Check by substituting",
+        source: "Class worksheet",
+      },
+      {
+        id: "su-w4-q02",
+        topic: "su",
+        section: "su-powers",
+        difficulty: "core",
+        question: "Powers and roots work on fractions and negative numbers too. Give fraction answers in their simplest form.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out {{(2/3)^2}}. Give your answer as a fraction.",
+            marks: 1,
+            answer: { type: "fraction", n: 4, d: 9, simplest: true },
+            verify: "(2/3)^2",
+            traps: [
+              { spec: { type: "fraction", n: 4, d: 3 }, feedback: "{{4/3}} squares only the top. Square the top **and** the bottom: {{(2/3)^2 = (2 * 2)/(3 * 3) = 4/9}}." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out {{(-1/2)^3}}. Give your answer as a fraction.",
+            marks: 1,
+            answer: { type: "fraction", n: -1, d: 8, simplest: true },
+            verify: "(-1/2)^3",
+            traps: [
+              { spec: { type: "fraction", n: 1, d: 8 }, feedback: "Three negatives multiplied give a negative: {{(-1/2)^3 = -1/8}}." },
+              { spec: { type: "fraction", n: -3, d: 2 }, feedback: "That's {{-1/2}} × 3. Cubing means multiplying three copies: {{(-1/2) * (-1/2) * (-1/2)}}." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Work out {{sqrt(16/25)}}. Give your answer as a fraction.",
+            marks: 1,
+            answer: { type: "fraction", n: 4, d: 5, simplest: true },
+            verify: "sqrt(16/25)",
+            traps: [
+              { spec: { type: "fraction", n: 4, d: 25 }, feedback: "{{4/25}} only square-roots the top. Root the top and the bottom: {{sqrt(16)/sqrt(25) = 4/5}}." },
+              { spec: { type: "fraction", n: 8, d: 25 }, feedback: "{{8/25}} halves the top — but a square root isn't halving. Which fraction times itself makes {{16/25}}?" },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "Hana says {{sqrt(-25) = -5}}. Explain why she is wrong.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Checks by squaring: (−5)² = +25, not −25, because a negative times a negative is positive",
+                keywords: ["positive", "equals 25", "makes 25", "gives 25", "is 25", "negative times a negative", "minus times a minus", "plus 25"],
+                feedback: "Check her answer by squaring it: {{(-5)^2 = (-5) * (-5) = 25}} — positive, not −25.",
+              },
+              {
+                point: "Says no number squared gives a negative, so the square root of −25 can't be found",
+                keywords: ["cant", "cannot", "can not", "impossible", "no number", "not possible", "doesnt exist", "does not exist"],
+                feedback: "Finish the argument: every number squared is positive (or zero), so **no number** squared gives −25 — you can't find {{sqrt(-25)}}.",
+              },
+            ],
+            model: "Check by squaring: {{(-5)^2 = (-5) * (-5) = 25}}, which is positive, not −25. In fact any number squared is positive or zero, so no number squared gives −25. That means you can't find {{sqrt(-25)}} — it doesn't exist.",
+          },
+        ],
+        hints: [
+          "Square or cube the top **and** the bottom of a fraction.",
+          "Three negatives multiplied give a negative. For a square root, root the top and the bottom separately.",
+          "For (d), test Hana's answer: what is {{(-5)^2}}?",
+        ],
+        solution: [
+          "(a) {{(2/3)^2 = (2 * 2)/(3 * 3) = 4/9}}.",
+          "(b) {{(-1/2)^3 = (-1/2) * (-1/2) * (-1/2) = -1/8}} — three negatives make a negative.",
+          "(c) {{sqrt(16/25) = sqrt(16)/sqrt(25) = 4/5}}. Check: {{4/5 * 4/5 = 16/25}} ✓",
+          "(d) {{(-5)^2 = (-5) * (-5) = 25}}, not −25. Any number squared is positive (or zero), so **no number** squared makes −25: you can't find {{sqrt(-25)}}.",
+        ],
+        commonError: "Squaring or rooting only the top of a fraction: {{(2/3)^2}} is {{4/9}}, not {{4/3}}.",
+        strategy: "Check by substituting",
+      },
+      {
+        id: "su-w4-q03",
+        topic: "su",
+        section: "su-formulae",
+        difficulty: "core",
+        question: "A square has sides of length {{(x + 3)}} cm. A regular pentagon has sides of length {{(x + 1)}} cm.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Work out the perimeter of the square when {{x = 2.5}}.",
+            marks: 1,
+            answer: { type: "number", value: 22, display: "22 cm" },
+            verify: "4*(2.5+3)",
+            traps: [
+              { spec: { type: "number", value: 13 }, feedback: "13 is 4 × 2.5 + 3 — only the x was multiplied by 4. Each side is 2.5 + 3 = 5.5 cm, so the perimeter is 4 × 5.5." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out the perimeter of the pentagon when {{x = 2.5}}.",
+            marks: 1,
+            answer: { type: "number", value: 17.5, display: "17.5 cm" },
+            verify: "5*(2.5+1)",
+            traps: [
+              { spec: { type: "number", value: 13.5 }, feedback: "13.5 is 5 × 2.5 + 1 — the +1 belongs to every side. Each side is 3.5 cm, so the perimeter is 5 × 3.5." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Show that the two shapes have the same perimeter when {{x = 7}}.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Square: each side is 7 + 3 = 10 cm, so the perimeter is 4 × 10 = 40 cm",
+                keywords: ["10+40", "4 10", "7 3+40", "4x+12+40"],
+                feedback: "Work out the square's perimeter: each side is 7 + 3 = 10 cm, so 4 × 10 = 40 cm.",
+              },
+              {
+                point: "Pentagon: each side is 7 + 1 = 8 cm, so the perimeter is 5 × 8 = 40 cm — the same",
+                keywords: ["8+40", "5 8", "7 1+40", "5x+5+40"],
+                feedback: "Work out the pentagon's perimeter: each side is 7 + 1 = 8 cm, so 5 × 8 = 40 cm — the same as the square.",
+              },
+            ],
+            model: "Square: each side is 7 + 3 = 10 cm, so the perimeter is 4 × 10 = 40 cm. Pentagon: each side is 7 + 1 = 8 cm, so the perimeter is 5 × 8 = 40 cm. Both perimeters are 40 cm, so they are the same.",
+          },
+          {
+            label: "d",
+            prompt: "When {{x = 10}}, the pentagon has the bigger perimeter. How much bigger is it? Give your answer in cm.",
+            marks: 1,
+            answer: { type: "number", value: 3, display: "3 cm" },
+            verify: "5*(10+1)-4*(10+3)",
+            traps: [
+              { spec: { type: "number", value: 2 }, feedback: "2 is the difference between one side of each shape (13 − 11). Compare the whole perimeters: 55 cm − 52 cm." },
+            ],
+          },
+        ],
+        hints: [
+          "Find one side first, then multiply by the number of sides: 4 for the square, 5 for the pentagon.",
+          "For (c), work out both perimeters with x = 7. For (d), do the same with x = 10, then subtract.",
+        ],
+        solution: [
+          "(a) Side = 2.5 + 3 = 5.5 cm, so perimeter = 4 × 5.5 = **22 cm**.",
+          "(b) Side = 2.5 + 1 = 3.5 cm, so perimeter = 5 × 3.5 = **17.5 cm**.",
+          "(c) Square: side = 7 + 3 = 10 cm, perimeter = 4 × 10 = 40 cm. Pentagon: side = 7 + 1 = 8 cm, perimeter = 5 × 8 = 40 cm. Both are **40 cm** ✓",
+          "(d) Square: 4 × (10 + 3) = 4 × 13 = 52 cm. Pentagon: 5 × (10 + 1) = 5 × 11 = 55 cm. The pentagon's perimeter is **3 cm** bigger.",
+          "Why does the order swap? The square's perimeter is 4x + 12 and the pentagon's is 5x + 5. Each time x goes up by 1, the pentagon gains 5 cm but the square gains only 4 cm — so the pentagon catches up at x = 7 and then overtakes.",
+        ],
+        commonError: "Multiplying only the x by the number of sides: 4 × 2.5 + 3 = 13 instead of 4 × 5.5 = 22.",
+        strategy: "Check by substituting",
+      },
+      {
+        id: "su-w4-q04",
+        topic: "su",
+        section: "su-negatives",
+        difficulty: "challenge",
+        question: "Two whole numbers p and q have {{p + q = 2}} and {{pq = -15}}. The number p is bigger than q.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Find p and q. Give your answer in the order p, q.",
+            marks: 2,
+            answer: { type: "list", values: [5, -3], ordered: true, display: "p = 5, q = −3" },
+            verify: "(2+sqrt(2^2+4*15))/2, (2-sqrt(2^2+4*15))/2",
+            traps: [
+              { spec: { type: "list", values: [-3, 5], ordered: true }, feedback: "Right pair, wrong order — p is the bigger number, so p = 5 and q = −3." },
+              { spec: { type: "list", values: [3, -5], ordered: true }, feedback: "3 × (−5) = −15 ✓ but 3 + (−5) = −2, not 2. Swap the signs: 5 + (−3) = 2." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Work out {{p^2 + q^2}}.",
+            marks: 1,
+            answer: { type: "number", value: 34 },
+            verify: "5^2+(-3)^2",
+            traps: [
+              { spec: { type: "number", value: 16 }, feedback: "16 is 25 − 9. But q² = (−3)² = +9, so p² + q² = 25 + 9." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Work out {{-q^2}}.",
+            marks: 1,
+            answer: { type: "number", value: -9 },
+            verify: "-(-3)^2",
+            traps: [
+              { spec: { type: "number", value: 9 }, feedback: "−q² means −(q²): square first, (−3)² = 9, then the minus sign in front makes it −9." },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "Work out {{(p - q)^2}}.",
+            marks: 1,
+            answer: { type: "number", value: 64 },
+            verify: "(5-(-3))^2",
+            traps: [
+              { spec: { type: "number", value: 4 }, feedback: "4 is (5 − 3)². But p − q = 5 − (−3) = 8, and 8² = 64." },
+            ],
+          },
+        ],
+        hints: [
+          "List pairs of whole numbers that multiply to make −15. One must be positive and one negative.",
+          "Which of those pairs also adds up to 2? Remember p is the bigger one.",
+          "For (c), {{-q^2}} means −(q²): do the power first, then the minus sign.",
+        ],
+        solution: [
+          "(a) Pairs that multiply to −15: 1 and −15, −1 and 15, 3 and −5, 5 and −3. Only 5 + (−3) = 2, so **p = 5 and q = −3**.",
+          "(b) {{p^2 + q^2 = 5^2 + (-3)^2 = 25 + 9}} = **34**.",
+          "(c) {{-q^2 = -(-3)^2 = -(9)}} = **−9**. The power is done before the minus sign in front.",
+          "(d) {{(p - q)^2 = (5 - (-3))^2 = 8^2}} = **64**.",
+        ],
+        commonError: "Saying −q² = 9. The minus sign in front is applied after squaring: −(−3)² = −9. Compare (−3)² = 9.",
+        strategy: "Try small cases",
+      },
+      {
+        id: "su-w4-q05",
+        topic: "su",
+        section: "su-basics",
+        difficulty: "challenge",
+        question: "Use each of the numbers 2, 3 and 5 exactly once, as the values of a, b and c.",
+        parts: [
+          {
+            label: "a",
+            prompt: "Find the largest possible value of {{a(b + c)}}.",
+            marks: 1,
+            answer: { type: "number", value: 25 },
+            verify: "5*(2+3)",
+            traps: [
+              { spec: { type: "number", value: 16 }, feedback: "16 makes the bracket as big as possible (2 × 8), but then a is only 2. Try each choice of a: 16, 21 and 25." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "Find the smallest possible value of {{a^2 - bc}}.",
+            marks: 1,
+            answer: { type: "number", value: -11 },
+            verify: "2^2-3*5",
+            traps: [
+              { spec: { type: "number", value: 5 }, feedback: "5 is (4 − 3) × 5 — multiply before you subtract: 2² − 3 × 5 = 4 − 15 = −11." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "Find the largest possible value of {{a^b - c}}.",
+            marks: 2,
+            answer: { type: "number", value: 241 },
+            verify: "3^5-2",
+            traps: [
+              { spec: { type: "number", value: 123 }, feedback: "123 uses {{5^3 = 125}}. But {{3^5 = 243}} is even bigger — here the power matters more than the number being multiplied." },
+            ],
+          },
+        ],
+        hints: [
+          "There are only six ways to arrange 2, 3 and 5 — and in (a) and (b), swapping b and c changes nothing. So which letter really matters?",
+          "To make an answer big, make the part you multiply (or raise to a power) big and the part you subtract small.",
+          "In (c), compare {{3^5}} and {{5^3}} carefully before you decide.",
+        ],
+        solution: [
+          "(a) b + c is the same whichever way round b and c go, so try each value of a: a = 2 gives 2 × 8 = 16; a = 3 gives 3 × 7 = 21; a = 5 gives 5 × 5 = 25. Largest = **25**.",
+          "(b) Again only a matters (bc is the same either way): a = 2 gives 4 − 15 = −11; a = 3 gives 9 − 10 = −1; a = 5 gives 25 − 6 = 19. Smallest = **−11**.",
+          "(c) Make the power as big as possible and subtract the smallest number. {{3^5 = 3 * 3 * 3 * 3 * 3 = 243}} but {{5^3 = 125}}, so use a = 3, b = 5, c = 2: {{3^5 - 2 = 243 - 2}} = **241**.",
+          "Check the rest: {{5^3 - 2 = 123}}, {{2^5 - 3 = 29}}, {{5^2 - 3 = 22}}, {{3^2 - 5 = 4}}, {{2^3 - 5 = 3}} — all smaller.",
+        ],
+        commonError: "Assuming the biggest number should always go first: {{5^3 - 2 = 123}}, but {{3^5 - 2 = 241}} is bigger.",
+        strategy: "Consider extremes",
+      },
+      {
+        id: "su-w4-q06",
+        topic: "su",
+        section: "su-powers",
+        difficulty: "challenge",
+        question: "Work backwards to find each starting number.",
+        parts: [
+          {
+            label: "a",
+            prompt: "I square a number and get 0.49. What could my number be? Give both possible answers.",
+            marks: 1,
+            answer: { type: "list", values: [0.7, -0.7], display: "0.7 and −0.7" },
+            verify: "sqrt(0.49), -sqrt(0.49)",
+            traps: [
+              { spec: { type: "list", values: [0.07, -0.07] }, feedback: "0.07² = 0.0049, not 0.49. Since 7 × 7 = 49 and 0.49 has two decimal places, the number has one: 0.7 (or −0.7)." },
+            ],
+          },
+          {
+            label: "b",
+            prompt: "I cube a number and get −0.001. What is my number?",
+            marks: 1,
+            answer: { type: "number", value: -0.1 },
+            verify: "cbrt(-0.001)",
+            traps: [
+              { spec: { type: "number", value: 0.1 }, feedback: "0.1³ = +0.001. To get a negative answer the number must be negative: (−0.1)³ = −0.001." },
+              { spec: { type: "number", value: -0.01 }, feedback: "(−0.01)³ = −0.000001. Count the decimal places: 0.1 × 0.1 × 0.1 = 0.001." },
+            ],
+          },
+          {
+            label: "c",
+            prompt: "I square-root a number and get 0.9. What is my number?",
+            marks: 1,
+            answer: { type: "number", value: 0.81 },
+            verify: "0.9^2",
+            traps: [
+              { spec: { type: "number", value: 8.1 }, feedback: "Check the decimal point: 9 × 9 = 81, and 0.9 × 0.9 has two decimal places, so it is 0.81." },
+              { spec: { type: "number", value: 1.8 }, feedback: "1.8 is 0.9 × 2. To undo a square root, square: 0.9 × 0.9." },
+            ],
+          },
+          {
+            label: "d",
+            prompt: "Kai says, 'If I square any number and then square-root the answer, I always get back to the number I started with.' Give an example that shows Kai is wrong, and explain why it happens.",
+            marks: 2,
+            markScheme: [
+              {
+                point: "Gives a counter-example with a negative number, e.g. −3: (−3)² = 9 and the square root of 9 is 3, not −3",
+                keywords: ["negative", "minus", "9+3", "16+4", "25+5", "below zero", "below 0"],
+                feedback: "Try a negative starting number, e.g. −3: {{(-3)^2 = 9}} and {{sqrt(9) = 3}} — you end at 3, not −3.",
+              },
+              {
+                point: "Explains that √ always gives the positive root, so the minus sign is lost",
+                keywords: ["positive", "lost", "loses", "lose", "sign", "plus"],
+                feedback: "Say why: the √ sign always gives the positive square root, so the minus sign is lost and you can't get back to a negative number.",
+              },
+            ],
+            model: "Start with −3. Squaring gives {{(-3)^2 = 9}}, then {{sqrt(9) = 3}}. You end with 3, not −3, so Kai is wrong for negative numbers. This happens because the √ sign always gives the **positive** square root, so the minus sign is lost.",
+          },
+        ],
+        hints: [
+          "Undo each operation: the opposite of squaring is square-rooting, and the opposite of cubing is cube-rooting.",
+          "For (a), remember a negative number squared is positive too. For (b), which number multiplied by itself three times gives −0.001?",
+          "For (d), try starting with a negative number.",
+        ],
+        solution: [
+          "(a) {{0.7^2 = 0.49}} and {{(-0.7)^2 = 0.49}}, so the number could be **0.7 or −0.7**.",
+          "(b) {{(-0.1)^3 = (-0.1) * (-0.1) * (-0.1)}} = −0.001, so the number is **−0.1**. A negative number cubed stays negative.",
+          "(c) Undo the square root by squaring: {{0.9^2 = 0.9 * 0.9}} = **0.81**. Check: {{sqrt(0.81) = 0.9}} ✓",
+          "(d) Start with −3: {{(-3)^2 = 9}}, then {{sqrt(9) = 3}}. You end with 3, not −3, so Kai is wrong. The √ sign always gives the positive root, so a negative starting number comes back positive.",
+        ],
+        commonError: "Giving only 0.7 in part (a). Squaring loses the sign, so −0.7 works too: (−0.7)² = 0.49.",
+        strategy: "Work backwards",
+      },
+    ],
+  },
 ];

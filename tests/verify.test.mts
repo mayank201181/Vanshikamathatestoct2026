@@ -43,3 +43,11 @@ test("written verify checks numbers, rounding, lists, ratios, algebra and sequen
   assert.ok(verifyAnswer({ type: "expression", expr: "3n^2-3n+1" }, "terms:1,7,19,37,61").ok);
   assert.equal(generates("n^2+2", [3, 6, 11, 18, 27]), true);
 });
+
+test("numbers may carry a short unit phrase; reversed lists get order feedback", () => {
+  assert.equal(st({ type: "number", value: 72 }, "72 home fans"), "correct");
+  assert.equal(st({ type: "number", value: 9.3 }, "£9.3 million"), "correct");
+  const r = checkAnswer({ type: "list", values: [80, 40], ordered: true }, "40, 80");
+  assert.equal(r.status, "incorrect");
+  assert.match(r.feedback ?? "", /order the question asks/);
+});

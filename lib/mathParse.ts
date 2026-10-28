@@ -80,7 +80,7 @@ const POWER_UNIT = String.raw`(?:mm|cm|dm|m|km|units?)\s*\^?\s*[23]`;
  * read as 9 followed by a unit.
  */
 const UNIT_TAIL = new RegExp(
-  String.raw`^\s*(?:%|°\s*[a-z]?|(?:${POWER_UNIT}|[a-z]{1,12})(?:\s*\/\s*(?:${POWER_UNIT}|[a-z]{1,5}))?)?\s*$`,
+  String.raw`^\s*(?:%|°\s*[a-z]?|(?:${POWER_UNIT}|[a-z]{1,12}(?:\s+[a-z]{1,12}){0,2})(?:\s*\/\s*(?:${POWER_UNIT}|[a-z]{1,5}))?)?\s*\.?\s*$`,
   "i",
 );
 
