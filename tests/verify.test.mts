@@ -117,3 +117,9 @@ test("tablet punctuation, 'the 12th term' and a typed x for times", () => {
   assert.equal(st({ type: "expression", expr: "3n+2" }, "3 x n + 2"), "correct");
   assert.equal(st({ type: "expression", expr: "3x+2" }, "3x + 2"), "correct");
 });
+
+test("a percentage typed where a decimal multiplier is asked is 'close'", () => {
+  assert.equal(st({ type: "number", value: 0.85, allowFraction: false }, "85%"), "close");
+  assert.equal(st({ type: "number", value: 0.85, allowFraction: false }, "0.85"), "correct");
+  assert.equal(st({ type: "number", value: 25 }, "25%"), "correct");
+});

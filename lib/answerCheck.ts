@@ -170,6 +170,10 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
     return { status: "correct" };
   }
   if (near(p.value, spec.value, spec.tolerance)) return { status: "correct" };
+  // "85%" typed when the answer is the decimal 0.85 (e.g. a multiplier)
+  if (/%/.test(input) && Math.abs(spec.value) < 10 && near(p.value / 100, spec.value, spec.tolerance)) {
+    return { status: "close", feedback: "That's the percentage — the question wants it as a decimal (divide by 100)." };
+  }
   if (spec.value !== 0 && near(p.value, -spec.value, spec.tolerance)) {
     return { status: "incorrect", feedback: "Check the sign (+ or −)." };
   }
