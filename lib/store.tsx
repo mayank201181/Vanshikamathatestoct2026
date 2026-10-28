@@ -144,6 +144,8 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const raw = readRaw();
     synced.current = raw;
+    // Hydrate from localStorage after mount: the server render has no storage to read.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     adopt(parse(raw));
     setReady(true);
     const onStorage = (e: StorageEvent) => {

@@ -15,7 +15,7 @@ import { ShareButton } from "./ShareButton";
 
 export type RunItem = { kind: "mcq"; q: MCQ } | { kind: "qa"; q: QA };
 
-type Mode = "set" | "practice" | "review";
+type Mode = "set" | "practice" | "review" | "mock";
 type Persist = (fn: (prev: SetAttempt) => SetAttempt) => void;
 
 type Props = {
@@ -36,6 +36,9 @@ type Props = {
 };
 
 type Status = "todo" | "right" | "part" | "wrong";
+
+/** Timestamp for saves; only ever called from event handlers. */
+const stamp = () => Date.now();
 
 function statusOf(item: RunItem, a: SetAttempt): Status {
   const ans = a.answers[item.q.id];
@@ -67,6 +70,8 @@ export function Runner({ mode, runId, here, title, subtitle, items, backHref, ba
   useEffect(() => {
     if (!ready || loaded) return;
     const saved = store.getAttempt(runId);
+    // Restore the saved run once the store has loaded from localStorage (not available during server render).
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (saved) {
       const restored = { ...emptyAttempt(), ...saved, index: Math.min(saved.index, Math.max(0, items.length - 1)) };
       aRef.current = restored;
@@ -74,6 +79,7 @@ export function Runner({ mode, runId, here, title, subtitle, items, backHref, ba
       if (saved.completed) setShowSummary(true);
     }
     setLoaded(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [ready, loaded, runId, store, items.length]);
 
   // remember this place for "Continue where you left off"
@@ -85,7 +91,7 @@ export function Runner({ mode, runId, here, title, subtitle, items, backHref, ba
 
   /** Apply a change to the latest attempt and save it immediately. */
   const persist: Persist = (fn) => {
-    const next = { ...fn(aRef.current), updatedAt: Date.now() };
+    const next = { ...fn(aRef.current), updatedAt: stamp() };
     aRef.current = next;
     setA(next);
     store.saveAttempt(runId, next);
@@ -110,8 +116,8 @@ export function Runner({ mode, runId, here, title, subtitle, items, backHref, ba
       [0, 0],
     );
     const pct = total ? Math.round((got / total) * 100) : 0;
-    if (mode === "set" && !aRef.current.completed) {
-      store.finishSet({ setId: runId, correct: got, total, pct, at: Date.now() });
+    if ((mode === "set" || mode === "mock") && !aRef.current.completed) {
+      store.finishSet({ setId: runId, correct: got, total, pct, at: stamp() });
       store.award(`${runId}:finished`, 5);
     }
     persist((prev) => ({ ...prev, completed: true }));
@@ -857,7 +863,7 @@ function Summary({
         <p className="mx-auto mt-2 max-w-md text-slate-700">{message}</p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <button onClick={onRestart} className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50">
-            {mode === "set" ? "🔄 Try this set again" : mode === "practice" ? "🔄 Practise again" : "🔁 Start a new mistakes round"}
+            {mode === "set" ? "🔄 Try this set again" : mode === "practice" ? "🔄 Practise again" : mode === "mock" ? "🎓 New mock test" : "🔁 Start a new mistakes round"}
           </button>
           {wrong.length > 0 && (
             <Link href="/review" className="rounded-xl bg-rose-600 px-4 py-2 font-semibold text-white hover:bg-rose-700">

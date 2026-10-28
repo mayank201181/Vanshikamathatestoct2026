@@ -8,6 +8,8 @@ export function ListenButton({ getText, label = "Listen" }: { getText: () => str
   const [supported, setSupported] = useState(true);
 
   useEffect(() => {
+    // Feature-detect after mount so the server render and first client render match.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSupported(typeof window !== "undefined" && "speechSynthesis" in window);
     return () => {
       if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();

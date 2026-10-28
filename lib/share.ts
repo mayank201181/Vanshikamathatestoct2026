@@ -72,6 +72,8 @@ export function shareText(p: Progress): string {
   if (weak.length) lines.push(`🎯 Needs work: ${weak.map((s) => `${s.label} (${Math.round(s.score * 100)}%)`).join(", ")}`);
   const strong = m.filter((s) => s.score >= 0.9 && s.answered >= 4).map((s) => s.label);
   if (strong.length) lines.push(`💪 Strong: ${strong.slice(0, 4).join(", ")}`);
+  const mocks = p.history.filter((h) => h.setId === "mock");
+  if (mocks.length) lines.push(`🎓 Mock tests: ${mocks.slice(-5).map((m) => `${m.pct}%`).join(", ")}`);
   lines.push(`🔁 Mistakes still to fix: ${openMistakes(p).length}`);
   lines.push(`⭐ Stars: ${p.stars}`);
   return lines.join("\n");

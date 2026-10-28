@@ -28,6 +28,7 @@ const PLAN: { title: string; tasks: Task[] }[] = [
     tasks: [
       { key: "set2", label: "Set 2 (MC + written) of your two weakest topics", href: "/bank" },
       { key: "set3", label: "Set 3 · Exam practice of any topic below 80%", href: "/bank" },
+      { key: "mock1", label: "Take a mock class test (40 min)", href: "/mock", done: (p) => p.history.some((h) => h.setId === "mock") },
       { key: "fix", label: "Fix every mistake on your Mistakes list", href: "/review", done: (p) => Object.keys(p.best).length > 2 && openMistakes(p).length === 0 },
     ],
   },
@@ -132,6 +133,9 @@ export default function Home() {
           </Link>
           <Link href="/guide" className="rounded-xl bg-white/15 px-4 py-2.5 font-semibold text-white ring-1 ring-white/40 hover:bg-white/25">
             📖 Revise first
+          </Link>
+          <Link href="/mock" className="rounded-xl bg-white/15 px-4 py-2.5 font-semibold text-white ring-1 ring-white/40 hover:bg-white/25">
+            🎓 Mock test
           </Link>
         </div>
       </section>

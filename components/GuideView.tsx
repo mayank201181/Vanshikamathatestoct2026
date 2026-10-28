@@ -48,6 +48,7 @@ export function GuideView({ topic }: { topic: TopicId }) {
     const target = hash || p.guidePos[topic];
     if (target && document.getElementById(target)) {
       requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off notice after restoring the scroll position
       if (!hash) setResumed(sections.find((s) => s.id === target)?.heading ?? null);
     }
   }, [ready, p.guidePos, topic, sections]);
