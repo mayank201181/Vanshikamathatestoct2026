@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+/* Design tokens (light theme) — used by the maths widgets and rich text:
+   bg-surface, text-ink, text-ink-2, border-line, bg-brand, text-brand, bg-brand-soft … */
+:root {
+  --background: #f6f7fb;
+  --foreground: #0f172a;
+  --bg: #f5f6fb;
+  --surface: #ffffff;
+  --surface-2: #f0f2f9;
+  --ink: #171a2f;
+  --ink-2: #555b78;
+  --line: #e0e3ef;
+  --brand: #4f46e5;
+  --brand-2: #7c3aed;
+  --brand-ink: #ffffff;
+  --brand-soft: #eceafe;
+  --accent: #f59e0b;
+  --accent-soft: #fef3c7;
+  --good: #15803d;
+  --good-soft: #dcfce7;
+  --bad: #c2410c;
+  --bad-soft: #ffedd5;
+  --warn: #a16207;
+  --warn-soft: #fef9c3;
+  --info: #0369a1;
+  --info-soft: #e0f2fe;
+  --s-number: #4f46e5;
+  --s-ratio: #0d9488;
+  --s-algebra: #7c3aed;
+  --s-geometry: #ea580c;
+  --s-stats: #db2777;
+  --shadow: 0 1px 2px rgb(23 26 47 / 0.06), 0 4px 16px rgb(23 26 47 / 0.06);
+  color-scheme: light;
+}
+
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-s-number: var(--s-number);
+  --color-s-ratio: var(--s-ratio);
+  --color-s-algebra: var(--s-algebra);
+  --color-s-geometry: var(--s-geometry);
+  --color-s-stats: var(--s-stats);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --shadow-card: var(--shadow);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, Arial, Helvetica, sans-serif;
+}
+
+/* ------------------------------ components ------------------------------ */
+@layer components {
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.75rem;
+    padding: 0.55rem 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    transition: background-color 0.15s, transform 0.05s, box-shadow 0.15s;
+    cursor: pointer;
+    user-select: none;
+    min-height: 2.5rem;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--brand); color: var(--brand-ink); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  .btn-secondary:hover:not(:disabled) { background: var(--surface-2); }
+  .btn-ghost { background: transparent; color: var(--ink-2); }
+  .btn-ghost:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+  .btn-good { background: var(--good); color: #fff; }
+  .btn-sm { padding: 0.35rem 0.75rem; min-height: 2.5rem; font-size: 0.875rem; border-radius: 0.6rem; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+  }
+  .input {
+    width: 100%;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 1.05rem;
+    outline: none;
+  }
+  .input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.4rem;
+    height: 2.4rem;
+    padding: 0 0.5rem;
+    border-radius: 0.6rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .kbd:hover { background: var(--brand-soft); }
+  .section-title { font-size: 1.15rem; font-weight: 800; color: var(--ink); }
+  .muted { color: var(--ink-2); }
+}
+
+/* ------------------------- rich text & maths ---------------------------- */
+.rich { line-height: 1.7; }
+.rich > * + * { margin-top: 0.7rem; }
+.rich strong { font-weight: 800; }
+.rich code {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.9em;
+}
+.rich-ul { list-style: disc; padding-left: 1.3rem; }
+.rich-ol { list-style: decimal; padding-left: 1.4rem; }
+.rich-ul li + li, .rich-ol li + li { margin-top: 0.25rem; }
+.rich-callout {
+  border-left: 4px solid var(--brand);
+  background: var(--brand-soft);
+  padding: 0.6rem 0.9rem;
+  border-radius: 0 0.6rem 0.6rem 0;
+}
+.rich-calc {
+  background: var(--surface-2);
+  border: 1px dashed var(--line);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.rich-calc > div + div { margin-top: 0.35rem; }
+.rich-table-wrap { overflow-x: auto; }
+.rich-table { border-collapse: collapse; min-width: 50%; font-variant-numeric: tabular-nums; }
+.rich-table th, .rich-table td { border: 1px solid var(--line); padding: 0.35rem 0.7rem; text-align: center; }
+.rich-table th { background: var(--surface-2); font-weight: 800; }
+
+.math math {
+  font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", "Times New Roman", serif;
+  font-size: 1.12em;
+}
+.math mfrac { padding: 0 0.08em; }
+.math-raw { font-family: ui-monospace, monospace; }
+
+/* Diagrams are authored with fixed light colours, so always sit them on paper. */
+.diagram { margin: 0.5rem 0; }
+.diagram-svg {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  padding: 0.5rem;
+  color: #1f2937;
+}
+.diagram-svg svg {
+  width: 100%;
+  height: auto;
+  max-width: 520px;
+  max-height: 420px;
+  display: block;
+  margin: 0 auto;
+}
+.diagram figcaption { font-size: 0.85rem; color: var(--ink-2); text-align: center; margin-top: 0.35rem; }
+
+/* rich text inside coloured callouts keeps the callout's colour */
+.rich-inherit, .rich-inherit strong { color: inherit; }
+
+/* MathML inside buttons/options should not shrink */
+.math { display: inline-block; }
+
+/* Diagrams authored as inline SVG inside question/guide cards */
+.diagram-svg svg { max-height: 360px; }
+
+@keyframes pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: pop 0.28s ease-out; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.animate-shake { animation: shake 0.25s ease-in-out 2; }
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-floaty { animation: floaty 3s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop, .animate-shake, .animate-floaty { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* Thin custom scrollbar for the question navigator. */
+.nav-scroll::-webkit-scrollbar { height: 8px; }
+.nav-scroll::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 9999px; }
+
+input[type="range"] { accent-color: var(--brand); width: 100%; }
+
+/* Print the cram sheet cleanly */
+@media print {
+  body { background: #fff; }
+  header, footer, nav, .no-print { display: none !important; }
+  main { max-width: none !important; padding: 0 !important; }
+  .break-inside-avoid { break-inside: avoid; }
+}
