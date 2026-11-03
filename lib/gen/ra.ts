@@ -49,13 +49,13 @@ function lowest(xs: number[]): number[] {
 const andList = (xs: (string | number)[]) => (xs.length < 2 ? String(xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 
 /** Wrong numeric answers: skips a value equal to the answer or to an earlier wrong. */
-function numSlips(answer: number) {
+function numSlips(answer: number, allowZero = false) {
   const seen = [answer];
   const list: Wrong[] = [];
   return {
     list,
     add(value: number, display: string, feedback: string, spec: AnswerSpec = numSpec(value)) {
-      if (!Number.isFinite(value) || value <= 0) return;
+      if (!Number.isFinite(value) || value < 0 || (value === 0 && !allowZero)) return;
       if (seen.some((v) => Math.abs(v - value) <= 1e-9 * Math.max(1, Math.abs(v)))) return;
       seen.push(value);
       list.push({ display, spec, feedback });
@@ -1222,4 +1222,693 @@ const raRecipe: Generator = {
   },
 };
 
-export const GEN_RA: Generator[] = [raSimplify, raUnit, raShare, raGivenPart, raDifference, raFraction, raCombine, raRecipe];
+// ---------------------------------------------------------------------------
+// ra-inverse — inverse proportion: more workers (or a faster speed) means less time
+// ---------------------------------------------------------------------------
+
+type TimeUnit = "hour" | "minute" | "day";
+/** "1 hour", "6 hours", "40 minutes" */
+const tm = (x: number, unit: TimeUnit) => `${num(x)} ${unit}${x === 1 ? "" : "s"}`;
+/** 45 → "45 minutes", 60 → "1 hour", 90 → "1 hour 30 minutes" */
+function minutesText(x: number): string {
+  const h = Math.floor(x / 60);
+  const mins = x % 60;
+  if (!h) return tm(mins, "minute");
+  return mins ? `${tm(h, "hour")} ${tm(mins, "minute")}` : tm(h, "hour");
+}
+
+interface CrewCtx {
+  one: string;
+  many: string;
+  task: string;
+  unit: TimeUnit;
+  /** the starting time */
+  time: [number, number];
+  step: number;
+}
+
+const CREWS: CrewCtx[] = [
+  { one: "volunteer", many: "volunteers", task: "sort the books for a school book sale", unit: "hour", time: [2, 12], step: 1 },
+  { one: "painter", many: "painters", task: "paint the school hall", unit: "day", time: [2, 12], step: 1 },
+  { one: "builder", many: "builders", task: "build a garden wall", unit: "day", time: [2, 15], step: 1 },
+  { one: "tap", many: "taps", task: "fill a paddling pool", unit: "minute", time: [10, 90], step: 5 },
+  { one: "printer", many: "printers", task: "print the school magazine", unit: "minute", time: [10, 90], step: 5 },
+  { one: "machine", many: "machines", task: "pack a day's orders at a fruit farm", unit: "hour", time: [2, 12], step: 1 },
+  { one: "pupil", many: "pupils", task: "pick up the litter on the school field", unit: "minute", time: [10, 60], step: 5 },
+];
+
+function crewDraft(r: Rng): Draft {
+  const c = r.pick(CREWS);
+  let W1 = 4, W2 = 3, T1 = 6;
+  for (let t = 0; t < 500; t++) {
+    W1 = r.int(2, 8);
+    W2 = r.int(2, 10);
+    T1 = c.step * r.int(Math.ceil(c.time[0] / c.step), Math.floor(c.time[1] / c.step));
+    const easy = W1 % W2 === 0 || W2 % W1 === 0;
+    if (easy && r.chance(0.6)) continue;
+    if (W1 !== W2 && isWhole((W1 * T1) / W2) && (W1 * T1) / W2 >= (c.unit === "minute" ? 5 : 1)) break;
+  }
+  const work = W1 * T1;
+  const T2 = work / W2;
+  const fewer = W2 < W1;
+  const f = (x: number) => tm(x, c.unit);
+  const workUnit = `${c.one}-${c.unit}s`;
+  const slips = numSlips(T2);
+  const direct = tidy((T1 * W2) / W1);
+  if (c.unit === "minute" ? isWhole(direct) : hasDp(direct, 1)) {
+    slips.add(direct, f(direct), `${f(direct)} treats this as direct proportion (${T1} × ${m(`${W2}/${W1}`)}). ${fewer ? "Fewer" : "More"} ${c.many} take ${fewer ? "**longer**" : "**less** time"}, so the answer must be ${fewer ? "more" : "less"} than ${f(T1)}.`);
+  }
+  const gap = Math.abs(W1 - W2);
+  const added = fewer ? T1 + gap : T1 - gap;
+  slips.add(added, f(added), `${f(added)} ${fewer ? "adds" : "takes off"} one ${c.unit} for each ${fewer ? "missing" : "extra"} ${c.one}. The time depends on how the work is shared out, so multiply and divide — don't add or take away.`);
+  slips.add(work, f(work), `${f(work)} is the whole job done by **one** ${c.one} (${W1} × ${T1} = ${work} ${workUnit}). It still has to be shared between the ${W2} ${c.many}.`);
+
+  return {
+    difficulty: "core",
+    question: `It takes ${W1} ${c.many} ${f(T1)} to ${c.task}. How long would it take ${W2} ${c.many} working at the same rate?`,
+    prompt: `Give your answer in ${c.unit}s.`,
+    answer: numSpec(T2, f(T2)),
+    display: f(T2),
+    correctFeedback: `The job is ${W1} × ${T1} = ${work} ${workUnit} of work, and ${work} ÷ ${W2} = ${num(T2)}.`,
+    wrong: slips.list,
+    explanation: `Work out the size of the whole job first: ${W1} ${c.many} for ${f(T1)} is ${W1} × ${T1} = ${work} ${workUnit} of work. Shared between ${W2} ${c.many}, it takes ${work} ÷ ${W2} = ${f(T2)}. This is **inverse** proportion: ${fewer ? "fewer" : "more"} ${c.many} means ${fewer ? "more" : "less"} time, so the answer must be ${fewer ? "more" : "less"} than ${f(T1)} ✓.`,
+    solution: [
+      `Whole job: ${W1} × ${T1} = ${work} ${workUnit}.`,
+      `${W2} ${c.many}: ${work} ÷ ${W2} = **${f(T2)}**.`,
+      `Check: ${W2} × ${num(T2)} = ${work} ${workUnit}, the same job ✓`,
+    ],
+    hints: [`Will ${W2} ${c.many} take more time or less time than ${W1} ${c.many}?`, `How many ${workUnit} of work is the whole job? Share that between the ${W2} ${c.many}.`],
+    verify: `${W1}*${T1}/${W2}`,
+    commonError: `Treating it as direct proportion (${T1} × ${m(`${W2}/${W1}`)}). ${fewer ? "Fewer" : "More"} ${c.many} take ${fewer ? "longer" : "less time"}, so scale the inverse way.`,
+    strategy: "Estimate first",
+    marks: 2,
+    sig: `crew|${W1}x${T1}${c.unit}->${W2}`,
+  };
+}
+
+interface TripCtx {
+  /** speed range in km/h */
+  speed: [number, number];
+  /** the way back must be faster (running downhill) */
+  faster: boolean;
+  stem: (name: string, s1: number, t1: string, s2: number) => string;
+}
+
+const TRIPS: TripCtx[] = [
+  { speed: [6, 15], faster: true, stem: (n, s1, t1, s2) => `${n} runs up a hill path at ${s1} km/h, and it takes ${t1}. ${n} then runs back down the same path at ${s2} km/h. How long does it take to run down?` },
+  { speed: [10, 24], faster: false, stem: (n, s1, t1, s2) => `${n} cycles to the library at ${s1} km/h, and the journey takes ${t1}. On the way home ${n} cycles along the same route at ${s2} km/h. How long does the journey home take?` },
+  { speed: [3, 6], faster: false, stem: (n, s1, t1, s2) => `${n} walks to the park at ${s1} km/h, and it takes ${t1}. ${n} walks back along the same route at ${s2} km/h. How long does the walk back take?` },
+  { speed: [30, 72], faster: false, stem: (_n, s1, t1, s2) => `A bus travels between two towns at an average speed of ${s1} km/h and takes ${t1}. On the way back it averages ${s2} km/h. How long does the journey back take?` },
+];
+
+function tripDraft(r: Rng): Draft {
+  const c = r.pick(TRIPS);
+  const [name] = names(r, 1);
+  let S1 = 8, S2 = 12, T1 = 60;
+  for (let t = 0; t < 500; t++) {
+    S1 = r.int(c.speed[0], c.speed[1]);
+    S2 = r.int(c.speed[0], c.speed[1]);
+    T1 = r.pick([20, 24, 30, 36, 40, 45, 48, 60, 60, 60, 72, 75, 80, 90, 120]);
+    if (S1 !== S2 && (!c.faster || S2 > S1) && isWhole((T1 * S1) / S2) && hasDp((S1 * T1) / 60, 1)) break;
+  }
+  const T2 = (T1 * S1) / S2;
+  const d = tidy((S1 * T1) / 60);
+  const faster = S2 > S1;
+  const f = (x: number) => tm(x, "minute");
+  const slips = numSlips(T2);
+  const direct = tidy((T1 * S2) / S1);
+  if (hasDp(direct, 1)) slips.add(direct, f(direct), `${f(direct)} comes from multiplying by ${m(`${S2}/${S1}`)} — scaling the direct way. ${faster ? "Going faster over the same distance takes **less** time" : "Going slower over the same distance takes **more** time"}, so multiply by ${m(`${S1}/${S2}`)} instead.`);
+  const h = T2 / 60;
+  if (!isWhole(h)) {
+    const whole = Math.floor(h);
+    const dec = Math.round((h - whole) * 100);
+    const v = whole * 60 + dec;
+    const hText = num(Number(h.toFixed(2)));
+    slips.add(v, f(v), `${f(v)} comes from reading ${hText} hours as ${whole ? `${tm(whole, "hour")} ` : ""}${dec} minutes. The decimal part is a fraction of an **hour** (60 minutes), not of 100 minutes: ${fr(T2, 60)} of an hour is ${f(T2)}.`);
+  }
+  const gap = Math.abs(S2 - S1);
+  const added = faster ? T1 - gap : T1 + gap;
+  if (gap <= 10) slips.add(added, f(added), `${f(added)} ${faster ? "takes off" : "adds"} one minute for each km/h ${faster ? "faster" : "slower"}. Speed and time are in inverse proportion, so multiply by ${m(`${S1}/${S2}`)} — don't add or take away.`);
+  if (isWhole(d)) slips.add(d, f(d), `${d} is the **distance** in km (${S1} km/h for ${minutesText(T1)}), not the time. Now divide the ${d} km by the new speed, ${S2} km/h.`);
+
+  const t1 = minutesText(T1);
+  // the time in hours: 2, or {{1 1/5}}
+  const hrs = T1 % 60 === 0 ? String(T1 / 60) : fr(T1, 60);
+  const core = T1 % 60 === 0;
+  return {
+    difficulty: core ? "core" : "challenge",
+    question: c.stem(name, S1, t1, S2),
+    prompt: "Give your answer in minutes.",
+    answer: numSpec(T2, f(T2)),
+    display: f(T2),
+    correctFeedback: `The route is ${num(d)} km, and ${num(d)} ÷ ${S2} = ${fr(T2, 60)} of an hour, which is ${f(T2)}.`,
+    wrong: slips.list,
+    explanation: `Find the distance first: ${S1} km/h for ${t1} is ${S1} × ${hrs} = ${num(d)} km. At ${S2} km/h the same ${num(d)} km takes ${num(d)} ÷ ${S2} = ${fr(T2, 60)} of an hour, which is ${f(T2)}. Ratio view: speed and time are in **inverse** proportion, so the time is multiplied by ${m(`${S1}/${S2}`)}: ${T1} × ${m(`${S1}/${S2}`)} = ${num(T2)} minutes. Check: ${faster ? "faster" : "slower"} means ${faster ? "less" : "more"} time than ${t1} ✓.`,
+    solution: [
+      `Distance = speed × time = ${S1} × ${hrs} = ${num(d)} km.`,
+      `Time back = distance ÷ speed = ${num(d)} ÷ ${S2} = ${fr(T2, 60)} of an hour.`,
+      `${fr(T2, 60)} × 60 = **${f(T2)}**.`,
+      `Check: ${faster ? "faster" : "slower"}, so ${faster ? "less" : "more"} than ${t1} ✓`,
+    ],
+    hints: [`How long is the route? Use distance = speed × time${T1 % 60 ? ` (careful: ${t1} is ${hrs} of an hour)` : ""}.`, "Divide the distance by the new speed, then change the hours into minutes."],
+    verify: `${T1}*${S1}/${S2}`,
+    commonError: `Scaling the direct way (× ${m(`${S2}/${S1}`)}), or reading a decimal of an hour as minutes.`,
+    strategy: "Draw a diagram",
+    marks: core ? 2 : 3,
+    sig: `trip|${S1}:${T1}->${S2}`,
+  };
+}
+
+const raInverse: Generator = {
+  id: "ra-inverse",
+  topic: "ra",
+  section: "ra-problems",
+  label: "Inverse proportion: workers and time, speed and time",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const trip = r.chance(0.4);
+    let d = trip ? tripDraft(r) : crewDraft(r);
+    for (let t = 0; t < 30 && d.wrong.length < 3; t++) d = trip ? tripDraft(r) : crewDraft(r);
+    return d;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// ra-mix-fix — a mix made in the wrong ratio: how much more of one ingredient puts it right?
+// ---------------------------------------------------------------------------
+
+interface MixCtx {
+  a: string;
+  b: string;
+  make: string;
+  unit: "litre" | "ml" | "kg";
+  /** the first ingredient is always the smaller part (squash : water, cement : sand) */
+  aSmaller?: boolean;
+  /** "the right shade" / "the right mix" */
+  fix: string;
+}
+
+const MIXES: MixCtx[] = [
+  { a: "red paint", b: "blue paint", make: "a shade of purple", unit: "litre", fix: "shade" },
+  { a: "blue paint", b: "yellow paint", make: "a shade of green", unit: "litre", fix: "shade" },
+  { a: "white paint", b: "red paint", make: "a shade of pink", unit: "litre", fix: "shade" },
+  { a: "orange squash", b: "water", make: "a jug of orange drink", unit: "ml", fix: "strength", aSmaller: true },
+  { a: "mango juice", b: "lemonade", make: "fruit punch", unit: "ml", fix: "mix" },
+  { a: "cement", b: "sand", make: "mortar for a garden wall", unit: "kg", fix: "mix", aSmaller: true },
+];
+
+function mixFixDraft(r: Rng): Draft {
+  const c = r.pick(MIXES);
+  const [name] = names(r, 1);
+  const ml = c.unit === "ml";
+  let [p, q] = pickParts(r, 2, ml ? 6 : 5);
+  if (c.aSmaller && p > q) [p, q] = [q, p];
+  const u = ml ? r.pick([20, 25, 40, 50]) : r.int(1, 5);
+  // which ingredient is already the right amount (F) and which one is short (G)
+  const fixA = r.chance(0.5);
+  const [pF, pG] = fixA ? [p, q] : [q, p];
+  const [F, G] = fixA ? [c.a, c.b] : [c.b, c.a];
+  const fx = pF * u;
+  const need = pG * u;
+  const step = ml ? 5 : 1;
+  // a near miss: at least half of the right amount is already in
+  const add = step * r.int(1, Math.max(1, Math.floor(need / 2 / step)));
+  const g = need - add;
+  if (g <= 0) return mixFixDraft(r);
+  const amtA = fixA ? fx : g;
+  const amtB = fixA ? g : fx;
+  const f = (x: number) => qty(x, c.unit);
+
+  const slips = numSlips(add, true);
+  slips.add(need, f(need), `${f(need)} is the **total** amount of ${G} needed. ${name} has already put in ${f(g)}, so only the rest has to be added.`);
+  if (!ml) {
+    const v = fx + (pG - pF) - g;
+    slips.add(v, f(v), `${f(v)} comes from thinking the ${G} should be ${f(Math.abs(pG - pF))} ${pG > pF ? "more" : "less"} than the ${F}, because ${pG} is ${Math.abs(pG - pF)} ${pG > pF ? "more" : "less"} than ${pF}. Ratios work by multiplying: ${f(fx)} of ${F} is ${partsWord(pF)}, so the ${G} must be ${partsWord(pG)}.`);
+  }
+  slips.add(need - fx, f(need - fx), `${f(need - fx)} is ${f(need)} − ${f(fx)}, taking away the ${F}. Compare the ${f(need)} of ${G} needed with the ${f(g)} of ${G} already in the mix.`);
+  if (pF !== 1) slips.add(u, f(u), `${f(u)} is just one part (${f(fx)} ÷ ${pF}). The ${G} needs ${pG} parts = ${f(need)} altogether, and ${f(g)} is already there.`);
+
+  const check = `${rat([amtA + (fixA ? 0 : add), amtB + (fixA ? add : 0)])}`;
+  return {
+    difficulty: "core",
+    question: `To make ${c.make}, ${name} mixes ${c.a} and ${c.b} in the ratio ${p} : ${q}. ${name} has already mixed ${f(amtA)} of ${c.a} with ${f(amtB)} of ${c.b}. How much more ${G} must ${name} add to get the right ${c.fix}?`,
+    prompt: `Give your answer in ${c.unit === "kg" ? "kilograms" : c.unit === "ml" ? "millilitres" : "litres"}.`,
+    answer: numSpec(add, f(add)),
+    display: f(add),
+    correctFeedback: `1 part = ${f(fx)} ÷ ${pF} = ${f(u)}, so the ${G} should be ${pG} × ${f(u)} = ${f(need)}; ${f(need)} − ${f(g)} = ${f(add)}.`,
+    wrong: slips.list,
+    explanation: `The ${F} is right as it is: ${f(fx)} is ${pF} part${pF === 1 ? "" : "s"}, so 1 part = ${f(fx)} ÷ ${pF} = ${f(u)}. The ${G} should be ${pG} parts = ${pG} × ${f(u)} = ${f(need)}. There is already ${f(g)} of ${G}, so ${name} must add ${f(need)} − ${f(g)} = ${f(add)}. Check: ${c.a} : ${c.b} is then ${check}${u === 1 ? "" : `, which simplifies to ${p} : ${q}`} ✓.`,
+    solution: [
+      `${cap(F)}: ${pF} part${pF === 1 ? "" : "s"} = ${f(fx)}, so 1 part = ${f(u)}.`,
+      `${cap(G)} needed: ${pG} × ${f(u)} = ${f(need)}.`,
+      `Add ${f(need)} − ${f(g)} = **${f(add)}**.`,
+      `Check: ${check}${u === 1 ? "" : ` simplifies to ${p} : ${q}`} ✓`,
+    ],
+    hints: [`The ${F} doesn't change. How much is 1 part, if ${f(fx)} of ${F} is ${pF} part${pF === 1 ? "" : "s"}?`, `How much ${G} should there be altogether? Compare that with the ${f(g)} already in the mix.`],
+    verify: `${fx}/${pF}*${pG}-${g}`,
+    commonError: `Giving the total amount of ${G} needed (${f(need)}) instead of how much more to add, or thinking the amounts must differ by ${Math.abs(pG - pF)} because the ratio numbers do.`,
+    strategy: "Use a bar model",
+    marks: 2,
+    sig: `${p}:${q}|${amtA}:${amtB}|${c.unit}`,
+  };
+}
+
+const raMixFix: Generator = {
+  id: "ra-mix-fix",
+  topic: "ra",
+  section: "ra-problems",
+  label: "Put a mix right: how much more of one ingredient?",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    let d = mixFixDraft(r);
+    for (let t = 0; t < 30 && d.wrong.length < 3; t++) d = mixFixDraft(r);
+    return d;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// ra-change — a ratio changes when some of one kind are added or taken away
+// ---------------------------------------------------------------------------
+
+interface ChangeCtx {
+  /** the two groups [one, many], in the order the ratio is written */
+  groups: [[string, string], [string, string]];
+  intro: string;
+  /** [singular, plural] verbs for taking away and for adding */
+  out: [string, string];
+  into: [string, string];
+  all: string;
+}
+
+const CHANGE_CTX: ChangeCtx[] = [
+  { groups: [["apple", "apples"], ["orange", "oranges"]], intro: "In a fruit bowl", out: ["is eaten", "are eaten"], into: ["is added", "are added"], all: "pieces of fruit" },
+  { groups: [["red pen", "red pens"], ["green pen", "green pens"]], intro: "In a box of pens", out: ["is taken out", "are taken out"], into: ["is put in", "are put in"], all: "pens" },
+  { groups: [["blue marble", "blue marbles"], ["white marble", "white marbles"]], intro: "In a bag of marbles", out: ["is taken out", "are taken out"], into: ["is put in", "are put in"], all: "marbles" },
+  { groups: [["adult", "adults"], ["child", "children"]], intro: "At a party", out: ["goes home", "go home"], into: ["arrives", "arrive"], all: "people" },
+];
+
+function changeDraft(r: Rng): Draft {
+  const c = r.pick(CHANGE_CTX);
+  let a = 3, b = 8, cc = 1, dd = 3, ch = 0, s = 1;
+  let oU = 8, nU = 3, L = 24, oX = 9, nX = 8;
+  for (let t = 0; t < 1000; t++) {
+    [a, b] = pickParts(r, 2, 9);
+    cc = r.int(1, 9);
+    dd = r.int(1, 9);
+    ch = r.int(0, 1);
+    s = r.int(2, 6);
+    if (gcd(cc, dd) !== 1) continue;
+    const old = [a, b];
+    const nw = [cc, dd];
+    oU = old[1 - ch];
+    nU = nw[1 - ch];
+    L = lcm(oU, nU);
+    oX = (old[ch] * L) / oU;
+    nX = (nw[ch] * L) / nU;
+    const k = Math.abs(nX - oX) * s;
+    if (nX !== oX && k <= 30 && L * s <= 120 && Math.max(oX, nX) * s <= 120 && nX >= 1 && (nX > oX || k * 2 <= oX * s)) break;
+  }
+  const old = [a, b];
+  const nw = [cc, dd];
+  const gone = nX < oX;
+  const dParts = Math.abs(nX - oX);
+  const k = dParts * s;
+  const X = c.groups[ch];
+  const Yg = c.groups[1 - ch];
+  const Y = L * s;
+  const X0 = oX * s;
+  const X1 = nX * s;
+  const ask = r.pick(["y", "x0", "all"] as const);
+  const ans = ask === "y" ? Y : ask === "x0" ? X0 : X0 + Y;
+  const verb = (gone ? c.out : c.into)[k === 1 ? 0 : 1];
+  const what = `${k} ${k === 1 ? X[0] : X[1]}`;
+  const g0 = c.groups[0][1];
+  const g1 = c.groups[1][1];
+  const inOrder = (x: number, y: number) => (ch === 0 ? [x, y] : [y, x]);
+
+  const slips = numSlips(ans);
+  // 1. the ratio numbers taken as the real numbers
+  const realV = ask === "y" ? oU : ask === "x0" ? old[ch] : a + b;
+  const tryX = gone ? old[ch] - k : old[ch] + k;
+  const test = tryX <= 0 ? `with only ${old[ch]} ${X[1]} you couldn't take ${k} away` : `that would give ${rat(inOrder(tryX, oU))}, which isn't ${cc} : ${dd}`;
+  slips.add(realV, num(realV), `${realV} assumes the ratio numbers are the real numbers (${a} ${a === 1 ? c.groups[0][0] : g0} and ${b} ${b === 1 ? c.groups[1][0] : g1}). Test it: ${test}. The real numbers are a multiple of ${a} : ${b}.`);
+  // 2. the wrong group, or the wrong moment
+  if (ask === "y") slips.add(X0, num(X0), `${X0} is the number of ${X[1]} at the start. The question asks for the ${Yg[1]}.`);
+  if (ask === "x0") slips.add(X1, num(X1), `${X1} is the number of ${X[1]} **after** ${what} ${verb}. The question asks how many there were at the start.`);
+  if (ask === "all") slips.add(X1 + Y, num(X1 + Y), `${X1 + Y} is how many ${c.all} there are **after** the change. The question asks about the start.`);
+  // 3. the change used as one part
+  const kPart = k * realV;
+  slips.add(kPart, num(kPart), `${kPart} treats the ${what} as one part of ${a} : ${b}. They are the **change** in the ${X[1]}: match the ${Yg[1]} in both ratios first, then the change is ${dParts} part${dParts === 1 ? "" : "s"}.`);
+  // 4. a group instead of the total, or the total instead of a group
+  if (ask === "all") slips.add(Y, num(Y), `${Y} is just the ${Yg[1]}. The question asks for all the ${c.all} at the start.`);
+  else slips.add(X0 + Y, num(X0 + Y), `${X0 + Y} is all the ${c.all} at the start. The question asks only for the ${ask === "y" ? Yg[1] : X[1]}.`);
+
+  const match = oU === nU ? `The ${Yg[1]} are already ${oU} parts in both ratios.` : `The ${Yg[1]} are ${oU} in ${a} : ${b} and ${nU} in ${cc} : ${dd}; the LCM of ${oU} and ${nU} is ${L}, so write both with ${L} for the ${Yg[1]}: before ${rat(inOrder(oX, L))}, after ${rat(inOrder(nX, L))}.`;
+  const answerStep =
+    ask === "y" ? `The ${Yg[1]} are ${L} parts: ${L} × ${s} = ${Y}.` : ask === "x0" ? `At the start the ${X[1]} were ${oX} parts: ${oX} × ${s} = ${X0}.` : `At the start there were ${oX} + ${L} = ${oX + L} parts: ${oX + L} × ${s} = ${X0 + Y} ${c.all}.`;
+  const base = `${k}/(${gone ? `${old[ch]}/${oU}-${nw[ch]}/${nU}` : `${nw[ch]}/${nU}-${old[ch]}/${oU}`})`;
+  return {
+    difficulty: "challenge",
+    question: `${c.intro}, the ratio of ${g0} to ${g1} is ${a} : ${b}. Then ${what} ${verb}, and the ratio of ${g0} to ${g1} becomes ${cc} : ${dd}. ${ask === "y" ? `How many ${Yg[1]} are there?` : ask === "x0" ? `How many ${X[1]} were there at the start?` : `How many ${c.all} were there at the start?`}`,
+    prompt: undefined,
+    answer: numSpec(ans),
+    display: num(ans),
+    correctFeedback: `With the ${Yg[1]} matched, the ${X[1]} change by ${dParts} part${dParts === 1 ? "" : "s"} = ${k}, so 1 part = ${s}. Start: ${rat(inOrder(X0, Y))}; after: ${rat(inOrder(X1, Y))} = ${cc} : ${dd}.`,
+    wrong: slips.list,
+    explanation: `The number of ${Yg[1]} doesn't change, so make the ${Yg[1]} the same number of parts in both ratios. ${match} The ${X[1]} go from ${oX} parts to ${nX} parts, so the ${what} ${gone ? "taken away" : "added"} are ${dParts} part${dParts === 1 ? "" : "s"}, and 1 part = ${k} ÷ ${dParts} = ${s}. ${answerStep} Check: at the start ${g0} : ${g1} = ${rat(inOrder(X0, Y))}, and afterwards ${rat(inOrder(X1, Y))}, which simplifies to ${cc} : ${dd} ✓.`,
+    solution: [
+      `The ${Yg[1]} don't change. ${match}`,
+      `The ${X[1]} change from ${oX} to ${nX} parts: ${dParts} part${dParts === 1 ? "" : "s"} = ${k}, so 1 part = ${s}.`,
+      answerStep.replace(/= (\d+)( [a-z ]+)?\.$/, "= **$1$2**."),
+      `Check: ${rat(inOrder(X0, Y))} at the start, ${rat(inOrder(X1, Y))} = ${cc} : ${dd} afterwards ✓`,
+    ],
+    hints: [
+      `Which group doesn't change? Make its number of parts the same in both ratios.`,
+      `Compare the ${X[1]} parts before and after: the ${what} are that many parts.`,
+      `Find one part, then the number the question asks for.`,
+    ],
+    verify: ask === "y" ? base : ask === "x0" ? `${base}*${old[ch]}/${oU}` : `${base}*(${old[ch]}+${oU})/${oU}`,
+    commonError: `Taking the ratio numbers as the real numbers, or treating the ${k} as one part instead of matching the group that doesn't change.`,
+    strategy: "Make the shared part equal",
+    marks: 3,
+    sig: `chg|${a}:${b}|${ch}${gone ? "-" : "+"}${k}|${cc}:${dd}|${ask}`,
+  };
+}
+
+interface ArriveCtx {
+  intro: (n: number) => string;
+  groups: [string, string];
+  stay: string;
+  ask: string;
+  verb: string;
+  /** "more adults arrive" */
+  more: string;
+}
+
+const ARRIVE_CTX: ArriveCtx[] = [
+  { intro: (n) => `There are ${n} people at a party.`, groups: ["adults", "children"], stay: "No one leaves.", ask: "How many more adults must arrive", verb: "arrive", more: "more adults arrive" },
+  { intro: (n) => `A chess club has ${n} members.`, groups: ["girls", "boys"], stay: "Nobody leaves the club.", ask: "How many more girls must join", verb: "join", more: "more girls join" },
+  { intro: (n) => `A shelf holds ${n} books.`, groups: ["fiction books", "non-fiction books"], stay: "No books are taken away.", ask: "How many more fiction books must be added", verb: "be added", more: "more fiction books are added" },
+];
+
+function arriveDraft(r: Rng): Draft {
+  const c = r.pick(ARRIVE_CTX);
+  let a = 3, b = 5, cc = 5, dd = 3, s0 = 6;
+  for (let t = 0; t < 1000; t++) {
+    [a, b] = pickParts(r, 2, 9);
+    [cc, dd] = pickParts(r, 2, 9);
+    s0 = r.int(2, 12);
+    const N = (a + b) * s0;
+    const Y = b * s0;
+    if (cc * b > a * dd && N <= 120 && Y % dd === 0 && (cc * Y) / dd - a * s0 <= Math.min(80, N)) break;
+  }
+  const N = (a + b) * s0;
+  const X0 = a * s0;
+  const Y = b * s0;
+  const part = Y / dd;
+  const X1 = cc * part;
+  const k = X1 - X0;
+  const [g0, g1] = c.groups;
+  const slips = numSlips(k);
+  slips.add(X1, num(X1), `${X1} is the number of ${g0} needed **altogether**. ${X0} ${g0} are already there, so fewer than ${X1} must ${c.verb}.`);
+  const same = (N * cc) / (cc + dd) - X0;
+  if (isWhole(same)) slips.add(same, num(same), `${num(same)} assumes the total stays at ${N} and shares it in the ratio ${cc} : ${dd}. But the ${g1} stay the same — the total grows as ${c.more}.`);
+  slips.add(X1 - Y, num(X1 - Y), `${X1 - Y} is ${X1} − ${Y}, taking away the ${g1}. Take away the ${X0} ${g0} already there.`);
+  slips.add((cc - a) * s0, num((cc - a) * s0), `${(cc - a) * s0} comes from (${cc} − ${a}) × ${s0}, using the old part size. When the ratio changes the parts change size: in ${cc} : ${dd}, 1 part is ${Y} ÷ ${dd} = ${part}.`);
+  return {
+    difficulty: "challenge",
+    question: `${c.intro(N)} The ratio of ${g0} to ${g1} is ${a} : ${b}. ${c.stay} ${c.ask} to make the ratio of ${g0} to ${g1} ${cc} : ${dd}?`,
+    prompt: undefined,
+    answer: numSpec(k),
+    display: num(k),
+    correctFeedback: `There are ${X0} ${g0} and ${Y} ${g1}. The ${g1} stay, so ${dd} parts = ${Y}, 1 part = ${part}, and ${cc} parts of ${g0} = ${X1}: ${X1} − ${X0} = ${k}.`,
+    wrong: slips.list,
+    explanation: `At the start ${a} + ${b} = ${a + b} parts = ${N}, so 1 part = ${s0}: ${X0} ${g0} and ${Y} ${g1}. The ${g1} don't change, so in the new ratio ${cc} : ${dd} the ${g1} are ${dd} parts = ${Y}, and 1 part = ${Y} ÷ ${dd} = ${part}. The ${g0} must be ${cc} × ${part} = ${X1}, so ${X1} − ${X0} = ${k} more must ${c.verb}. Check: ${X1} : ${Y} simplifies to ${cc} : ${dd} ✓.`,
+    solution: [
+      `Start: 1 part = ${N} ÷ ${a + b} = ${s0}, so ${X0} ${g0} and ${Y} ${g1}.`,
+      `The ${g1} stay at ${Y}. In ${cc} : ${dd} they are ${dd} parts, so 1 part = ${Y} ÷ ${dd} = ${part}.`,
+      `${cap(g0)} needed: ${cc} × ${part} = ${X1}, so **${k}** more.`,
+      `Check: ${X1} : ${Y} = ${cc} : ${dd} ✓`,
+    ],
+    hints: [`How many ${g0} and how many ${g1} are there at the start?`, `Which group stays the same? In the new ratio, it is ${dd} parts.`, `Find how many ${g0} are needed altogether, then subtract the ones already there.`],
+    verify: `${N}/(${a}+${b})*${b}/${dd}*${cc}-${N}/(${a}+${b})*${a}`,
+    commonError: `Sharing ${N} in the new ratio as if the total stayed the same — only the ${g1} stay the same.`,
+    strategy: "Work backwards",
+    marks: 3,
+    sig: `arr|${N}|${a}:${b}->${cc}:${dd}`,
+  };
+}
+
+const raChange: Generator = {
+  id: "ra-change",
+  topic: "ra",
+  section: "ra-problems",
+  label: "A changing ratio: some are added or taken away",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const arrive = r.chance(0.35);
+    let d = arrive ? arriveDraft(r) : changeDraft(r);
+    for (let t = 0; t < 30 && d.wrong.length < 3; t++) d = arrive ? arriveDraft(r) : changeDraft(r);
+    return d;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// ra-chain — exchange chains: 3 small = 2 medium, 3 medium = 2 large
+// ---------------------------------------------------------------------------
+
+type Kind = [string, string];
+/** "1 gold coin", "3 gold coins" */
+const cnt = (n: number, k: Kind) => `${n} ${n === 1 ? k[0] : k[1]}`;
+
+interface ChainCtx {
+  kinds: [Kind, Kind, Kind];
+  /** "print" / "are worth" / "hold", and the comparisons for one item */
+  worth: string;
+  more: string;
+  up: string;
+  /** what the value is measured in */
+  unit: string;
+  base: (v: number) => string;
+  same: (n1: number, k1: Kind, n2: number, k2: Kind) => string;
+  askValue: string;
+  askCount: (n: number, name: string) => string;
+  values: number[];
+}
+
+const CHAINS: ChainCtx[] = [
+  {
+    kinds: [["small cartridge", "small cartridges"], ["medium cartridge", "medium cartridges"], ["large cartridge", "large cartridges"]],
+    unit: "pages",
+    worth: "print",
+    more: "prints more",
+    up: "bigger",
+    base: (v) => `A small printer cartridge prints ${v} pages.`,
+    same: (n1, k1, n2, k2) => `${cnt(n1, k1)} print the same number of pages as ${cnt(n2, k2)}.`,
+    askValue: "How many pages does one large cartridge print?",
+    askCount: (n) => `How many small cartridges print the same number of pages as ${n} large cartridges?`,
+    values: [200, 300, 400, 450, 500, 600, 800, 900],
+  },
+  {
+    kinds: [["copper coin", "copper coins"], ["silver coin", "silver coins"], ["gold coin", "gold coins"]],
+    unit: "points",
+    worth: "are worth",
+    more: "is worth more",
+    up: "worth more",
+    base: (v) => `In a board game, a copper coin is worth ${v} points.`,
+    same: (n1, k1, n2, k2) => `${cnt(n1, k1)} ${n1 === 1 ? "is" : "are"} worth the same as ${cnt(n2, k2)}.`,
+    askValue: "How many points is a gold coin worth?",
+    askCount: (n, name) => `${name} swaps ${n} gold coins for copper coins of the same total value. How many copper coins does ${name} get?`,
+    values: [2, 3, 4, 5, 6, 8, 9, 10, 12, 15],
+  },
+  {
+    kinds: [["small bottle", "small bottles"], ["medium bottle", "medium bottles"], ["large bottle", "large bottles"]],
+    unit: "ml",
+    worth: "hold",
+    more: "holds more",
+    up: "bigger",
+    base: (v) => `A small bottle holds ${v} ml of water.`,
+    same: (n1, k1, n2, k2) => `${cnt(n1, k1)} ${n1 === 1 ? "holds" : "hold"} the same amount of water as ${cnt(n2, k2)}.`,
+    askValue: "How many millilitres does a large bottle hold?",
+    askCount: (n) => `How many small bottles hold the same amount of water as ${n} large bottles?`,
+    values: [150, 200, 250, 300, 330, 500],
+  },
+];
+
+function chainDraft(r: Rng): Draft {
+  const c = r.pick(CHAINS);
+  const [name] = names(r, 1);
+  let a1 = 3, b1 = 2, a2 = 3, b2 = 2, v1 = 600, n = 2;
+  for (let t = 0; t < 1000; t++) {
+    [b1, a1] = pickParts(r, 2, 6).sort((x, y) => x - y);
+    [b2, a2] = pickParts(r, 2, 6).sort((x, y) => x - y);
+    if (b1 < 2 || b2 < 2) continue;
+    v1 = r.pick(c.values);
+    n = r.int(2, 5);
+    const v2 = (a1 * v1) / b1;
+    const v3 = (a2 * v2) / b2;
+    if (isWhole(v2) && isWhole(v3) && v3 <= (c.unit === "points" ? 200 : 5000) && isWhole((n * v3) / v1) && (n * v3) / v1 <= 60) break;
+  }
+  const [k0, k1, k2] = c.kinds;
+  const v2 = (a1 * v1) / b1;
+  const v3 = (a2 * v2) / b2;
+  const askCount = r.chance(0.3);
+  const N = (n * v3) / v1;
+  const ans = askCount ? N : v3;
+  const fv = (x: number) => (c.unit === "ml" ? `${num(x)} ml` : `${num(x)} ${x === 1 ? c.unit.replace(/s$/, "") : c.unit}`);
+  const f = (x: number) => (askCount ? num(x) : fv(x));
+  const slips = numSlips(ans);
+  if (askCount) {
+    const pts = n * v3;
+    slips.add(pts, f(pts), `${pts} is the ${n} ${k2[1]} measured in ${c.unit === "ml" ? "millilitres" : c.unit}, not a number of ${k0[1]}. Each ${k0[0]} is ${fv(v1)}, so divide by ${v1}.`);
+    slips.add(v3 / v1, f(v3 / v1), `${num(v3 / v1)} is the number of ${k0[1]} for just **one** ${k2[0]}. There are ${n} ${k2[1]}, so multiply by ${n}.`);
+    const mid = (n * v2) / v1;
+    if (isWhole(mid)) slips.add(mid, f(mid), `${mid} uses a ${k1[0]} (${fv(v2)}) instead of a ${k2[0]}. Do the second step as well: 1 ${k2[0]} = ${fv(v3)}.`);
+  } else {
+    slips.add(v2, f(v2), `${fv(v2)} is one **${k1[0]}**. Do the same step once more to get from ${k1[1]} to ${k2[1]}.`);
+    slips.add(a1 * v1, f(a1 * v1), `${fv(a1 * v1)} is what ${a1} ${k0[1]} ${c.worth} — that's ${cnt(b1, k1)}, not one ${k2[0]}. Divide by ${b1} to get one ${k1[0]}, then repeat the step.`);
+    if (b2 !== 1) slips.add(a2 * v2, f(a2 * v2), `${fv(a2 * v2)} is what ${a2} ${k1[1]} ${c.worth}, which is ${b2} ${k2[1]}. Divide by ${b2} to get one ${k2[0]}.`);
+    const flip = tidy(((v1 * b1) / a1) * (b2 / a2));
+    if (hasDp(flip, 1)) slips.add(flip, f(flip), `${fv(flip)} comes from turning the swaps upside down (× ${m(`${b1}/${a1}`)}${a1 === a2 && b1 === b2 ? " each time" : `, then × ${m(`${b2}/${a2}`)}`}). It takes ${a1} ${k0[1]} to match ${cnt(b1, k1)}, so a ${k1[0]} **${c.more}** than a ${k0[0]}.`);
+  }
+  const steps = [
+    `${a1} ${k0[1]}: ${a1} × ${v1} = ${fv(a1 * v1)}, the same as ${cnt(b1, k1)}, so 1 ${k1[0]} = ${fv(a1 * v1)} ÷ ${b1} = ${fv(v2)}.`,
+    `${a2} ${k1[1]}: ${a2} × ${v2} = ${fv(a2 * v2)}, the same as ${cnt(b2, k2)}, so 1 ${k2[0]} = ${fv(a2 * v2)} ÷ ${b2} = ${fv(v3)}.`,
+  ];
+  const countStep = `${n} ${k2[1]} = ${n} × ${v3} = ${fv(n * v3)}, and ${n * v3} ÷ ${v1} = ${N}, so that's ${N} ${k0[1]}.`;
+  return {
+    difficulty: "challenge",
+    question: `${c.base(v1)} ${c.same(a1, k0, b1, k1)} ${c.same(a2, k1, b2, k2)} ${askCount ? c.askCount(n, name) : c.askValue}`,
+    prompt: askCount ? undefined : `Give your answer in ${c.unit === "ml" ? "millilitres" : c.unit}.`,
+    answer: numSpec(ans, f(ans)),
+    display: f(ans),
+    correctFeedback: `1 ${k1[0]} = ${fv(v2)} and 1 ${k2[0]} = ${fv(v3)}${askCount ? `, so ${n} ${k2[1]} = ${fv(n * v3)} = ${N} ${k0[1]}` : ""}.`,
+    wrong: slips.list,
+    explanation: `Go one swap at a time. ${steps.join(" ")}${askCount ? ` ${countStep}` : ""} Each step multiplies by a number bigger than 1 (${m(`${a1}/${b1}`)}, then ${m(`${a2}/${b2}`)}), because each swap goes up to something ${c.up}. Check: ${v1} × ${m(`${a1}/${b1}`)} × ${m(`${a2}/${b2}`)} = ${v3} ✓.`,
+    solution: [...steps, ...(askCount ? [countStep.replace(`${N} ${k0[1]}.`, `**${N}** ${k0[1]}.`)] : [`So one ${k2[0]} is worth **${fv(v3)}**.`]), `Check: ${v1} × ${m(`${a1}/${b1}`)} × ${m(`${a2}/${b2}`)} = ${v3} ✓`],
+    hints: [`How much are ${a1} ${k0[1]} worth altogether? That's the same as ${cnt(b1, k1)}.`, `Find the value of one ${k1[0]}, then do the same step again for the ${k2[1]}.`, ...(askCount ? [`Work out the value of ${n} ${k2[1]}, then see how many ${k0[1]} make that value.`] : [])],
+    verify: askCount ? `${n}*${v1}*${a1}/${b1}*${a2}/${b2}/${v1}` : `${v1}*${a1}/${b1}*${a2}/${b2}`,
+    commonError: `Stopping after the first swap, or turning a swap upside down (a ${k1[0]} is worth more than a ${k0[0]}, not less).`,
+    strategy: "Use the multiplier",
+    marks: 3,
+    sig: `chain|${v1}|${a1}:${b1}|${a2}:${b2}|${askCount ? `n${n}` : "v"}`,
+  };
+}
+
+const raChain: Generator = {
+  id: "ra-chain",
+  topic: "ra",
+  section: "ra-problems",
+  label: "Exchange chains: 3 small = 2 medium, 3 medium = 2 large",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    let d = chainDraft(r);
+    for (let t = 0; t < 30 && d.wrong.length < 3; t++) d = chainDraft(r);
+    return d;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// ra-nested — a ratio inside a ratio, with a difference (away : home fans, adults : children)
+// ---------------------------------------------------------------------------
+
+interface NestCtx {
+  /** the two big groups, and the two kinds inside the first group */
+  outer: [string, string];
+  inner: [string, string];
+  intro: (a: number, h: number) => string;
+  among: (p: number, q: number) => string;
+  diff: (d: number) => string;
+  askOther: string;
+  askAll: string;
+  all: string;
+}
+
+const NESTS: NestCtx[] = [
+  {
+    outer: ["away fans", "home fans"],
+    inner: ["adults", "children"],
+    intro: (a, h) => `At a football match, the ratio of away fans to home fans is ${a} : ${h}.`,
+    among: (p, q) => `Among the away fans, the ratio of adults to children is ${p} : ${q}.`,
+    diff: (d) => `There are ${d} more adult away fans than child away fans.`,
+    askOther: "How many home fans are there?",
+    askAll: "How many fans are at the match altogether?",
+    all: "fans",
+  },
+  {
+    outer: ["Year 7s", "Year 8s"],
+    inner: ["girls", "boys"],
+    intro: (a, h) => `On a school trip, the ratio of Year 7s to Year 8s is ${a} : ${h}.`,
+    among: (p, q) => `Among the Year 7s, the ratio of girls to boys is ${p} : ${q}.`,
+    diff: (d) => `There are ${d} more Year 7 girls than Year 7 boys.`,
+    askOther: "How many Year 8s are on the trip?",
+    askAll: "How many pupils are on the trip altogether?",
+    all: "pupils",
+  },
+];
+
+function nestedDraft(r: Rng): Draft {
+  const c = r.pick(NESTS);
+  let p = 11, q = 4, w = 4, a = 5, h = 6;
+  for (let t = 0; t < 1000; t++) {
+    [q, p] = pickParts(r, 2, 13).sort((x, y) => x - y);
+    w = r.int(2, 8);
+    [a, h] = pickParts(r, 2, 9);
+    const away = (p + q) * w;
+    if (p - q >= 2 && Math.min(a, h) >= 2 && away % a === 0 && away / a >= 2 && away / a !== w && away <= 200 && (away / a) * h <= 300) break;
+  }
+  const D = (p - q) * w;
+  const away = (p + q) * w;
+  const z = away / a;
+  const home = h * z;
+  const askAll = r.chance(0.35);
+  const ans = askAll ? away + home : home;
+  const [A, H] = c.outer;
+  const [I1, I2] = c.inner;
+  const slips = numSlips(ans);
+  slips.add(away, num(away), `${away} is the number of ${A}. One more step: they are the ${a} parts of ${A} : ${H} = ${a} : ${h}.`);
+  slips.add(askAll ? (a + h) * w : h * w, num(askAll ? (a + h) * w : h * w), `${askAll ? (a + h) * w : h * w} uses the ${w} ${c.all} per part from ${I1} : ${I2} inside ${A} : ${H}. The two ratios have different-sized parts — find a new part from the ${away} ${A}.`);
+  const turned = (away / h) * a;
+  if (isWhole(turned)) {
+    const v = askAll ? away + turned : turned;
+    slips.add(v, num(v), `${v} comes from treating the ${away} ${A} as ${h} parts. In ${A} : ${H} = ${a} : ${h}, the ${A} are the ${a} parts.`);
+  }
+  if (askAll) slips.add(home, num(home), `${home} is just the ${H}. The question asks for all the ${c.all}, so add the ${away} ${A}.`);
+  else slips.add(away + home, num(away + home), `${away + home} is all the ${c.all} (${A} + ${H}). The question asks only for the ${H}.`);
+  slips.add(D * (p + q), num(D * (p + q)), `${D * (p + q)} treats the ${D} as one part. It is the **difference** between the ${I1} and the ${I2}: ${p} − ${q} = ${p - q} parts.`);
+
+  const step1 = `Among the ${A}, ${I1} : ${I2} = ${p} : ${q}. The ${D} extra ${I1} are ${p} − ${q} = ${p - q} parts, so 1 part = ${D} ÷ ${p - q} = ${w}, and there are ${p + q} × ${w} = ${away} ${A}.`;
+  const step2 = `In ${A} : ${H} = ${a} : ${h}, the ${A} are ${a} parts = ${away}, so 1 part = ${away} ÷ ${a} = ${z}, and the ${H} are ${h} × ${z} = ${home}.`;
+  return {
+    difficulty: "challenge",
+    question: `${c.intro(a, h)} ${c.among(p, q)} ${c.diff(D)} ${askAll ? c.askAll : c.askOther}`,
+    prompt: undefined,
+    answer: numSpec(ans),
+    display: num(ans),
+    correctFeedback: `There are ${away} ${A} (1 part of ${I1} : ${I2} is ${w}), so 1 part of ${A} : ${H} is ${z} and there are ${home} ${H}${askAll ? `: ${away} + ${home} = ${away + home} altogether` : ""}.`,
+    wrong: slips.list,
+    explanation: `Work with one ratio at a time. ${step1} ${step2}${askAll ? ` Altogether there are ${away} + ${home} = ${away + home} ${c.all}.` : ""} Notice that the parts in the two ratios are different sizes (${w} and ${z}) — don't mix them up. Check: ${away} : ${home} simplifies to ${a} : ${h} ✓.`,
+    solution: [step1, step2.replace(`= ${home}.`, `= ${askAll ? home : `**${home}**`}.`), ...(askAll ? [`Altogether: ${away} + ${home} = **${away + home}**.`] : []), `Check: ${away} : ${home} = ${a} : ${h} ✓`],
+    hints: [`Start with the ${A}. The ${D} extra ${I1} are how many parts of ${p} : ${q}?`, `Find 1 part, then the total number of ${A}.`, `The ${A} are the ${a} parts of ${a} : ${h}. Find one of those parts — it is a different size.`],
+    verify: askAll ? `${D}/(${p}-${q})*(${p}+${q})/${a}*(${a}+${h})` : `${D}/(${p}-${q})*(${p}+${q})/${a}*${h}`,
+    commonError: `Using the part size from ${I1} : ${I2} (${w}) in ${A} : ${H} — the two ratios have different-sized parts.`,
+    strategy: "Use a bar model",
+    marks: 3,
+    sig: `nest|${a}:${h}|${p}:${q}|${D}|${askAll ? "all" : "other"}`,
+  };
+}
+
+const raNested: Generator = {
+  id: "ra-nested",
+  topic: "ra",
+  section: "ra-problems",
+  label: "A ratio inside a ratio, with a difference",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    let d = nestedDraft(r);
+    for (let t = 0; t < 30 && d.wrong.length < 3; t++) d = nestedDraft(r);
+    return d;
+  },
+};
+
+export const GEN_RA: Generator[] = [raSimplify, raUnit, raShare, raGivenPart, raDifference, raFraction, raCombine, raRecipe, raInverse, raMixFix, raChange, raChain, raNested];
