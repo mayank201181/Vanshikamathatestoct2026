@@ -254,7 +254,11 @@ function Badges({ q, number, total, marks }: { q: MCQ | QA; number: number; tota
           {s.emoji} {s.label}
         </span>
       )}
-      {q.source && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">📓 {q.source}</span>}
+      {q.source && (
+        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
+          {q.id.startsWith("g~") ? "🎲 New numbers" : `📓 ${q.source}`}
+        </span>
+      )}
       {marks !== undefined && <span className="ml-auto rounded-full bg-slate-800 px-2.5 py-1 text-white">{marks} mark{marks === 1 ? "" : "s"}</span>}
     </div>
   );

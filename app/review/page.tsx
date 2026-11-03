@@ -122,6 +122,16 @@ export default function ReviewPage() {
           >
             {canResume ? `Start a fresh round with all ${filtered.length} →` : `Fix ${filtered.length} mistake${filtered.length === 1 ? "" : "s"} now →`}
           </button>
+          <Link
+            href="/mock/mistakes"
+            className="flex items-center justify-between gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 px-5 py-4 hover:bg-indigo-100"
+          >
+            <span>
+              <span className="block font-extrabold text-indigo-900">🎓 Turn my mistakes into a mock test →</span>
+              <span className="text-sm text-indigo-800">Same skills, new numbers — proves you can do the method, not just remember the answer.</span>
+            </span>
+            <span className="text-2xl">🔁</span>
+          </Link>
           <ul className="space-y-2">
             {filtered.map((id) => {
               const x = lookup(id)!;

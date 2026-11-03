@@ -12,6 +12,7 @@ import {
   type QuestionStat,
   type QuickCheckState,
   type SetAttempt,
+  noteMistake,
 } from "./progressMerge";
 
 // All progress lives in this browser (localStorage) — no login needed, so the
@@ -89,6 +90,8 @@ interface Store {
   setGuidePos: (topic: string, sectionId: string) => void;
   setQuick: (key: string, state: QuickCheckState) => void;
   setTestDate: (date: string | undefined) => void;
+  /** Remember questions shown in a mock (see Progress.shown). */
+  markShown: (keys: string[]) => void;
   resetAll: () => void;
 }
 
@@ -209,9 +212,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
             lastScore: score,
             lastAt: Date.now(),
           };
-          const mistakes = { ...s.mistakes };
-          if (!good) mistakes[qid] = true;
-          else if (qid in mistakes) mistakes[qid] = false;
+          const mistakes = noteMistake(s.mistakes, qid, good);
           const day = todayKey();
           return {
             ...s,
@@ -230,9 +231,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
             lastCorrect: good,
             lastScore: score,
           };
-          const mistakes = { ...s.mistakes };
-          if (!good) mistakes[qid] = true;
-          else if (qid in mistakes) mistakes[qid] = false;
+          const mistakes = noteMistake(s.mistakes, qid, good);
           return { ...s, stats: { ...s.stats, [qid]: stat }, mistakes };
         }),
       award: (key, stars) =>
@@ -268,6 +267,13 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         update((s) => (s.guidePos[topic] === sectionId ? s : { ...s, guidePos: { ...s.guidePos, [topic]: sectionId } })),
       setQuick: (key, state) => update((s) => ({ ...s, quick: { ...s.quick, [key]: state } })),
       setTestDate: (date) => update((s) => ({ ...s, testDate: date })),
+      markShown: (keys) =>
+        update((s) => {
+          const at = Date.now();
+          const shown = { ...s.shown };
+          for (const k of keys) shown[k] = at;
+          return { ...s, shown };
+        }),
       resetAll: () => update(() => ({ ...EMPTY, resets: {} })),
     }),
     [p, ready, update],

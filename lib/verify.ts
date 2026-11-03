@@ -142,6 +142,21 @@ function optionExpr(text: string) {
   return parseExpr(asDisplayed(s));
 }
 
+/** What is left of a numeric option once its numbers are taken out: its unit ("minutes", "%", "cm²"), or "". */
+function unitOf(text: string): string {
+  return plainOption(text).toLowerCase().replace(/s\$|[£$€¥₹]/g, "").replace(/[-−+]?\d[\d\s,./]*/g, "").replace(/\s+/g, "");
+}
+
+/** Do two options give the same answer — "0.5" and "{{1/2}}", "{{3n+2}}" and "2 + 3n"? Numbers with different units never match. */
+export function sameOptionValue(a: string, b: string): boolean {
+  const ea = optionExpr(a), eb = optionExpr(b);
+  const isAlgebra = (e: ReturnType<typeof optionExpr>) => !!e && exprVars(e).size > 0;
+  // algebra first, so 36m³ and 36m² are compared as algebra, not as "36" with different units
+  if (isAlgebra(ea) || isAlgebra(eb)) return isAlgebra(ea) && isAlgebra(eb) && exprEquivalent(ea!, eb!);
+  const x = optionValue(a), y = optionValue(b);
+  return x !== null && y !== null && close(x, y) && unitOf(a) === unitOf(b);
+}
+
 /** Check an MCQ key against its verify expression. Returns a list of problems (empty = fine). */
 export function verifyMcq(options: string[], answerIndex: number, verify: string): string[] {
   const problems: string[] = [];

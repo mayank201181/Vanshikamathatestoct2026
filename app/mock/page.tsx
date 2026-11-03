@@ -2,41 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { emptyAttempt, useStore, type Progress } from "@/lib/store";
-import { ALL_QUESTIONS, lookup, qaMarks } from "@/lib/content";
+import { emptyAttempt, useStore } from "@/lib/store";
+import { lookup, qaMarks } from "@/lib/content";
 import { TOPICS, TOPIC_IDS } from "@/lib/sections";
+import { buildMock, MOCK_RUN, openMistakeIds } from "@/lib/mock";
 import { Runner, type RunItem } from "@/components/Runner";
 import type { QA } from "@/lib/types";
 
-const RUN = "mock";
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-/** A class-test-style paper: per topic 2 multiple-choice + 1 written, unseen questions first, mostly core. */
-function buildMock(p: Progress): string[] {
-  const ids: string[] = [];
-  for (const t of TOPIC_IDS) {
-    const pool = ALL_QUESTIONS.filter((x) => x.q.topic === t && x.q.difficulty !== "warmup");
-    const rank = (id: string) => (p.stats[id] ? 1 : 0); // unseen first
-    const mcq = shuffle(pool.filter((x) => x.kind === "mcq")).sort((a, b) => rank(a.q.id) - rank(b.q.id)).slice(0, 2);
-    const wr = shuffle(pool.filter((x) => x.kind === "qa" && x.q.difficulty === "core")).sort((a, b) => rank(a.q.id) - rank(b.q.id)).slice(0, 1);
-    ids.push(...mcq.map((x) => x.q.id));
-    ids.push(...wr.map((x) => x.q.id));
-  }
-  // multiple choice first (topic order), then the written questions — like a real paper
-  const order = (id: string) => (lookup(id)?.kind === "mcq" ? 0 : 1);
-  return ids.sort((a, b) => order(a) - order(b));
-}
+const RUN = MOCK_RUN;
 
 export default function MockPage() {
-  const { p, ready, saveAttempt, resetAttempt } = useStore();
+  const { p, ready, saveAttempt, resetAttempt, markShown } = useStore();
   const [running, setRunning] = useState(false);
   const [runKey, setRunKey] = useState(0);
 
@@ -44,10 +20,13 @@ export default function MockPage() {
   const savedIds = (saved?.ids ?? []).filter((id) => lookup(id));
   const savedDone = saved ? savedIds.filter((id) => saved.answers[id] !== undefined).length : 0;
   const canResume = !!saved && savedIds.length > 0 && !saved.completed;
+  const mistakes = ready ? openMistakeIds(p).length : 0;
 
   const start = () => {
+    const built = buildMock(p);
     resetAttempt(RUN);
-    saveAttempt(RUN, emptyAttempt(buildMock(p)));
+    saveAttempt(RUN, emptyAttempt(built.ids));
+    markShown(built.shown);
     setRunKey((k) => k + 1);
     setRunning(true);
   };
@@ -88,7 +67,8 @@ export default function MockPage() {
         <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">🎓 Mock class test</h1>
         <p className="mt-1 text-slate-600">
           A mixed paper across all six topics — 2 multiple-choice questions and 1 written question from each of Fractions, Percentages, Ratio, Expressions, Substitution and
-          Sequences. Questions you haven’t seen yet are picked first, so every mock is fresh practice.
+          Sequences. <strong>Every mock has brand-new numbers</strong>: the same kinds of question come up (that&apos;s what the test will ask), but you&apos;ll never see
+          exactly the same question twice. Your weakest skills come up most.
         </p>
       </div>
       <div className="flex flex-wrap gap-2 text-xs">
@@ -124,9 +104,25 @@ export default function MockPage() {
           <button onClick={() => setRunning(true)} className="font-semibold text-indigo-600 underline underline-offset-2">
             See its results
           </button>
-          {history.length > 0 && ` · ${history.length} mock${history.length === 1 ? "" : "s"} so far`}
+          {history.length > 0 && ` · ${history.length} mock${history.length === 1 ? "" : "s"} so far: ${history.slice(-5).map((h) => `${h.pct}%`).join(", ")}`}
         </p>
       )}
+
+      <Link
+        href="/mock/mistakes"
+        className="flex items-center justify-between gap-3 rounded-2xl border-2 border-rose-200 bg-rose-50 px-5 py-4 hover:bg-rose-100"
+      >
+        <span>
+          <span className="block text-lg font-extrabold text-rose-900">🔁 Mock test from my mistakes →</span>
+          <span className="text-sm text-rose-800">
+            {mistakes
+              ? `A new-numbers version of each of your ${mistakes} open mistake${mistakes === 1 ? "" : "s"}. Get one right and it comes off your list.`
+              : "No open mistakes right now — do a mock or a set first, then come back."}
+          </span>
+        </span>
+        <span className="text-3xl">🎯</span>
+      </Link>
+
       <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-600">
         <p className="font-bold text-slate-800">Make it feel like the real thing</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
