@@ -29,14 +29,14 @@ const same = (a: number, b: number) => Math.abs(a - b) <= 1e-9 * Math.max(1, Mat
  * from every earlier candidate, and not so close to a decimal answer that the checker would call
  * it "nearly right" (then its feedback could never be shown).
  */
-function keepWrongs(answer: number, cands: Cand[]): Wrong[] {
+function keepWrongs(answer: number, cands: Cand[], unit = ""): Wrong[] {
   const seen = [answer];
   const out: Wrong[] = [];
   for (const c of cands) {
     if (!Number.isFinite(c.v) || seen.some((s) => same(s, c.v))) continue;
     if (!Number.isInteger(answer) && answer !== 0 && Math.abs(c.v - answer) <= 0.01 * Math.abs(answer)) continue;
     seen.push(c.v);
-    out.push({ display: c.display ?? num(c.v), spec: c.spec ?? numSpec(c.v), feedback: c.feedback });
+    out.push({ display: (c.display ?? num(c.v)) + unit, spec: c.spec ?? numSpec(c.v), feedback: c.feedback });
   }
   return out;
 }
@@ -46,6 +46,11 @@ function given(pairs: [string, string][]): string {
   const parts = pairs.map(([l, x]) => m(`${l} = ${x}`));
   return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
+
+/** A value as ASCII maths for {{ }} and verify: negatives get brackets, −3 → (-3). */
+const v = (x: number) => (tidy(x) < 0 ? `(-${num(-x)})` : num(x));
+/** A value in plain text, with brackets round a negative: (−3). */
+const vb = (x: number) => (tidy(x) < 0 ? `(${num(x)})` : num(x));
 
 /** Letters for questions with two or three values (no i, l, o; never "pi"). */
 const PAIRS: [string, string][] = [["a", "b"], ["p", "q"], ["m", "n"], ["x", "y"], ["s", "t"], ["h", "k"], ["c", "d"], ["f", "g"]];
@@ -61,6 +66,8 @@ interface Item {
   display?: string;
   spec?: AnswerSpec;
   correct: string;
+  /** Unit shown after the answer and every option, e.g. " m/s", " cm²", "°F". */
+  unit?: string;
   slips: Cand[];
   explanation: string;
   solution: string[];
@@ -72,20 +79,28 @@ interface Item {
   sig: string;
 }
 
+/** Outside {{ }}, a "-" before a digit (an interpolated negative number) becomes the real minus "−". */
+function fixMinus(s: string): string {
+  return s
+    .split(/(\{\{[\s\S]*?\}\})/)
+    .map((part, i) => (i % 2 ? part : part.replace(/-(?=\d)/g, "−")))
+    .join("");
+}
+
 function build(it: Item): Draft {
   return {
     difficulty: it.difficulty,
-    question: it.question,
-    prompt: it.prompt,
-    answer: it.spec ?? numSpec(it.answer),
-    display: it.display ?? num(it.answer),
-    correctFeedback: it.correct,
-    wrong: keepWrongs(it.answer, it.slips),
-    explanation: it.explanation,
-    solution: it.solution,
-    hints: it.hints,
+    question: fixMinus(it.question),
+    prompt: it.prompt && fixMinus(it.prompt),
+    answer: it.spec ?? numSpec(it.answer, it.unit ? num(it.answer) + it.unit : undefined),
+    display: (it.display ?? num(it.answer)) + (it.unit ?? ""),
+    correctFeedback: fixMinus(it.correct),
+    wrong: keepWrongs(it.answer, it.slips, it.unit).map((w) => ({ ...w, feedback: fixMinus(w.feedback) })),
+    explanation: fixMinus(it.explanation),
+    solution: it.solution.map(fixMinus),
+    hints: it.hints.map(fixMinus),
     verify: it.verify,
-    commonError: it.commonError,
+    commonError: fixMinus(it.commonError),
     strategy: it.strategy ?? "Check by substituting",
     marks: it.marks ?? (it.difficulty === "warmup" ? 1 : it.difficulty === "core" ? 2 : 3),
     sig: it.sig,
@@ -603,4 +618,875 @@ const suBasics: Generator = {
   },
 };
 
-export const GEN_SU: Generator[] = [suBasics];
+// ---------------------------------------------------------------------------
+// su-negatives — substituting negative numbers: (−a)² vs −a², subtracting a negative
+// ---------------------------------------------------------------------------
+
+/** x², x³ or 3x² with x negative — one step */
+function negWarm(r: Rng): Item {
+  const L = r.pick(["x", "y", "n", "e", "t", "k"]);
+  const kind = r.pick(["sq", "cube", "coef"] as const);
+  if (kind === "cube") {
+    const K = r.int(2, 5);
+    const ans = -(K ** 3);
+    return {
+      difficulty: "warmup",
+      question: `If ${given([[L, `-${K}`]])}, work out ${m(`${L}^3`)}.`,
+      answer: ans,
+      correct: `(−${K}) × (−${K}) = ${K * K}, then ${K * K} × (−${K}) = ${ans}. Three negatives multiplied give a negative.`,
+      slips: [
+        { v: K ** 3, feedback: `${K ** 3} forgets the sign. The first two negatives make +${K * K}, but the third one makes it negative again: ${K * K} × (−${K}) = ${ans}.` },
+        { v: -3 * K, feedback: `This comes from multiplying by 3 instead of cubing (−${K} × 3). ${m(`${L}^3`)} means ${L} × ${L} × ${L}.` },
+        { v: K * K, feedback: `${K * K} is ${m(`(-${K})^2`)} — you squared instead of cubing. Multiply by −${K} one more time.` },
+      ],
+      explanation: `${m(`${L}^3`)} means ${L} × ${L} × ${L} = (−${K}) × (−${K}) × (−${K}). Do it in pairs: (−${K}) × (−${K}) = ${K * K}, then ${K * K} × (−${K}) = ${ans}. An odd number of negatives multiplied together gives a negative answer, so the cube of a negative number is always negative.`,
+      solution: [
+        `Put the value in with brackets: ${m(`${L}^3 = (-${K})^3 = (-${K}) * (-${K}) * (-${K})`)}.`,
+        `First pair: (−${K}) × (−${K}) = ${K * K} (negative × negative = positive).`,
+        `Then ${K * K} × (−${K}) = **${ans}**.`,
+      ],
+      hints: [`Write it out: (−${K}) × (−${K}) × (−${K}). What do the first two make?`],
+      verify: `(-${K})^3`,
+      commonError: `Losing the sign: ${m(`(-${K})^3`)} is ${ans}, not ${K ** 3} — three negatives multiply to a negative.`,
+      sig: `nw:cube:${K}`,
+    };
+  }
+  if (kind === "sq") {
+    const K = r.int(3, 9);
+    const ans = K * K;
+    return {
+      difficulty: "warmup",
+      question: `If ${given([[L, `-${K}`]])}, work out ${m(`${L}^2`)}.`,
+      answer: ans,
+      correct: `(−${K}) × (−${K}) = ${ans} — a negative times a negative is positive.`,
+      slips: [
+        { v: -ans, feedback: `−${ans} comes from writing −${K}² without brackets, which squares only the ${K}. Put the negative in brackets: ${m(`(-${K})^2`)} = (−${K}) × (−${K}) = +${ans}.` },
+        { v: -2 * K, feedback: `This comes from doubling instead of squaring: 2 × (−${K}). ${m(`${L}^2`)} means ${L} × ${L}.` },
+        { v: 2 * K, feedback: `This comes from doubling ${K} instead of squaring −${K}. ${m(`${L}^2`)} means ${L} × ${L} = (−${K}) × (−${K}).` },
+      ],
+      explanation: `${m(`${L}^2`)} means ${L} × ${L}, so put the value in with its brackets: ${m(`(-${K})^2`)} = (−${K}) × (−${K}). A negative times a negative is positive, so the answer is ${ans}. Without the brackets, −${K}² means −(${K}²) = −${ans} — that's why you always bracket a negative when you substitute it.`,
+      solution: [
+        `Put the value in with brackets: ${m(`${L}^2 = (-${K})^2 = (-${K}) * (-${K})`)}.`,
+        `Negative × negative = positive, so the answer is **${ans}**.`,
+      ],
+      hints: [`Put the −${K} in brackets first. What is (−${K}) × (−${K})?`],
+      verify: `(-${K})^2`,
+      commonError: `Writing −${K}² instead of ${m(`(-${K})^2`)}: squaring a negative gives a positive, ${ans}.`,
+      sig: `nw:sq:${K}`,
+    };
+  }
+  const K = r.int(3, 6);
+  const q = r.int(2, 5);
+  const sq = K * K;
+  const ans = q * sq;
+  const e = `${q}${L}^2`;
+  return {
+    difficulty: "warmup",
+    question: `If ${given([[L, `-${K}`]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`(-${K})^2`)} = ${sq}, then ${q} × ${sq} = ${ans}.`,
+    slips: [
+      { v: -ans, feedback: `This comes from thinking ${m(`(-${K})^2`)} = −${sq}. A negative times a negative is positive, so ${m(`${L}^2`)} = +${sq} and ${m(e)} = ${q} × ${sq}.` },
+      { v: (q * K) ** 2, feedback: `${(q * K) ** 2} is ${m(`(${q}${L})^2`)} = ${m(`(-${q * K})^2`)}. In ${m(e)} only the ${L} is squared: square −${K} first, then multiply by ${q}.` },
+      { v: -2 * q * K, feedback: `This comes from doubling instead of squaring (${q} × (−${K}) × 2). ${m(`${L}^2`)} means ${L} × ${L} = (−${K}) × (−${K}).` },
+    ],
+    explanation: `Powers come before multiplying, and the power belongs only to the ${L}. So first ${m(`(-${K})^2`)} = (−${K}) × (−${K}) = ${sq} — squaring a negative gives a positive. Then ${q} × ${sq} = ${ans}.`,
+    solution: [
+      `Put the value in with brackets: ${m(`${e} = ${q} * (-${K})^2`)}.`,
+      `Indices first: ${m(`(-${K})^2`)} = (−${K}) × (−${K}) = ${sq}.`,
+      `Then multiply: ${q} × ${sq} = **${ans}**.`,
+    ],
+    hints: [`Which part is squared — the ${q}, the ${L}, or both? Work out ${m(`(-${K})^2`)} first.`],
+    verify: `${q}*(-${K})^2`,
+    commonError: `Thinking ${m(`(-${K})^2`)} = −${sq}; a negative squared is positive.`,
+    sig: `nw:coef:${q}:${K}`,
+  };
+}
+
+/** 2x² − 3x or 2x² + 3x with x negative (spec example: x = −4) */
+function negQuadratic(r: Rng): Item {
+  const L = r.pick(["x", "y", "n", "t", "k"]);
+  const sub = r.chance(0.6);
+  let q = 2, s = 3, K = 4;
+  for (let k = 0; k < 60; k++) {
+    q = r.int(2, 5);
+    s = r.int(2, 9);
+    K = r.int(2, 6);
+    if (q !== s && q * K !== s) break;
+  }
+  const x = -K;
+  const sq = K * K;
+  const t1 = q * sq; // q·x²
+  const t2 = s * x; // s·x (negative)
+  const ans = sub ? t1 - t2 : t1 + t2;
+  const op = sub ? "-" : "+";
+  const opT = sub ? "−" : "+";
+  const e = `${q}${L}^2 ${op} ${s}${L}`;
+  const finish = sub ? `${t1} − (${t2}) = ${t1} + ${-t2} = ${ans}` : `${t1} + (${t2}) = ${t1} − ${-t2} = ${ans}`;
+  return {
+    difficulty: K >= 4 && sub ? "challenge" : "core",
+    question: `If ${given([[L, `-${K}`]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`(-${K})^2`)} = ${sq}, so ${m(`${q}${L}^2`)} = ${t1}; ${m(`${s}${L}`)} = ${t2}; and ${finish}.`,
+    slips: [
+      {
+        v: sub ? -t1 - t2 : -t1 + t2,
+        feedback: `This comes from thinking ${m(`(-${K})^2`)} = −${sq}. A negative times a negative is positive, so ${m(`${L}^2`)} = +${sq} and ${m(`${q}${L}^2`)} = +${t1}.`,
+      },
+      {
+        v: sub ? t1 + t2 : t1 - t2,
+        feedback: sub
+          ? `This comes from losing the double negative: ${m(`${s}${L}`)} = ${s} × (−${K}) = ${t2}, and subtracting ${t2} is the same as adding ${-t2}. So it's ${t1} + ${-t2}, not ${t1} − ${-t2}.`
+          : `This comes from using ${m(`${s}${L}`)} = +${-t2}. But ${s} × (−${K}) = ${t2}, so you add ${t2} — which takes away ${-t2}.`,
+      },
+      {
+        v: sub ? (q * K) ** 2 - t2 : (q * K) ** 2 + t2,
+        feedback: `This comes from squaring ${m(`${q}${L}`)} (${m(`(-${q * K})^2`)} = ${(q * K) ** 2}). In ${m(`${q}${L}^2`)} only the ${L} is squared: ${q} × ${sq} = ${t1}.`,
+      },
+      {
+        v: sub ? -2 * q * K - t2 : -2 * q * K + t2,
+        feedback: `This comes from doubling instead of squaring: ${q} × (−${K}) × 2 = ${-2 * q * K}. ${m(`${L}^2`)} means ${L} × ${L} = (−${K}) × (−${K}) = ${sq}.`,
+      },
+    ],
+    explanation: `Put the value in with brackets: ${m(`${q} * (-${K})^2 ${op} ${s} * (-${K})`)}. Powers first: ${m(`(-${K})^2`)} = ${sq} (negative × negative is positive), so ${m(`${q}${L}^2`)} = ${q} × ${sq} = ${t1}. Next, ${s} × (−${K}) = ${t2}. Finally ${finish}${sub ? " — subtracting a negative is the same as adding" : ""}.`,
+    solution: [
+      `Put the value in with brackets: ${m(`${e} = ${q} * (-${K})^2 ${op} ${s} * (-${K})`)}.`,
+      `Indices first: ${m(`(-${K})^2`)} = ${sq}, so ${m(`${q}${L}^2`)} = ${q} × ${sq} = ${t1}.`,
+      `Next term: ${s} × (−${K}) = ${t2}.`,
+      sub ? `Subtracting a negative adds: ${t1} − (${t2}) = ${t1} + ${-t2} = **${ans}**.` : `Adding a negative takes away: ${t1} + (${t2}) = ${t1} − ${-t2} = **${ans}**.`,
+    ],
+    hints: [`Write every ${L} as (−${K}), in brackets. What is ${m(`(-${K})^2`)}?`, `Work out ${s} × (−${K}) and watch the two signs next to each other: ${opT} (${t2}).`],
+    verify: `${q}*(-${K})^2${op}${s}*(-${K})`,
+    commonError: sub
+      ? `Writing ${m(`(-${K})^2`)} as −${sq}, or forgetting that − ${s} × (−${K}) is + ${s * K}.`
+      : `Writing ${m(`(-${K})^2`)} as −${sq}, or treating ${s} × (−${K}) as positive.`,
+    sig: `nq:${q}*${x}^2${op}${s}*${x}`,
+  };
+}
+
+/** 10 − x² with x negative */
+function negMinusSquare(r: Rng): Item {
+  const L = r.pick(["x", "y", "n", "t", "k"]);
+  let c = 10, K = 3;
+  for (let k = 0; k < 60; k++) {
+    c = r.int(5, 30);
+    K = r.int(3, 6);
+    if (c !== K * K) break;
+  }
+  const sq = K * K;
+  const ans = c - sq;
+  const e = `${c} - ${L}^2`;
+  return {
+    difficulty: "core",
+    question: `If ${given([[L, `-${K}`]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`(-${K})^2`)} = (−${K}) × (−${K}) = ${sq}, and ${c} − ${sq} = ${ans}.`,
+    slips: [
+      { v: c + sq, feedback: `This comes from thinking ${m(`${L}^2`)} = −${sq}, so you did ${c} − (−${sq}). A negative times a negative is positive: (−${K}) × (−${K}) = ${sq}, so it's ${c} − ${sq}.` },
+      { v: (c + K) ** 2, feedback: `This comes from subtracting before squaring: ${m(`(${c} - (-${K}))^2`)} = ${m(`${c + K}^2`)}. Powers come before subtraction, so square ${L} first.` },
+      { v: c + 2 * K, feedback: `This comes from doubling instead of squaring: ${c} − 2 × (−${K}) = ${c} + ${2 * K}. ${m(`${L}^2`)} means ${L} × ${L}, not 2 × ${L}.` },
+    ],
+    explanation: `Powers come before subtraction (BIDMAS), so work out ${m(`${L}^2`)} first: ${m(`(-${K})^2`)} = (−${K}) × (−${K}) = ${sq} — a negative times a negative is positive. Then ${c} − ${sq} = ${ans}. Keep the brackets round −${K} when you square it, so you square the whole of −${K}.`,
+    solution: [
+      `Put the value in with brackets: ${m(`${e} = ${c} - (-${K})^2`)}.`,
+      `Indices first: ${m(`(-${K})^2`)} = (−${K}) × (−${K}) = ${sq}.`,
+      `Then subtract: ${c} − ${sq} = **${ans}**.`,
+    ],
+    hints: [`Which comes first in BIDMAS here: the subtraction or the square?`, `Work out ${m(`(-${K})^2`)} carefully — what is a negative times a negative?`],
+    verify: `${c}-(-${K})^2`,
+    commonError: `Thinking ${m(`(-${K})^2`)} = −${sq} and getting ${c + sq}; a negative squared is positive.`,
+    sig: `nms:${c}-${K}`,
+  };
+}
+
+/** 3(10 − e) with e negative (class recap) */
+function negBracket(r: Rng): Item {
+  const L = r.pick(["e", "x", "y", "n", "t", "k"]);
+  let p = 3, c = 10, K = 3;
+  for (let k = 0; k < 60; k++) {
+    p = r.int(2, 6);
+    c = r.int(3, 12);
+    K = r.int(2, 9);
+    if (c !== K && p !== c) break;
+  }
+  const inside = c + K;
+  const ans = p * inside;
+  const e = `${p}(${c} - ${L})`;
+  return {
+    difficulty: "core",
+    question: `If ${given([[L, `-${K}`]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${c} − (−${K}) = ${c} + ${K} = ${inside}, and ${p} × ${inside} = ${ans}.`,
+    slips: [
+      { v: p * (c - K), feedback: `This comes from ${p} × (${c} − ${K}). Subtracting −${K} is the same as adding ${K}, so the bracket is ${inside}, not ${c - K}.` },
+      { v: p * c + K, feedback: `This comes from multiplying only the ${c} by ${p} (${p * c} − (−${K})). The ${p} multiplies the whole bracket: ${p} × ${inside}.` },
+      { v: p * c - K, feedback: `This comes from ${p} × ${c} − ${K}: the ${p} didn't multiply the ${L}, and the double minus was missed. Work out the bracket first: ${c} − (−${K}) = ${inside}.` },
+      { v: p + inside, feedback: `This comes from adding the ${p}. A number written next to a bracket means multiply: ${p} × ${inside}.` },
+    ],
+    explanation: `Put the value in with its own brackets: ${m(`${p}(${c} - (-${K}))`)}. Subtracting a negative is the same as adding, so ${c} − (−${K}) = ${c} + ${K} = ${inside}. Then ${p} × ${inside} = ${ans}. Always put a negative substitution in brackets so you can see both minus signs.`,
+    solution: [
+      `Put the value in with brackets: ${m(`${e} = ${p}(${c} - (-${K}))`)}.`,
+      `Bracket first: ${c} − (−${K}) = ${c} + ${K} = ${inside} (taking away a negative adds).`,
+      `Multiply: ${p} × ${inside} = **${ans}**.`,
+    ],
+    hints: [`Write it as ${m(`${p}(${c} - (-${K}))`)}. What is ${c} − (−${K})?`, `Subtracting a negative number is the same as adding the positive number.`],
+    verify: `${p}*(${c}-(-${K}))`,
+    commonError: `Working out ${c} − (−${K}) as ${c - K}; subtracting a negative adds, so it's ${inside}.`,
+    sig: `nb:${p}(${c}-${-K})`,
+  };
+}
+
+/** 5x − 3y + 8 or 4(2w + 3y) with y negative (class Task 2) */
+function negTwoLetters(r: Rng): Item {
+  const [L1, L2] = r.pick([["x", "y"], ["w", "y"], ["a", "b"], ["p", "q"], ["m", "n"]] as [string, string][]);
+  if (r.chance(0.5)) {
+    const q = r.int(2, 6), X = r.int(2, 9), s = r.int(2, 6), K = r.int(2, 9), c = r.int(2, 12);
+    const ans = q * X + s * K + c;
+    const e = `${q}${L1} - ${s}${L2} + ${c}`;
+    return {
+      difficulty: "core",
+      question: `If ${given([[L1, `${X}`], [L2, `-${K}`]])}, work out ${m(e)}.`,
+      answer: ans,
+      correct: `${q} × ${X} = ${q * X}, and −${s} × (−${K}) = +${s * K}, so ${q * X} + ${s * K} + ${c} = ${ans}.`,
+      slips: [
+        {
+          v: q * X - s * K + c,
+          feedback: `This comes from ${q * X} − ${s * K} + ${c}. But −${s}${L2} = −${s} × (−${K}) = +${s * K} — a negative times a negative is positive — so it's ${q * X} + ${s * K} + ${c}.`,
+        },
+        {
+          v: (q * X - s) * -K + c,
+          feedback: `This comes from working left to right: ${q * X} − ${s} = ${q * X - s}, then × (−${K}). ${m(`${s}${L2}`)} is one term, ${s} × (−${K}) = ${-s * K}, and it must be worked out before subtracting.`,
+        },
+        {
+          v: q * X - (s - K) + c,
+          feedback: `This comes from reading ${m(`${s}${L2}`)} as ${s} + ${L2} = ${s - K}. A number next to a letter means multiply: ${s} × (−${K}) = ${-s * K}.`,
+        },
+      ],
+      explanation: `Substitute with brackets round the negative: ${m(`${q} * ${X} - ${s} * (-${K}) + ${c}`)}. Multiply first: ${q} × ${X} = ${q * X} and ${s} × (−${K}) = ${-s * K}. Subtracting ${-s * K} is the same as adding ${s * K}, so the total is ${q * X} + ${s * K} + ${c} = ${ans}.`,
+      solution: [
+        `Put the values in with brackets: ${m(`${e} = ${q} * ${X} - ${s} * (-${K}) + ${c}`)}.`,
+        `Multiply first: ${q} × ${X} = ${q * X} and ${s} × (−${K}) = ${-s * K}.`,
+        `So it's ${q * X} − (${-s * K}) + ${c} = ${q * X} + ${s * K} + ${c} = **${ans}**.`,
+      ],
+      hints: [`Write ${L2} as (−${K}). What is ${s} × (−${K})?`, `Two minus signs next to each other — taking away a negative — make a plus.`],
+      verify: `${q}*${X}-${s}*(-${K})+${c}`,
+      commonError: `Getting −${s} × (−${K}) wrong: two negatives multiply to a positive, +${s * K}.`,
+      sig: `n2a:${q}*${X}-${s}*${-K}+${c}`,
+    };
+  }
+  let q = 4, rr = 2, X = 7, s = 3, K = 3;
+  for (let k = 0; k < 60; k++) {
+    q = r.int(2, 6);
+    rr = r.int(2, 5);
+    X = r.int(2, 9);
+    s = r.int(2, 5);
+    K = r.int(2, 6);
+    if (rr * X > s * K) break;
+  }
+  const inside = rr * X - s * K;
+  const ans = q * inside;
+  const e = `${q}(${rr}${L1} + ${s}${L2})`;
+  return {
+    difficulty: "core",
+    question: `If ${given([[L1, `${X}`], [L2, `-${K}`]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${rr} × ${X} = ${rr * X} and ${s} × (−${K}) = ${-s * K}, so the bracket is ${inside} and ${q} × ${inside} = ${ans}.`,
+    slips: [
+      {
+        v: q * (rr * X + s * K),
+        feedback: `This comes from ${q} × (${rr * X} + ${s * K}). But ${m(`${s}${L2}`)} = ${s} × (−${K}) = ${-s * K}, so the bracket is ${rr * X} − ${s * K} = ${inside}.`,
+      },
+      {
+        v: q * rr * X - s * K,
+        feedback: `This comes from multiplying only the first term by ${q}. The ${q} multiplies the whole bracket, so work out ${rr * X} + (${-s * K}) = ${inside} first.`,
+      },
+      {
+        v: q + inside,
+        feedback: `This comes from adding the ${q}. A number written next to a bracket means multiply: ${q} × ${inside}.`,
+      },
+      {
+        v: q * (rr * X + s - K),
+        feedback: `This comes from reading ${m(`${s}${L2}`)} as ${s} + ${L2}. A number next to a letter means multiply: ${s} × (−${K}) = ${-s * K}.`,
+      },
+    ],
+    explanation: `Brackets first. Inside: ${m(`${rr}${L1}`)} = ${rr} × ${X} = ${rr * X} and ${m(`${s}${L2}`)} = ${s} × (−${K}) = ${-s * K} (positive × negative is negative). So the bracket is ${rr * X} + (${-s * K}) = ${inside}. Then ${q} × ${inside} = ${ans}.`,
+    solution: [
+      `Put the values in with brackets: ${m(`${e} = ${q}(${rr} * ${X} + ${s} * (-${K}))`)}.`,
+      `Inside the bracket: ${rr * X} + (${-s * K}) = ${rr * X} − ${s * K} = ${inside}.`,
+      `Multiply: ${q} × ${inside} = **${ans}**.`,
+    ],
+    hints: [`Work out the bracket first. What is ${s} × (−${K})?`, `Adding a negative number is the same as subtracting.`],
+    verify: `${q}*(${rr}*${X}+${s}*(-${K}))`,
+    commonError: `Treating ${s} × (−${K}) as +${s * K}; a positive times a negative is negative.`,
+    sig: `n2b:${q}(${rr}*${X}+${s}*${-K})`,
+  };
+}
+
+/** wx − (x + T) and y² + x(2w − T) style (class Task 2 challenges) */
+function negChallenge(r: Rng): Item {
+  if (r.chance(0.5)) {
+    const [L1, L2, L3] = r.pick([["w", "x", "T"], ["a", "b", "c"], ["p", "q", "r"], ["m", "n", "k"]] as [string, string, string][]);
+    let A = 7, B = 4, K = 6;
+    for (let k = 0; k < 60; k++) {
+      A = r.int(2, 9);
+      B = r.int(2, 8);
+      K = r.int(B + 1, B + 8);
+      if (K !== 2 * B) break;
+    }
+    const inside = B - K; // negative
+    const ab = A * B;
+    const ans = ab - inside;
+    const e = `${L1}${L2} - (${L2} + ${L3})`;
+    return {
+      difficulty: "challenge",
+      question: `If ${given([[L1, `${A}`], [L2, `${B}`], [L3, `-${K}`]])}, work out ${m(e)}.`,
+      answer: ans,
+      correct: `${L2} + ${L3} = ${B} + (−${K}) = ${inside}, and ${ab} − (${inside}) = ${ab} + ${-inside} = ${ans}.`,
+      slips: [
+        {
+          v: ab - (B + K),
+          feedback: `This comes from using ${L3} = ${K}: ${ab} − (${B} + ${K}) = ${ab} − ${B + K}. But ${L3} is −${K}, so ${L2} + ${L3} = ${B} + (−${K}) = ${inside}.`,
+        },
+        {
+          v: ab - -inside,
+          feedback: `The bracket is ${inside} ✓ — but ${ab} − (${inside}) is not ${ab - -inside}. Subtracting a negative adds: ${ab} − (${inside}) = ${ab} + ${-inside}.`,
+        },
+        {
+          v: A * (B - inside),
+          feedback: `This comes from multiplying ${L1} by everything after it: ${A} × (${B} − (${inside})). ${m(`${L1}${L2}`)} is a term on its own: ${A} × ${B} = ${ab}.`,
+        },
+      ],
+      explanation: `Work out the pieces first. ${m(`${L1}${L2}`)} = ${A} × ${B} = ${ab}. The bracket: ${L2} + ${L3} = ${B} + (−${K}) = ${inside}. Then ${ab} − (${inside}) = ${ab} + ${-inside} = ${ans}. Two minus signs next to each other — taking away a negative — make a plus.`,
+      solution: [
+        `Put the values in with brackets: ${m(`${e} = ${A} * ${B} - (${B} + (-${K}))`)}.`,
+        `${m(`${L1}${L2}`)} = ${A} × ${B} = ${ab}. Bracket: ${B} + (−${K}) = ${inside}.`,
+        `Subtracting a negative adds: ${ab} − (${inside}) = ${ab} + ${-inside} = **${ans}**.`,
+      ],
+      hints: [`Work out ${m(`${L1}${L2}`)} and the bracket (${m(`${L2} + ${L3}`)}) separately.`, `You'll end up subtracting a negative number. What does that do?`],
+      verify: `${A}*${B}-(${B}+(-${K}))`,
+      commonError: `Finishing with ${ab} − ${-inside} instead of ${ab} − (${inside}) = ${ab} + ${-inside}.`,
+      sig: `nc1:${A}*${B}-(${B}${-K})`,
+    };
+  }
+  const [L1, L2] = r.pick([["x", "y"], ["a", "b"], ["p", "q"], ["m", "n"], ["s", "t"]] as [string, string][]);
+  let A = 4, c = 5, K = 3;
+  for (let k = 0; k < 60; k++) {
+    A = r.int(2, 6);
+    c = r.int(2, 9);
+    K = r.int(2, 6);
+    if (c !== K && A !== K) break;
+  }
+  const sq = K * K;
+  const inside = c + K;
+  const ans = sq + A * inside;
+  const e = `${L2}^2 + ${L1}(${c} - ${L2})`;
+  return {
+    difficulty: "challenge",
+    question: `If ${given([[L1, `${A}`], [L2, `-${K}`]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`(-${K})^2`)} = ${sq} and ${c} − (−${K}) = ${inside}, so ${sq} + ${A} × ${inside} = ${sq} + ${A * inside} = ${ans}.`,
+    slips: [
+      {
+        v: -sq + A * inside,
+        feedback: `This comes from thinking ${m(`(-${K})^2`)} = −${sq}. (−${K}) × (−${K}) = +${sq}, so it's ${sq} + ${A * inside}.`,
+      },
+      {
+        v: sq + A * (c - K),
+        feedback: `This comes from ${c} − ${K} = ${c - K} in the bracket. ${L2} is −${K}, so ${c} − (−${K}) = ${c} + ${K} = ${inside}.`,
+      },
+      {
+        v: (sq + A) * inside,
+        feedback: `This comes from adding ${sq} + ${A} before multiplying by ${inside}. Multiplication comes before addition: ${A} × ${inside} first.`,
+      },
+      {
+        v: -sq + A * (c - K),
+        feedback: `Two sign slips: ${m(`(-${K})^2`)} is +${sq} (not −${sq}), and ${c} − (−${K}) is ${inside} (not ${c - K}).`,
+      },
+    ],
+    explanation: `Do it in stages. ${m(`${L2}^2`)} = (−${K}) × (−${K}) = ${sq}. Inside the bracket: ${c} − (−${K}) = ${c} + ${K} = ${inside}. Then ${m(`${L1}(${c} - ${L2})`)} = ${A} × ${inside} = ${A * inside}. Finally ${sq} + ${A * inside} = ${ans}. Three traps in one question: the square of a negative, subtracting a negative, and multiplying before adding.`,
+    solution: [
+      `Put the values in with brackets: ${m(`${e} = (-${K})^2 + ${A}(${c} - (-${K}))`)}.`,
+      `${m(`(-${K})^2`)} = ${sq}. Bracket: ${c} − (−${K}) = ${inside}.`,
+      `Multiply: ${A} × ${inside} = ${A * inside}.`,
+      `Add: ${sq} + ${A * inside} = **${ans}**.`,
+    ],
+    hints: [`Work out ${m(`${L2}^2`)} and the bracket separately first.`, `Inside the bracket you subtract −${K}. What does that become?`, `${m(`${L1}(…)`)} means ${L1} × the bracket — do that before adding.`],
+    verify: `(-${K})^2+${A}*(${c}-(-${K}))`,
+    commonError: `Writing ${m(`(-${K})^2`)} as −${sq} or ${c} − (−${K}) as ${c - K}.`,
+    sig: `nc2:${A}:${c}:${K}`,
+  };
+}
+
+const suNegatives: Generator = {
+  id: "su-negatives",
+  topic: "su",
+  section: "su-negatives",
+  label: "Substitute negative numbers: (−a)² vs −a², subtracting a negative",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    return build(
+      pickTemplate(r, [
+        [2, negWarm],
+        [3, negQuadratic],
+        [2, negMinusSquare],
+        [2, negBracket],
+        [2, negTwoLetters],
+        [2, negChallenge],
+      ]),
+    );
+  },
+};
+
+// ---------------------------------------------------------------------------
+// su-formula — using a formula: v = u + at, ½bh, ½(a + b)h, ½mv², 2(l + w), 9C/5 + 32
+// ---------------------------------------------------------------------------
+
+/** v = u + at, sometimes braking (a negative) */
+function formulaSpeed(r: Rng): Item {
+  const slow = r.chance(0.4);
+  let u: number, a: number, t: number;
+  if (slow) {
+    a = -r.int(2, 4);
+    t = r.int(2, 5);
+    u = r.int(-a * t + 1, -a * t + 10);
+  } else {
+    a = r.int(2, 4);
+    t = r.int(a === 2 ? 3 : 2, 8);
+    u = r.int(2, 15);
+  }
+  const at = a * t;
+  const ans = u + at;
+  const intro = slow
+    ? `A car is braking, so its acceleration a is negative. Its speed v (in m/s) after t seconds is given by ${m("v = u + at")}.`
+    : `A train is speeding up. Its speed v (in m/s) after t seconds is given by ${m("v = u + at")}.`;
+  const slips: Cand[] = [
+    { v: (u + a) * t, feedback: `This comes from adding u + a first: (${u} + ${vb(a)}) × ${t}. Multiplication comes before addition, so work out at = ${vb(a)} × ${t} first.` },
+    { v: u + a + t, feedback: `This comes from adding all three numbers. at means a × t, not a + t.` },
+    { v: u * a * t, feedback: `This comes from multiplying all three numbers. The formula adds u; only a and t are multiplied.` },
+  ];
+  if (slow) {
+    slips.unshift({
+      v: u - at,
+      feedback: `This comes from adding ${-at} instead of ${at}. With a = ${a}, at = (${a}) × ${t} = ${at}, and adding a negative takes away: ${u} + (${at}) = ${u} − ${-at}.`,
+    });
+  }
+  return {
+    difficulty: slow ? "core" : r.chance(0.4) ? "warmup" : "core",
+    question: `${intro} Work out v when ${given([["u", `${u}`], ["a", `${a}`], ["t", `${t}`]])}.`,
+    prompt: "Give your answer in m/s.",
+    answer: ans,
+    unit: " m/s",
+    correct: `at = ${vb(a)} × ${t} = ${at}, and ${u} + ${vb(at)} = ${ans} m/s.`,
+    slips,
+    explanation: `Substitute: ${m(`v = ${u} + ${slow ? `(${a})` : a} * ${t}`)}. "at" means a × t, and multiplication comes before addition, so ${vb(a)} × ${t} = ${at} first. Then v = ${u} + ${vb(at)} = ${ans} m/s. ${slow ? `It makes sense: the car starts at ${u} m/s and loses ${-a} m/s every second for ${t} seconds.` : `It makes sense: the train starts at ${u} m/s and speeds up by ${a} m/s every second for ${t} seconds.`}`,
+    solution: [
+      `Write the formula with the numbers in: ${m(`v = ${u} + ${slow ? `(${a})` : a} * ${t}`)}.`,
+      `Multiply first: ${vb(a)} × ${t} = ${at}.`,
+      slow ? `Then add: ${u} + (${at}) = ${u} − ${-at} = **${ans} m/s**.` : `Then add: ${u} + ${at} = **${ans} m/s**.`,
+    ],
+    hints: [`Which operation is hiding between a and t?`, `Do the multiplication before the addition.`],
+    verify: `${u}+(${a})*${t}`,
+    commonError: `Working out (u + a) × t instead of u + (a × t): multiplication comes before addition.`,
+    marks: slow ? 2 : undefined,
+    sig: `v:${u}:${a}:${t}`,
+  };
+}
+
+/** A = ½bh */
+function formulaTriangle(r: Rng): Item {
+  let b = 6, h = 4;
+  for (let k = 0; k < 60; k++) {
+    b = r.int(3, 16);
+    h = r.int(3, 14);
+    if ((b * h) % 2 === 0 && b !== h) break;
+  }
+  const ans = (b * h) / 2;
+  return {
+    difficulty: "warmup",
+    question: `The area of a triangle is ${m("A = 1/2 bh")}, where b is the base and h is the height. Find A when ${given([["b", `${b}`], ["h", `${h}`]])} (all in centimetres).`,
+    prompt: "Give your answer in cm².",
+    answer: ans,
+    unit: " cm²",
+    correct: `${m("1/2")} × ${b} × ${h} = ${m("1/2")} × ${b * h} = ${ans} cm².`,
+    slips: [
+      { v: b * h, feedback: `${b * h} cm² is b × h = ${b} × ${h} — you forgot to halve. The ${m("1/2")} at the front means divide by 2.` },
+      { v: (b + h) / 2, feedback: `This comes from adding b and h (${b} + ${h} = ${b + h}) and halving. bh means b × h.` },
+      { v: (b * h) / 4, feedback: `This comes from halving twice (half of ${b} times half of ${h}). The ${m("1/2")} is used once: ${m("1/2")} × ${b} × ${h}.` },
+      { v: 2 * b * h, feedback: `This comes from doubling instead of halving. ${m("1/2")} × ${b * h} means half of ${b * h}.` },
+    ],
+    explanation: `Substitute: ${m(`A = 1/2 * ${b} * ${h}`)}. bh means b × h = ${b * h}, and ${m("1/2")} of that is ${ans}. So A = ${ans} cm². It works because a triangle is half of a rectangle measuring ${b} cm by ${h} cm.`,
+    solution: [
+      `Write the formula with the numbers in: ${m(`A = 1/2 * ${b} * ${h}`)}.`,
+      `Multiply: ${b} × ${h} = ${b * h}.`,
+      `Halve: ${m("1/2")} × ${b * h} = **${ans} cm²**.`,
+    ],
+    hints: [`What does bh mean when the letters sit side by side?`, `Multiply b by h, then take half.`],
+    verify: `1/2*${b}*${h}`,
+    commonError: `Forgetting the ${m("1/2")} and giving b × h, the area of the whole rectangle.`,
+    sig: `tri:${[b, h].sort(asc).join("*")}`,
+  };
+}
+
+/** Trapezium A = ½(a + b)h */
+function formulaTrapezium(r: Rng): Item {
+  let a = 5, b = 9, h = 4;
+  for (let k = 0; k < 60; k++) {
+    a = r.int(2, 14);
+    b = r.int(2, 14);
+    h = r.int(2, 12);
+    if (a !== b && ((a + b) * h) % 2 === 0 && a !== h && b !== h) break;
+  }
+  const s = a + b;
+  const ans = (s * h) / 2;
+  return {
+    difficulty: "core",
+    question: `The area of a trapezium is ${m("A = 1/2 (a + b)h")}, where a and b are the parallel sides and h is the height. Find A when ${given([["a", `${a}`], ["b", `${b}`], ["h", `${h}`]])} (all in centimetres).`,
+    prompt: "Give your answer in cm².",
+    answer: ans,
+    unit: " cm²",
+    correct: `a + b = ${s}, then ${m("1/2")} × ${s} × ${h} = ${ans} cm².`,
+    slips: [
+      { v: s * h, feedback: `${s * h} cm² is (${a} + ${b}) × ${h} — you forgot to halve. The ${m("1/2")} at the front means divide by 2.` },
+      { v: a / 2 + b * h, feedback: `This comes from ignoring the bracket (${m("1/2")} × ${a} + ${b} × ${h}). The bracket means add a and b first.` },
+      { v: (a + b * h) / 2, feedback: `This comes from working out a + bh = ${a} + ${b * h} first and then halving. The bracket comes first: (${a} + ${b}) × ${h}.` },
+      { v: s / 2 + h, feedback: `This comes from adding h instead of multiplying by it. (a + b)h means (a + b) × h.` },
+    ],
+    explanation: `Brackets first: a + b = ${a} + ${b} = ${s}. Then multiply by h: ${s} × ${h} = ${s * h}. Finally halve: ${m("1/2")} × ${s * h} = ${ans} cm². It works because two copies of the trapezium fit together to make a parallelogram with base (a + b) and height h.`,
+    solution: [
+      `Write the formula with the numbers in: ${m(`A = 1/2 (${a} + ${b}) * ${h}`)}.`,
+      `Bracket first: ${a} + ${b} = ${s}.`,
+      `Multiply by h: ${s} × ${h} = ${s * h}.`,
+      `Halve: ${m("1/2")} × ${s * h} = **${ans} cm²**.`,
+    ],
+    hints: [`What does the bracket tell you to do first?`, `After the bracket, multiply by h and halve (in either order).`],
+    verify: `1/2*(${a}+${b})*${h}`,
+    commonError: `Forgetting the ${m("1/2")}, or not adding a and b before multiplying by h.`,
+    sig: `trap:(${[a, b].sort(asc).join("+")})*${h}`,
+  };
+}
+
+/** E = ½mv², sometimes with a negative velocity */
+function formulaEnergy(r: Rng): Item {
+  const back = r.chance(0.35);
+  const mass = r.pick([4, 6, 8, 10, 12, 16, 20, 30, 40, 50, 60]);
+  const V = r.int(2, mass >= 30 ? 4 : 6);
+  const vel = back ? -V : V;
+  const sq = V * V;
+  const ans = (mass * sq) / 2;
+  const intro = back
+    ? `A trolley of mass m = ${mass} kg rolls backwards, so its velocity is negative: v = ${num(vel)} m/s.`
+    : `An object of mass m = ${mass} kg moves with velocity v = ${vel} m/s.`;
+  const slips: Cand[] = [];
+  if (back) {
+    slips.push({ v: -ans, feedback: `This comes from thinking ${m(`(-${V})^2`)} = −${sq}. A negative times a negative is positive, so ${m("v^2")} = ${sq} and the energy is positive.` });
+  }
+  slips.push(
+    { v: mass * sq, feedback: `This is m × ${m("v^2")} = ${mass} × ${sq} — you forgot to halve. The ${m("1/2")} at the front means divide by 2.` },
+    { v: (mass * vel) / 2, feedback: `This comes from forgetting to square v (${m("1/2")} × ${mass} × ${vb(vel)}). Square the velocity first: ${m(`${v(vel)}^2`)} = ${sq}.` },
+    { v: ((mass * V) / 2) ** 2, feedback: `This comes from squaring the whole of ${m("1/2")} × ${mass} × ${V} = ${(mass * V) / 2}. Only the v is squared.` },
+    { v: ((mass * V) ** 2) / 2, feedback: `This comes from squaring m as well as v (${m("1/2")} × ${m(`${mass * V}^2`)}). In ${m("1/2 mv^2")} only the v is squared.` },
+  );
+  return {
+    difficulty: back ? "challenge" : "core",
+    question: `${intro} Use ${m("E = 1/2 mv^2")} to find its kinetic energy E, in joules (J).`,
+    prompt: "Give your answer in joules.",
+    answer: ans,
+    unit: " J",
+    correct: `${m("v^2")} = ${m(`${v(vel)}^2`)} = ${sq}, then ${m("1/2")} × ${mass} × ${sq} = ${ans} J.`,
+    slips,
+    explanation: `Substitute m = ${mass} and v = ${num(vel)}: ${m(`E = 1/2 * ${mass} * ${v(vel)}^2`)}. Powers first: ${m(`${v(vel)}^2`)} = ${sq}${back ? " (a negative squared is positive)" : ""}. Then multiply: half of ${mass} is ${mass / 2}, and ${mass / 2} × ${sq} = ${ans}, so E = ${ans} J. The squared sign belongs to v only, not to m.`,
+    solution: [
+      `Write the formula with the numbers in: ${m(`E = 1/2 * ${mass} * ${v(vel)}^2`)}.`,
+      `Indices first: ${m(`${v(vel)}^2`)} = ${sq}.`,
+      `Then ${m("1/2")} × ${mass} = ${mass / 2}, and ${mass / 2} × ${sq} = **${ans} J**.`,
+    ],
+    hints: [`Which letter is squared in ${m("1/2 mv^2")}? Work that part out first.`, back ? `What is ${m(`(-${V})^2`)}? Watch the sign.` : `After squaring, halve the mass and multiply.`],
+    verify: `1/2*${mass}*${v(vel)}^2`,
+    commonError: back ? `Writing ${m(`(-${V})^2`)} as −${sq}, or forgetting the ${m("1/2")}.` : `Forgetting the ${m("1/2")}, or squaring m × v instead of just v.`,
+    sig: `ke:${mass}:${vel}`,
+  };
+}
+
+/** P = 2(l + w) */
+function formulaPerimeter(r: Rng): Item {
+  const l = r.int(5, 20);
+  let w = r.int(2, 12);
+  while (w >= l) w = r.int(2, 12);
+  const s = l + w;
+  const ans = 2 * s;
+  return {
+    difficulty: "warmup",
+    question: `The perimeter of a rectangle is ${m("P = 2(l + w)")}, where l is the length and w is the width. Find P when ${given([["l", `${l}`], ["w", `${w}`]])} (all in centimetres).`,
+    prompt: "Give your answer in cm.",
+    answer: ans,
+    unit: " cm",
+    correct: `l + w = ${s}, and 2 × ${s} = ${ans} cm.`,
+    slips: [
+      { v: 2 * l + w, feedback: `This comes from doubling only the l (2 × ${l} + ${w}). The 2 multiplies the whole bracket: 2 × (${l} + ${w}).` },
+      { v: s, feedback: `${s} cm is l + w — only two of the four sides. The 2 in front means double it.` },
+      { v: 2 * l * w, feedback: `This comes from multiplying l and w (2 × ${l} × ${w}). There's a + inside the bracket, so add first.` },
+      { v: 2 + s, feedback: `This comes from adding the 2. A number next to a bracket means multiply: 2 × ${s}.` },
+    ],
+    explanation: `Substitute: ${m(`P = 2(${l} + ${w})`)}. Bracket first: ${l} + ${w} = ${s}. Then double it: 2 × ${s} = ${ans} cm. It makes sense: a rectangle has two lengths and two widths, so P = ${l} + ${w} + ${l} + ${w} = ${ans} too.`,
+    solution: [
+      `Write the formula with the numbers in: ${m(`P = 2(${l} + ${w})`)}.`,
+      `Bracket first: ${l} + ${w} = ${s}.`,
+      `Multiply: 2 × ${s} = **${ans} cm**.`,
+    ],
+    hints: [`What does the bracket tell you to do first?`, `A number next to a bracket means multiply the whole bracket.`],
+    verify: `2*(${l}+${w})`,
+    commonError: `Doubling only the length: 2 × ${l} + ${w} instead of 2 × (${l} + ${w}).`,
+    sig: `per:${l}:${w}`,
+  };
+}
+
+/** F = 9C/5 + 32, including negative temperatures */
+function formulaFahrenheit(r: Rng): Item {
+  const C = r.pick([-40, -30, -25, -20, -15, -10, -5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 100]);
+  const nine = 9 * C;
+  const part = nine / 5;
+  const ans = part + 32;
+  const slips: Cand[] = [];
+  if (C < 0) {
+    slips.push({ v: -part + 32, feedback: `This comes from losing the minus sign and using C = ${-C} (${-part} + 32). But 9 × (${C}) = ${nine}, so ${m("(9C)/5")} = ${part}, and ${part} + 32 = ${ans}.` });
+  }
+  slips.push(
+    { v: part, feedback: `This is just ${m("(9C)/5")} = ${part} — you forgot to add the 32 at the end.` },
+    { v: (nine + 32) / 5, feedback: `This comes from dividing the 32 by 5 as well (${nine} + 32 = ${nine + 32}, then ÷ 5). Only 9C is over the 5, so work out ${m("(9C)/5")} = ${part} first and then add 32.` },
+    { v: (9 * (C + 32)) / 5, feedback: `This comes from adding 32 to C first (${C} + 32 = ${C + 32}). Multiplication and division come before addition, so work out ${m("(9C)/5")} first.` },
+  );
+  if (C % 9 === 0) {
+    slips.push({ v: (5 * C) / 9 + 32, feedback: `This comes from using ${m("5/9")} instead of ${m("9/5")}. The formula multiplies C by 9 and then divides by 5.` });
+  }
+  return {
+    difficulty: C < 0 ? "challenge" : "core",
+    question: `To change a temperature from °C to °F you can use the formula ${m("F = (9C)/5 + 32")}. Change ${num(C)}°C into °F.`,
+    prompt: "Give your answer in °F.",
+    answer: ans,
+    unit: "°F",
+    correct: `9 × ${vb(C)} = ${nine}, ${nine} ÷ 5 = ${part}, and ${part} + 32 = ${ans}°F.`,
+    slips,
+    explanation: `Substitute C = ${num(C)}: ${m(`F = (9 * ${v(C)})/5 + 32`)}. Multiply and divide first: 9 × ${vb(C)} = ${nine}, and ${nine} ÷ 5 = ${part}. Then add: ${part} + 32 = ${ans}. So ${num(C)}°C is ${ans}°F.${C < 0 ? " With a negative temperature, keep the sign all the way through." : ""}`,
+    solution: [
+      `Write the formula with the number in: ${m(`F = (9 * ${v(C)})/5 + 32`)}.`,
+      `Multiply: 9 × ${vb(C)} = ${nine}. Divide: ${nine} ÷ 5 = ${part}.`,
+      `Add 32: ${part} + 32 = **${ans}°F**.`,
+    ],
+    hints: [`Work out the fraction part, ${m("(9C)/5")}, before you add the 32.`, C < 0 ? `9 × ${vb(C)} is negative. What is it?` : `Multiply ${C} by 9, then divide by 5.`],
+    verify: `9*${v(C)}/5+32`,
+    commonError: `Adding the 32 too early, or dividing it by 5 as well — only 9C is divided by 5.`,
+    sig: `f:${C}`,
+  };
+}
+
+const suFormula: Generator = {
+  id: "su-formula",
+  topic: "su",
+  section: "su-formulae",
+  label: "Use a formula (v = u + at, ½bh, ½(a + b)h, ½mv², 2(l + w), 9C/5 + 32)",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    return build(
+      pickTemplate(r, [
+        [3, formulaSpeed],
+        [2, formulaTriangle],
+        [2, formulaTrapezium],
+        [3, formulaEnergy],
+        [1, formulaPerimeter],
+        [2, formulaFahrenheit],
+      ]),
+    );
+  },
+};
+
+// ---------------------------------------------------------------------------
+// su-decimals — substituting decimals and simple fractions (no calculator)
+// ---------------------------------------------------------------------------
+
+/** Decimal places in a number such as 0.25 (2) or 1.5 (1). */
+const dp = (x: number) => (String(tidy(Math.abs(x))).split(".")[1] ?? "").length;
+
+/** 6 + hk with decimals (hk = 2.5 × 0.4 = 1) */
+function decProduct(r: Rng): Item {
+  const [L1, L2] = r.pick(PAIRS);
+  const [h, k] = r.pick([[2.5, 0.4], [0.5, 6], [1.5, 4], [0.2, 15], [0.25, 8], [1.2, 5], [0.3, 20], [2.5, 6], [0.5, 0.4], [0.6, 0.5], [1.5, 0.2], [0.8, 2.5], [0.4, 0.5], [3.5, 2], [0.7, 3], [0.9, 2], [0.3, 0.3], [0.4, 0.2], [1.2, 0.5]] as const);
+  const [x, y] = r.chance(0.5) ? [h, k] : [k, h];
+  const prod = tidy(x * y);
+  const sub = r.chance(0.35) && prod < 9;
+  const c = sub ? r.int(Math.ceil(prod) + 1, 12) : r.int(2, 9);
+  const ans = tidy(sub ? c - prod : c + prod);
+  const op = sub ? "-" : "+";
+  const opT = sub ? "−" : "+";
+  const e = `${c} ${op} ${L1}${L2}`;
+  const big = tidy(prod * 10);
+  const places = dp(x) + dp(y);
+  const ix = Math.round(x * 10 ** dp(x)), iy = Math.round(y * 10 ** dp(y));
+  return {
+    difficulty: dp(prod) >= 2 || sub ? "core" : r.chance(0.4) ? "warmup" : "core",
+    question: `If ${given([[L1, num(x)], [L2, num(y)]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`${L1}${L2}`)} = ${num(x)} × ${num(y)} = ${num(prod)}, and ${c} ${opT} ${num(prod)} = ${num(ans)}.`,
+    slips: [
+      {
+        v: tidy(sub ? c - big : c + big),
+        feedback: `This comes from ${num(x)} × ${num(y)} = ${num(big)} — the decimal point is in the wrong place. Multiply without the decimal points, then put back ${places} decimal place${places === 1 ? "" : "s"}: ${num(x)} × ${num(y)} = ${num(prod)}.`,
+      },
+      {
+        v: tidy(sub ? c - (x + y) : c + x + y),
+        feedback: `This comes from adding ${L1} and ${L2} (${num(x)} + ${num(y)}). ${m(`${L1}${L2}`)} means ${L1} × ${L2}.`,
+      },
+      {
+        v: tidy((sub ? c - x : c + x) * y),
+        feedback: `This comes from working left to right: ${c} ${opT} ${num(x)} = ${num(tidy(sub ? c - x : c + x))}, then × ${num(y)}. Multiply before you ${sub ? "subtract" : "add"}: work out ${m(`${L1}${L2}`)} first.`,
+      },
+    ],
+    explanation: `${m(`${L1}${L2}`)} means ${L1} × ${L2} = ${num(x)} × ${num(y)}. Multiply without the decimal points (${ix} × ${iy} = ${ix * iy}), then put back the ${places} decimal place${places === 1 ? "" : "s"} from the numbers you multiplied: ${num(x)} × ${num(y)} = ${num(prod)}. Multiplication comes before ${sub ? "subtraction" : "addition"}, so the answer is ${c} ${opT} ${num(prod)} = ${num(ans)}.`,
+    solution: [
+      `Put the numbers in: ${m(`${e} = ${c} ${op} ${num(x)} * ${num(y)}`)}.`,
+      `Multiply first: ${num(x)} × ${num(y)} = ${num(prod)}.`,
+      `Then ${sub ? "subtract" : "add"}: ${c} ${opT} ${num(prod)} = **${num(ans)}**.`,
+    ],
+    hints: [`What does ${m(`${L1}${L2}`)} mean? Put the × sign back in.`, `Work out ${num(x)} × ${num(y)} before you ${sub ? "subtract" : "add"} — and count the decimal places.`],
+    verify: `${c}${op}${x}*${y}`,
+    commonError: `Putting the decimal point in the wrong place: ${num(x)} × ${num(y)} = ${num(prod)}, not ${num(big)}.`,
+    strategy: "Estimate first",
+    sig: `dp:${c}${op}${[x, y].sort(asc).join("*")}`,
+  };
+}
+
+/** 4(a + d) with decimals (class recap: a = 1.5, d = 0.5) */
+function decBracket(r: Rng): Item {
+  const [L1, L2] = r.pick(PAIRS);
+  const vals = [0.5, 1.5, 2.5, 0.2, 0.4, 1.2, 0.8, 0.3, 0.7, 1.6, 2.4, 3.5, 0.6, 1.4];
+  let a = 1.5, b = 0.5;
+  for (let k = 0; k < 60; k++) {
+    a = r.pick(vals);
+    b = r.pick(vals);
+    if (a !== b) break;
+  }
+  const sub = r.chance(0.35);
+  if (sub && a < b) [a, b] = [b, a];
+  const p = r.int(2, 6);
+  const inside = tidy(sub ? a - b : a + b);
+  const ans = tidy(p * inside);
+  const op = sub ? "-" : "+";
+  const opT = sub ? "−" : "+";
+  const e = `${p}(${L1} ${op} ${L2})`;
+  const slips: Cand[] = [
+    { v: tidy(sub ? p * a - b : p * a + b), feedback: `This comes from multiplying only the ${L1} by ${p} (${p} × ${num(a)} ${opT} ${num(b)}). The ${p} multiplies the whole bracket, so work out ${num(a)} ${opT} ${num(b)} = ${num(inside)} first.` },
+    { v: tidy(p + inside), feedback: `This comes from adding the ${p}. A number written next to a bracket means multiply: ${p} × ${num(inside)}.` },
+    { v: tidy(p * (sub ? a + b : a - b)), feedback: `This comes from ${sub ? "adding" : "subtracting"} inside the bracket. Read the sign again: it is ${num(a)} ${opT} ${num(b)} = ${num(inside)}.` },
+  ];
+  if (!sub) slips.push({ v: tidy(p * a * b), feedback: `This comes from multiplying everything (${p} × ${num(a)} × ${num(b)}). There's a + inside the bracket, so add first.` });
+  return {
+    difficulty: "core",
+    question: `If ${given([[L1, num(a)], [L2, num(b)]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${num(a)} ${opT} ${num(b)} = ${num(inside)}, and ${p} × ${num(inside)} = ${num(ans)}.`,
+    slips,
+    explanation: `Brackets first: ${num(a)} ${opT} ${num(b)} = ${num(inside)} (line up the decimal points). A number next to a bracket means multiply, so ${p} × ${num(inside)} = ${num(ans)}. Quick check by expanding: ${p} × ${num(a)} ${opT} ${p} × ${num(b)} = ${num(tidy(p * a))} ${opT} ${num(tidy(p * b))} = ${num(ans)} too.`,
+    solution: [
+      `Put the numbers in, keeping the bracket: ${m(`${e} = ${p}(${num(a)} ${op} ${num(b)})`)}.`,
+      `Bracket first: ${num(a)} ${opT} ${num(b)} = ${num(inside)}.`,
+      `Multiply: ${p} × ${num(inside)} = **${num(ans)}**.`,
+    ],
+    hints: [`Work out the bracket first — line up the decimal points.`, `A number next to a bracket means multiply the whole bracket.`],
+    verify: `${p}*(${a}${op}${b})`,
+    commonError: `Multiplying only the first number in the bracket by ${p}.`,
+    sig: `db:${p}(${sub ? `${a}-${b}` : [a, b].sort(asc).join("+")})`,
+  };
+}
+
+/** 2x² with x a decimal (class recap: d² with d = 0.5), sometimes negative */
+function decSquare(r: Rng): Item {
+  const L = r.pick(["x", "d", "y", "n", "t"]);
+  const x = r.pick([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.5, 1.2, -0.5, -0.3, -0.2, -0.4, -0.6]);
+  const k = r.pick([2, 3, 4, 5]);
+  const sq = tidy(x * x);
+  const ans = tidy(k * sq);
+  const e = `${k}${L}^2`;
+  const X = Math.abs(x);
+  const slips: Cand[] = [];
+  if (x < 0) slips.push({ v: -ans, feedback: `This comes from thinking ${m(`(${num(x).replace("−", "-")})^2`)} is negative. A negative times a negative is positive: (${num(x)}) × (${num(x)}) = ${num(sq)}.` });
+  slips.push({ v: tidy((k * x) ** 2), feedback: `This comes from squaring ${m(`${k}${L}`)} (${m(`(${k} * ${v(x)})^2`)} = ${m(`${v(tidy(k * x))}^2`)}). In ${m(e)} only the ${L} is squared.` });
+  slips.push({ v: tidy(k * 2 * x), feedback: `This comes from doubling instead of squaring (${k} × ${vb(x)} × 2). ${m(`${L}^2`)} means ${L} × ${L}.` });
+  slips.push({ v: tidy(k + sq), feedback: `This comes from adding the ${k} (${k} + ${num(sq)}). ${m(e)} means ${k} × ${m(`${L}^2`)}.` });
+  if (X < 1) slips.push({ v: tidy(k * sq * 10), feedback: `This comes from ${m(`${v(x)}^2`)} = ${num(tidy(sq * 10))} — the decimal point is in the wrong place. ${num(X)} × ${num(X)} has ${2 * dp(X)} decimal places, so it is ${num(sq)}.` });
+  return {
+    difficulty: x < 0 || X > 1 ? "challenge" : "core",
+    question: `If ${given([[L, num(x).replace("−", "-")]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`${v(x)}^2`)} = ${num(sq)}, then ${k} × ${num(sq)} = ${num(ans)}.`,
+    slips,
+    explanation: `Powers come before multiplying, and only the ${L} is squared. ${m(`${v(x)}^2`)} = ${vb(x)} × ${vb(x)}: work out ${String(Math.round(X * 10 ** dp(X)))} × ${String(Math.round(X * 10 ** dp(X)))} = ${Math.round(X * 10 ** dp(X)) ** 2}, then put back ${2 * dp(X)} decimal places to get ${num(sq)}${x < 0 ? " (negative × negative is positive)" : ""}. Then ${k} × ${num(sq)} = ${num(ans)}.`,
+    solution: [
+      `Put the value in with brackets: ${m(`${e} = ${k} * ${v(x)}^2`)}.`,
+      `Indices first: ${m(`${v(x)}^2`)} = ${vb(x)} × ${vb(x)} = ${num(sq)}.`,
+      `Then multiply: ${k} × ${num(sq)} = **${num(ans)}**.`,
+    ],
+    hints: [`Which part is squared — the ${k}, the ${L}, or both?`, `Work out ${num(X)} × ${num(X)} first: multiply without the decimal points, then count the decimal places.`],
+    verify: `${k}*${v(x)}^2`,
+    commonError: `Getting ${m(`${v(x)}^2`)} wrong — ${num(X)} × ${num(X)} = ${num(tidy(X * X))}, with ${2 * dp(X)} decimal places.`,
+    sig: `ds:${k}*${x}^2`,
+  };
+}
+
+/** 8x² with x = 1/2 (a simple fraction), answer a whole number */
+function decFraction(r: Rng): Item {
+  const L = r.pick(["x", "y", "n", "t", "a"]);
+  const [p, q] = r.pick([[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [2, 5], [1, 5], [3, 5]] as const);
+  const j = r.pick(q >= 4 ? [1, 2] : q === 2 ? [2, 3] : [1, 2, 3]);
+  const k = q * q * j;
+  const ans = j * p * p;
+  const e = `${k}${L}^2`;
+  const fx = `${p}/${q}`;
+  const sqT = `${p * p}/${q * q}`;
+  return {
+    difficulty: p > 1 ? "challenge" : "core",
+    question: `If ${given([[L, fx]])}, work out ${m(e)}.`,
+    answer: ans,
+    correct: `${m(`(${fx})^2 = ${sqT}`)}, and ${k} × ${m(sqT)} = ${ans}.`,
+    slips: [
+      { v: (k * p / q) ** 2, feedback: `This is ${m(`(${k}${L})^2`)} = ${m(`${(k * p) / q}^2`)}. Only ${L} is squared, so square ${m(fx)} first and then multiply by ${k}.` },
+      { v: (k * p * p) / q, feedback: `This comes from squaring only the top of the fraction (${m(`${p * p}/${q}`)}). Square the top AND the bottom: ${m(`(${fx})^2 = ${sqT}`)}.` },
+      { v: (k * p) / q, feedback: `This comes from not squaring at all (${k} × ${m(fx)}). ${m(`${L}^2`)} means ${m(fx)} × ${m(fx)}.` },
+      { v: (2 * k * p) / q, feedback: `This comes from doubling instead of squaring (${k} × ${m(fx)} × 2). ${m(`${L}^2`)} means ${L} × ${L}.` },
+      {
+        v: k + (p * p) / (q * q),
+        display: frac(k * q * q + p * p, q * q),
+        spec: fracTrap(k * q * q + p * p, q * q),
+        feedback: `This comes from adding the ${k} (${k} + ${m(sqT)}). ${m(e)} means ${k} × ${m(`${L}^2`)} — a number next to a letter means multiply.`,
+      },
+    ],
+    explanation: `Powers before multiplication, so square ${L} first: ${m(`(${fx})^2`)} = ${m(fx)} × ${m(fx)} = ${m(sqT)} (square the top and the bottom). Then ${k} × ${m(sqT)} = ${k} ÷ ${q * q} × ${p * p} = ${ans}. Notice that squaring ${m(fx)} made it smaller — that happens to every number between 0 and 1.`,
+    solution: [
+      `Put the value in with brackets: ${m(`${e} = ${k} * (${fx})^2`)}.`,
+      `Square the top and the bottom: ${m(`(${fx})^2 = ${sqT}`)}.`,
+      `Multiply: ${k} × ${m(sqT)} = ${m(`${k * p * p}/${q * q}`)} = **${ans}**.`,
+    ],
+    hints: [`What is ${m(fx)} × ${m(fx)}? Multiply the tops and multiply the bottoms.`, `Multiplying by ${m(sqT)} is the same as dividing by ${q * q} and multiplying by ${p * p}.`],
+    verify: `${k}*(${fx})^2`,
+    commonError: `Squaring only the top of the fraction, or squaring ${k}${L} instead of just ${L}.`,
+    sig: `df:${k}*${fx}^2`,
+  };
+}
+
+const suDecimals: Generator = {
+  id: "su-decimals",
+  topic: "su",
+  section: "su-negatives",
+  label: "Substitute decimals and simple fractions",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    return build(
+      pickTemplate(r, [
+        [3, decProduct],
+        [2, decBracket],
+        [3, decSquare],
+        [2, decFraction],
+      ]),
+    );
+  },
+};
+
+export const GEN_SU: Generator[] = [suBasics, suNegatives, suFormula, suDecimals];

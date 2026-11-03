@@ -131,6 +131,19 @@ export interface GeneratedQuestion {
   sig: string;
 }
 
+/**
+ * The written card shows the question and then the prompt, so a prompt that repeats the
+ * question ("Work out 4/7 + 1/2. Give your answer…") is trimmed to just the instruction.
+ */
+export function writtenPrompt(d: Pick<Draft, "question" | "prompt">): string | undefined {
+  const p = d.prompt?.trim();
+  if (!p) return undefined;
+  const q = d.question.trim();
+  if (p === q) return undefined;
+  if (p.startsWith(q)) return p.slice(q.length).trim() || undefined;
+  return p;
+}
+
 const cache = new Map<string, GeneratedQuestion | null>();
 
 export function materialise(id: string): GeneratedQuestion | null {
@@ -166,7 +179,7 @@ export function materialise(id: string): GeneratedQuestion | null {
         ...base,
         parts: [
           {
-            prompt: d.prompt,
+            prompt: writtenPrompt(d),
             marks: d.marks ?? 2,
             answer: d.answer,
             verify: d.verify,

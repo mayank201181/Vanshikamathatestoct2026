@@ -1,7 +1,7 @@
 // Fresh-number generators — Fractions (Unit 1).
 // fr-add is the reference example for every other generator: read it first.
 
-import { cap, fr, fracSpec, frRaw, gcd, lcm, m, numSpec, pieceName, pieces, reduce, type Generator, type Rng, type Wrong } from "./core.ts";
+import { cap, exprSpec, fr, fracSpec, frRaw, gcd, lcm, m, numSpec, pieceName, pieces, reduce, type Draft, type Generator, type Rng, type Wrong } from "./core.ts";
 
 export { pieces } from "./core.ts";
 
@@ -111,6 +111,15 @@ const frAdd: Generator = {
   label: "Add or subtract fractions with different denominators",
   kinds: ["mcq", "qa"],
   make(r) {
+    // re-pick the rare sums where fewer than three different slips are possible (e.g. 1/2 − 1/4)
+    for (let tries = 0; ; tries++) {
+      const d = makeAdd(r);
+      if (d.wrong.length >= 3 || tries >= 30) return d;
+    }
+  },
+};
+
+function makeAdd(r: Rng): Draft {
     // denominators: different, common denominator at most 40
     let b = 2, e = 2;
     while (b === e || lcm(b, e) > 40) {
@@ -130,46 +139,34 @@ const frAdd: Generator = {
     const op = sub ? "-" : "+";
     const opWord = sub ? "subtract" : "add";
     const q = m(`${n1}/${d1} ${op} ${n2}/${d2}`);
+    // a fraction already in the common denominator is shown once, not as "3/8 = 3/8"
+    const cv1 = d1 === L ? m(`${n1}/${d1}`) : m(`${n1}/${d1} = ${A}/${L}`);
+    const cv2 = d2 === L ? m(`${n2}/${d2}`) : m(`${n2}/${d2} = ${C}/${L}`);
 
-    const wrong: Wrong[] = [];
+    // every slip is kept only if its value differs from the answer and from the slips before it
+    const W = wrongSet(rn / rd);
+    const slip = (n: number, d: number, feedback: string) =>
+      n > 0 && W.add(n / d, { display: frRaw(n, d), spec: fracSpec(n, d, { simplest: false }), feedback });
     // 1. add/subtract tops and bottoms
     if (!sub) {
-      wrong.push({
-        display: frRaw(n1 + n2, d1 + d2),
-        spec: fracSpec(n1 + n2, d1 + d2, { simplest: false }),
-        feedback: `This comes from adding the tops (${n1} + ${n2}) and adding the bottoms (${d1} + ${d2}). You can only add the numerators once the pieces are the same size — change both fractions to ${pieces(L)} first.`,
-      });
-    } else if (n1 - n2 > 0 && d1 - d2 > 0) {
-      wrong.push({
-        display: frRaw(n1 - n2, d1 - d2),
-        spec: fracSpec(n1 - n2, d1 - d2, { simplest: false }),
-        feedback: `This comes from subtracting the tops (${n1} − ${n2}) and subtracting the bottoms (${d1} − ${d2}). The denominators must be the same before you subtract the numerators — change both to ${pieces(L)} first.`,
-      });
+      slip(n1 + n2, d1 + d2, `This comes from adding the tops (${n1} + ${n2}) and adding the bottoms (${d1} + ${d2}). You can only add the numerators once the pieces are the same size — change both fractions to ${pieces(L)} first.`);
+    } else if (n1 !== n2 && d1 !== d2) {
+      const [ta, tb] = n1 > n2 ? [n1, n2] : [n2, n1];
+      const [ba, bb] = d1 > d2 ? [d1, d2] : [d2, d1];
+      slip(ta - tb, ba - bb, `This comes from subtracting the tops (${ta} − ${tb}) and subtracting the bottoms (${ba} − ${bb}). The denominators must be the same before you subtract the numerators — change both to ${pieces(L)} first.`);
     }
     // 2. changed the denominators but not the numerators
-    const naive = sub ? n1 - n2 : n1 + n2;
-    if (naive > 0) {
-      wrong.push({
-        display: frRaw(naive, L),
-        spec: fracSpec(naive, L, { simplest: false }),
-        feedback: `You changed both denominators to ${L} but left the numerators as ${n1} and ${n2}. Scale each numerator by the same number as its denominator: ${m(`${n1}/${d1} = ${A}/${L}`)} and ${m(`${n2}/${d2} = ${C}/${L}`)}.`,
-      });
-    }
-    // 3. added the common denominators too
-    wrong.push({
-      display: frRaw(resN, 2 * L),
-      spec: fracSpec(resN, 2 * L, { simplest: false }),
-      feedback: `The ${A} and ${C} are right, but you ${sub ? "combined" : "added"} the denominators too (${L} + ${L}). Once the pieces are ${pieces(L)}, the answer is still in ${pieces(L)} — only the numerators change.`,
-    });
-    // 4. did the opposite operation
-    const other = sub ? A + C : A - C;
-    if (other > 0) {
-      wrong.push({
-        display: frRaw(other, L),
-        spec: fracSpec(other, L, { simplest: false }),
-        feedback: `That's what you get if you ${sub ? "add" : "subtract"}. Read the sign again: the question asks you to ${opWord}.`,
-      });
-    }
+    slip(sub ? n1 - n2 : n1 + n2, L, `You changed both denominators to ${L} but left the numerators as ${n1} and ${n2}. Scale each numerator by the same number as its denominator: ${cv1} and ${cv2}.`);
+    // 3. scaled one fraction but not the other
+    if (d2 !== L) slip(sub ? A - n2 : A + n2, L, `You changed ${m(`${n2}/${d2}`)} into ${pieces(L)} without scaling its top: ${cv2}, not ${m(`${n2}/${L}`)}.`);
+    else slip(sub ? n1 - C : n1 + C, L, `You changed ${m(`${n1}/${d1}`)} into ${pieces(L)} without scaling its top: ${cv1}, not ${m(`${n1}/${L}`)}.`);
+    // 4. added the common denominators too
+    slip(resN, 2 * L, `The ${A} and ${C} are right, but you ${sub ? "combined" : "added"} the denominators too (${L} + ${L}). Once the pieces are ${pieces(L)}, the answer is still in ${pieces(L)} — only the numerators change.`);
+    // 5. did the opposite operation
+    slip(sub ? A + C : A - C, L, `That's what you get if you ${sub ? "add" : "subtract"}. Read the sign again: the question asks you to ${opWord}.`);
+    // 6. mixed up the rules: combined the tops but multiplied the bottoms
+    slip(sub ? n1 - n2 : n1 + n2, d1 * d2, `You ${sub ? "subtracted" : "added"} the tops but multiplied the bottoms (${d1} × ${d2}). Multiplying the bottoms is fine only if you scale the tops too: ${m(`${n1}/${d1} = ${n1 * d2}/${d1 * d2}`)} and ${m(`${n2}/${d2} = ${n2 * d1}/${d1 * d2}`)}.`);
+    const wrong = W.list;
 
     const simplifyStep =
       rd !== L ? ` ${m(`${resN}/${L}`)} simplifies to ${fr(resN, L, false)} (divide top and bottom by ${L / rd}).` : "";
@@ -178,15 +175,15 @@ const frAdd: Generator = {
     return {
       difficulty: L > 24 ? "core" : r.chance(0.5) ? "warmup" : "core",
       question: `Work out ${q}.`,
-      prompt: `Work out ${q}. Give your answer in its simplest form.`,
+      prompt: "Give your answer in its simplest form.",
       answer: fracSpec(rn, rd),
       display: fr(rn, rd),
-      correctFeedback: `${m(`${n1}/${d1} = ${A}/${L}`)} and ${m(`${n2}/${d2} = ${C}/${L}`)}, so the answer is ${m(`${resN}/${L}`)}${rd !== L || rn > rd ? ` = ${fr(rn, rd)}` : ""}.`,
+      correctFeedback: `${cv1} and ${cv2}, so the answer is ${m(`${resN}/${L}`)}${rd !== L || rn > rd ? ` = ${fr(rn, rd)}` : ""}.`,
       wrong,
-      explanation: `${cap(pieces(d1))} and ${pieces(d2)} are different-sized pieces, so make them the same first. The lowest common multiple of ${d1} and ${d2} is ${L}: ${m(`${n1}/${d1} = ${A}/${L}`)} and ${m(`${n2}/${d2} = ${C}/${L}`)}. Now ${opWord} the numerators only: ${m(`${A}/${L} ${op} ${C}/${L} = ${resN}/${L}`)}.${simplifyStep}${mixedStep}`,
+      explanation: `${cap(pieces(d1))} and ${pieces(d2)} are different-sized pieces, so make them the same first. The lowest common multiple of ${d1} and ${d2} is ${L}: ${cv1} and ${cv2}. Now ${opWord} the numerators only: ${m(`${A}/${L} ${op} ${C}/${L} = ${resN}/${L}`)}.${simplifyStep}${mixedStep}`,
       solution: [
         `The denominators are different, so find a common denominator. The LCM of ${d1} and ${d2} is ${L}.`,
-        `${m(`${n1}/${d1} = ${A}/${L}`)} (× ${L / d1} top and bottom) and ${m(`${n2}/${d2} = ${C}/${L}`)} (× ${L / d2} top and bottom).`,
+        `${[d1 !== L ? `${cv1} (× ${L / d1} top and bottom)` : "", d2 !== L ? `${cv2} (× ${L / d2} top and bottom)` : ""].filter(Boolean).join(" and ")}.`,
         `${m(`${A}/${L} ${op} ${C}/${L} = ${resN}/${L}`)}.${simplifyStep}${mixedStep}`,
       ],
       hints: [
@@ -201,8 +198,7 @@ const frAdd: Generator = {
       // the same sum in either order is the same question
       sig: sub ? `${n1}/${d1}-${n2}/${d2}` : [`${n1}/${d1}`, `${n2}/${d2}`].sort().join("+"),
     };
-  },
-};
+}
 
 // ---------------------------------------------------------------------------
 // fr-of — a fraction of an amount (or what is left), whole-number answers
@@ -330,7 +326,6 @@ const frOf: Generator = {
     return {
       difficulty: rest ? "core" : A <= 120 ? "warmup" : "core",
       question,
-      prompt: question,
       answer: numSpec(ans, show(ans)),
       display: show(ans),
       correctFeedback: rest
@@ -455,7 +450,7 @@ const frMul: Generator = {
     return {
       difficulty: kind === "pp" ? (D1 * D2 <= 30 ? "warmup" : "core") : kind === "mm" && (N1 > 10 || N2 > 10) ? "challenge" : "core",
       question,
-      prompt: `${question} ${tail}`,
+      prompt: tail,
       answer: fracAnswer(rn, rd),
       display: fr(rn, rd),
       correctFeedback: `${isMixed(x) || isMixed(y) ? `${m(`${plain(x)} * ${plain(y)} = ${imp(x)} * ${imp(y)}`)}, and ` : ""}${m(`${imp(x)} * ${imp(y)} = ${N1 * N2}/${D1 * D2}`)}${reduce(N1 * N2, D1 * D2)[1] !== D1 * D2 || R > 1 ? ` = ${fr(rn, rd)}` : ""}.`,
@@ -588,7 +583,7 @@ const frDiv: Generator = {
     return {
       difficulty: kind === "mm" ? "challenge" : kind === "pp" && D1 * D2 <= 24 ? "warmup" : "core",
       question,
-      prompt: c ? question : `${question} ${tail}`,
+      prompt: c ? undefined : tail,
       answer: c ? numSpec(rn) : fracAnswer(rn, rd),
       display: ansDisplay,
       correctFeedback: `${[x, y].filter(isMixed).map((z) => m(`${plain(z)} = ${imp(z)}`)).join(" and ")}${convert ? ". " : ""}Keep, change, flip: ${m(`${imp(x)} * ${flip}`)} = ${fr(rn, rd)}.`,
@@ -678,6 +673,9 @@ const frMixedAddSub: Generator = {
     const convText = conv ? `Write the fractions in ${pieces(L)} (the LCM of ${x.d} and ${y.d} is ${L}): ${conv}. ` : "";
     const scaled = [x, y].filter((z) => z.d !== L).map((z) => m(`${z.n}/${z.d} = ${(z.n * L) / z.d}/${L}`)).join(" and ");
     const raw = (w: number, n: number, d: number) => ({ display: frRaw(w * d + n, d), spec: fracSpec(w * d + n, d, { simplest: false }) });
+    const tEq = rd !== L || rn > rd ? ` = ${fr(rn, rd)}` : "";
+    /** A slip in the whole numbers only: the fraction part is shown simplified, as in the answer. */
+    const tidy = (w: number, n: number, d: number) => ({ display: fr(w * d + n, d), spec: fracSpec(w * d + n, d, { simplest: false }) });
     const finish = (n: number, d: number) => (reduce(n, d)[1] !== d ? ` = ${fr(rn, rd)}` : "");
 
     const W = wrongSet(T / L);
@@ -688,31 +686,31 @@ const frMixedAddSub: Generator = {
     if (!sub) {
       const S = x.w + y.w;
       const F = A + C;
-      if (F > L) W.add(S + (F - L) / L, { ...raw(S, F - L, L), feedback: `${m(`${A}/${L} + ${C}/${L} = ${F}/${L}`)} is more than a whole: it's ${m(`1 ${F - L}/${L}`)}. You dropped that extra whole, so your total is 1 too small.` });
+      if (F > L) W.add(S + (F - L) / L, { ...tidy(S, F - L, L), feedback: `${m(`${A}/${L} + ${C}/${L} = ${F}/${L}`)} is more than a whole: it's ${m(`1 ${F - L}/${L}`)}. You dropped that extra whole, so your total is 1 too small.` });
       W.add(S + (x.n + y.n) / (x.d + y.d), { ...raw(S, x.n + y.n, x.d + y.d), feedback: `This adds the tops (${x.n} + ${y.n}) and the bottoms (${x.d} + ${y.d}) of the fractions. Use a common denominator first: ${scaled}.` });
       W.add(S + (x.n + y.n) / L, { ...raw(S, x.n + y.n, L), feedback: `You changed the denominators to ${L} but kept the tops as ${x.n} and ${y.n}. Scale the top as well as the bottom: ${scaled}.` });
       W.add(S + F / (2 * L), { ...raw(S, F, 2 * L), feedback: `The ${A} and ${C} are right, but you added the denominators too (${L} + ${L}). The pieces are still ${pieces(L)}, so the denominator stays ${L}.` });
       W.add(S, { display: `{{${S}}}`, spec: numSpec(S), feedback: `${S} is just the whole numbers added. You still need to add the fractions: ${m(`${A}/${L} + ${C}/${L} = ${F}/${L}`)}.` });
       const fracPart = F > L ? `${m(`${A}/${L} + ${C}/${L} = ${F}/${L} = 1 ${F - L}/${L}`)}. That's another whole, so the total is ${S} + ${m(`1 ${F - L}/${L}`)} = ${m(mixedText(S + 1, F - L, L))}${finish(F - L, L)}.` : `${m(`${A}/${L} + ${C}/${L} = ${F}/${L}`)}, so the total is ${m(mixedText(S, F, L))}${finish(F, L)}.`;
-      explanation = `Add the whole numbers and the fractions separately. Wholes: ${x.w} + ${y.w} = ${S}. ${convText}Fractions: ${fracPart} Check with improper fractions: ${m(`${imp(x)} + ${imp(y)} = ${topOf(x) * (L / x.d)}/${L} + ${topOf(y) * (L / y.d)}/${L} = ${T}/${L}`)} = ${fr(rn, rd)} ✓`;
-      solution = [`Wholes: ${x.w} + ${y.w} = ${S}.`, `${convText}Fractions: ${fracPart}`, `Check: ${m(`${imp(x)} + ${imp(y)} = ${T}/${L}`)} = ${fr(rn, rd)} ✓`];
+      explanation = `Add the whole numbers and the fractions separately. Wholes: ${x.w} + ${y.w} = ${S}. ${convText}Fractions: ${fracPart} Check with improper fractions: ${m(`${imp(x)} + ${imp(y)} = ${topOf(x) * (L / x.d)}/${L} + ${topOf(y) * (L / y.d)}/${L} = ${T}/${L}`)}${tEq} ✓`;
+      solution = [`Wholes: ${x.w} + ${y.w} = ${S}.`, `${convText}Fractions: ${fracPart}`, `Check: ${m(`${imp(x)} + ${imp(y)} = ${T}/${L}`)}${tEq} ✓`];
       hints = ["Add the whole numbers first, then the fractions.", `Write both fractions as ${pieces(L)}. Is their total more than 1?`];
       commonError = F > L ? "Forgetting the extra whole when the fractions add up to more than 1." : "Adding the tops and the bottoms of the fractions instead of using a common denominator.";
     } else if (A < C) {
       const D = x.w - y.w;
       W.add(D + (C - A) / L, { ...raw(D, C - A, L), feedback: `You did ${x.w} − ${y.w} = ${D} and then ${m(`${C}/${L} - ${A}/${L}`)}, the wrong way round, because ${m(`${x.n}/${x.d}`)} is smaller than ${m(`${y.n}/${y.d}`)}. You can't swap a subtraction round — exchange a whole instead.` });
-      W.add(D + (L + A - C) / L, { ...raw(D, L + A - C, L), feedback: `You exchanged a whole to turn ${m(`${A}/${L}`)} into ${m(`${L + A}/${L}`)}, but didn't take that whole off the ${x.w}. It becomes ${x.w - 1}, so the whole numbers give ${x.w - 1} − ${y.w} = ${D - 1}.` });
+      W.add(D + (L + A - C) / L, { ...tidy(D, L + A - C, L), feedback: `You exchanged a whole to turn ${m(`${A}/${L}`)} into ${m(`${L + A}/${L}`)}, but didn't take that whole off the ${x.w}. It becomes ${x.w - 1}, so the whole numbers give ${x.w - 1} − ${y.w} = ${D - 1}.` });
       W.add(D - 1 + (C - A) / L, { ...raw(D - 1, C - A, L), feedback: `Wholes first gives ${x.w} − ${y.w} = ${D}, and then you must take away ${m(`${C - A}/${L}`)} more (the gap between the fractions). ${D} − ${m(`${C - A}/${L}`)} is ${m(mixedText(D - 1, L - C + A, L))}, not ${m(mixedText(D - 1, C - A, L))} — a whole is ${m(`${L}/${L}`)}, and ${L} − ${C - A} = ${L - C + A}.` });
       if (x.n > y.n && x.d > y.d) W.add(D + (x.n - y.n) / (x.d - y.d), { ...raw(D, x.n - y.n, x.d - y.d), feedback: `This subtracts the tops (${x.n} − ${y.n}) and the bottoms (${x.d} − ${y.d}). Use a common denominator, ${L}, first.` });
-      W.add(x.w + y.w + (L + A - C) / L - 1, { ...raw(x.w + y.w - 1, L + A - C, L), feedback: `You added the whole numbers (${x.w} + ${y.w}). Both parts of ${m(plain(y))} have to be taken away.` });
+      W.add(x.w + y.w + (L + A - C) / L - 1, { ...tidy(x.w + y.w - 1, L + A - C, L), feedback: `You added the whole numbers (${x.w} + ${y.w}). Both parts of ${m(plain(y))} have to be taken away.` });
       W.add(D, { display: `{{${D}}}`, spec: numSpec(D), feedback: `${D} is just ${x.w} − ${y.w}. You still have to deal with the fractions: exchange a whole so that you can take ${m(`${C}/${L}`)} away.` });
       const ex = m(`${x.w} ${A}/${L} = ${x.w - 1} ${L + A}/${L}`);
-      explanation = `${convText}You can't take ${m(`${C}/${L}`)} away from ${m(`${A}/${L}`)}, so exchange 1 whole for ${m(`${L}/${L}`)}: ${ex}. Now subtract the wholes and the fractions: ${x.w - 1} − ${y.w} = ${D - 1} and ${m(`${L + A}/${L} - ${C}/${L} = ${L + A - C}/${L}`)}, so the answer is ${m(mixedText(D - 1, L + A - C, L))}${finish(L + A - C, L)}. Check with improper fractions: ${m(`${imp(x)} - ${imp(y)} = ${topOf(x) * (L / x.d)}/${L} - ${topOf(y) * (L / y.d)}/${L} = ${T}/${L}`)} = ${fr(rn, rd)} ✓`;
+      explanation = `${convText}You can't take ${m(`${C}/${L}`)} away from ${m(`${A}/${L}`)}, so exchange 1 whole for ${m(`${L}/${L}`)}: ${ex}. Now subtract the wholes and the fractions: ${x.w - 1} − ${y.w} = ${D - 1} and ${m(`${L + A}/${L} - ${C}/${L} = ${L + A - C}/${L}`)}, so the answer is ${m(mixedText(D - 1, L + A - C, L))}${finish(L + A - C, L)}. Check with improper fractions: ${m(`${imp(x)} - ${imp(y)} = ${topOf(x) * (L / x.d)}/${L} - ${topOf(y) * (L / y.d)}/${L} = ${T}/${L}`)}${tEq} ✓`;
       solution = [
         `${convText}`.trim() || `Both fractions are already in ${pieces(L)}.`,
         `${m(`${A}/${L}`)} is smaller than ${m(`${C}/${L}`)}, so exchange a whole: ${ex}.`,
         `${m(`${x.w - 1} ${L + A}/${L} - ${y.w} ${C}/${L} = ${mixedText(D - 1, L + A - C, L)}`)}${finish(L + A - C, L)}.`,
-        `Check: ${m(`${imp(x)} - ${imp(y)} = ${T}/${L}`)} = ${fr(rn, rd)} ✓`,
+        `Check: ${m(`${imp(x)} - ${imp(y)} = ${T}/${L}`)}${tEq} ✓`,
       ];
       hints = [`Write both fractions as ${pieces(L)}. Can you take ${m(`${C}/${L}`)} away from ${m(`${A}/${L}`)}?`, `If not, exchange 1 whole from the ${x.w} for ${m(`${L}/${L}`)}.`];
       commonError = "Taking the smaller fraction away from the bigger one (the wrong way round) instead of exchanging a whole.";
@@ -720,8 +718,8 @@ const frMixedAddSub: Generator = {
       const D = x.w - y.w;
       if (x.n > y.n && x.d > y.d) W.add(D + (x.n - y.n) / (x.d - y.d), { ...raw(D, x.n - y.n, x.d - y.d), feedback: `This subtracts the tops (${x.n} − ${y.n}) and the bottoms (${x.d} − ${y.d}). Use a common denominator, ${L}, first.` });
       if (x.n > y.n) W.add(D + (x.n - y.n) / L, { ...raw(D, x.n - y.n, L), feedback: `You changed the denominators to ${L} but kept the tops as ${x.n} and ${y.n}. Scale the top as well as the bottom: ${scaled}.` });
-      W.add(x.w + y.w + (A - C) / L, { ...raw(x.w + y.w, A - C, L), feedback: `You added the whole numbers (${x.w} + ${y.w}) instead of subtracting them.` });
-      W.add(x.w + (A - C) / L, { ...raw(x.w, A - C, L), feedback: `You subtracted the fractions but forgot to take away the ${y.w} whole${y.w > 1 ? "s" : ""}.` });
+      W.add(x.w + y.w + (A - C) / L, { ...tidy(x.w + y.w, A - C, L), feedback: `You added the whole numbers (${x.w} + ${y.w}) instead of subtracting them.` });
+      W.add(x.w + (A - C) / L, { ...tidy(x.w, A - C, L), feedback: `You subtracted the fractions but forgot to take away the ${y.w} whole${y.w > 1 ? "s" : ""}.` });
       W.add(D + (A + C) / L, { ...raw(D, A + C, L), feedback: `You added the fractions instead of subtracting them: it should be ${m(`${A}/${L} - ${C}/${L}`)}.` });
       W.add(D + (A - C) / (2 * L), { ...raw(D, A - C, 2 * L), feedback: `The ${A} and ${C} are right, but the denominator should stay ${L} — the pieces are still ${pieces(L)}.` });
       explanation = `Subtract the whole numbers and the fractions separately. Wholes: ${x.w} − ${y.w} = ${D}. ${convText}Fractions: ${m(`${A}/${L} - ${C}/${L} = ${A - C}/${L}`)}, so the answer is ${m(mixedText(D, A - C, L))}${finish(A - C, L)}. Check by adding back: ${fr(rn, rd)} + ${m(plain(y))} = ${m(plain(x))} ✓`;
@@ -733,7 +731,7 @@ const frMixedAddSub: Generator = {
     return {
       difficulty: !sub ? (A + C > L ? "core" : "warmup") : A < C ? (L > 12 ? "challenge" : "core") : "core",
       question,
-      prompt: `${question} ${formTail(rn, rd)}`,
+      prompt: formTail(rn, rd),
       answer: fracAnswer(rn, rd),
       display: fr(rn, rd),
       correctFeedback: `${m(`${imp(x)} ${op} ${imp(y)} = ${topOf(x) * (L / x.d)}/${L} ${op} ${topOf(y) * (L / y.d)}/${L} = ${T}/${L}`)}${rd !== L || rn > rd ? ` = ${fr(rn, rd)}` : ""}.`,
@@ -829,7 +827,7 @@ const frLeft: Generator = {
     return {
       difficulty: p1 > 1 && q1 > 1 ? "challenge" : "core",
       question,
-      prompt: amount ? question : `${question} Give your answer in its simplest form.`,
+      prompt: amount ? undefined : "Give your answer in its simplest form.",
       answer: amount ? numSpec(left, show(left)) : fracSpec(an, ad),
       display: amount ? show(left) : fr(an, ad),
       correctFeedback: amount
@@ -851,4 +849,544 @@ const frLeft: Generator = {
   },
 };
 
-export const GEN_FR: Generator[] = [frAdd, frOf, frMul, frDiv, frMixedAddSub, frLeft];
+// ---------------------------------------------------------------------------
+// fr-improper — mixed number → improper fraction
+// ---------------------------------------------------------------------------
+
+const frImproper: Generator = {
+  id: "fr-improper",
+  topic: "fr",
+  section: "fr-equivalent",
+  label: "Write a mixed number as an improper fraction",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const ctx = r.chance(0.3);
+    const d = ctx ? r.pick([4, 6, 8, 10, 12]) : r.pick([2, 3, 4, 5, 6, 7, 8, 9, 10, 12]);
+    const n = properFraction(r, d);
+    const w = r.int(2, d <= 6 ? 9 : 7);
+    const N = w * d + n;
+    const mix = m(`${w} ${n}/${d}`);
+    const p = r.pick(PEOPLE);
+    const [thing, things, unit] = r.pick([["pizza", "pizzas", "slices"], ["bar of chocolate", "bars of chocolate", "squares"]]);
+    const question = !ctx
+      ? `Write ${mix} as an improper fraction.`
+      : unit === "slices"
+        ? `After a party there are ${mix} pizzas left. Each pizza was cut into ${d} equal slices. How many slices are left?`
+        : `${p.name} has ${mix} ${things}. Each bar is made of ${d} equal squares. How many squares of chocolate does ${p.he} have?`;
+    const nWord = n === 1 ? pieceName(d) : pieces(d);
+    const W = wrongSet(ctx ? N : N / d);
+    const slip = (top: number, feedback: string) =>
+      ctx
+        ? W.add(top, { display: `${top} ${unit}`, spec: numSpec(top), feedback })
+        : W.add(top / d, { display: m(`${top}/${d}`), spec: fracSpec(top, d, { simplest: false }), feedback });
+    if (ctx) {
+      slip(w * d, `${w * d} ${unit} is right for the ${w} whole ${things}, but you forgot the extra ${n} ${n === 1 ? unit.replace(/s$/, "") : unit}.`);
+      slip(w * n, `${w * n} comes from ${w} × ${n}. Each whole ${thing} has ${d} ${unit}, so ${w} ${things} have ${w} × ${d} = ${w * d}, and then you add the ${n} extra.`);
+      slip(w * n + d, `${w * n + d} comes from ${w} × ${n} + ${d} — the numbers are mixed up. It should be ${w} × ${d} + ${n}: ${d} ${unit} in each of the ${w} whole ${things}, plus the ${n} extra.`);
+      slip(n + d, `${n + d} counts one whole ${thing} (${d}) and the extra ${n}. But there are ${w} whole ${things}, not 1.`);
+      slip(w + n, `${w + n} just adds ${w} and ${n}. Each whole ${thing} is ${d} ${unit}, so ${w} ${things} are ${w} × ${d} = ${w * d} ${unit}.`);
+    } else {
+      slip(w * n, n === 1 ? `This just puts the whole number, ${w}, on top. ${w} wholes are ${w} × ${d} = ${w * d} ${pieces(d)}, and then you add the ${n}.` : `The top, ${w * n}, comes from ${w} × ${n}: you multiplied the whole number by the numerator. Multiply it by the denominator instead: ${w} × ${d} = ${w * d} ${pieces(d)}, then add the ${n}.`);
+      slip(w * d, `${w} × ${d} = ${w * d} ${pieces(d)} is right for the ${w} wholes, but you forgot to add the extra ${n} ${nWord}.`);
+      slip(w * n + d, `The top, ${w * n + d}, comes from ${w} × ${n} + ${d} — the numbers are mixed up. It's whole number × denominator + numerator: ${w} × ${d} + ${n}.`);
+      slip(w + n, `The top, ${w + n}, comes from adding the whole number to the numerator (${w} + ${n}). Each whole is ${m(`${d}/${d}`)}, so ${w} wholes are ${w} × ${d} = ${w * d} ${pieces(d)}.`);
+      slip(n * d + w, `The top, ${n * d + w}, comes from ${n} × ${d} + ${w} — the numbers are mixed up. It's whole number × denominator + numerator: ${w} × ${d} + ${n}.`);
+    }
+    const explanation = ctx
+      ? `Each ${thing} has ${d} ${unit}, so ${w} whole ${things} have ${w} × ${d} = ${w * d} ${unit}. The extra ${m(`${n}/${d}`)} of a ${thing} is ${n} more: ${w * d} + ${n} = ${N} ${unit}. That's the same as writing ${mix} as the improper fraction ${m(`${N}/${d}`)}.`
+      : `Count the ${pieces(d)}. One whole is ${m(`${d}/${d}`)}, so ${w} wholes are ${w} × ${d} = ${w * d} ${pieces(d)}. Add the ${n} ${nWord} from the fraction part: ${w * d} + ${n} = ${N}, so ${m(`${w} ${n}/${d} = ${N}/${d}`)}. Memory trick: **multiply the whole number by the bottom, add the top, keep the bottom**. Check: ${N} ÷ ${d} = ${w} remainder ${n} ✓`;
+    return {
+      difficulty: ctx || N > 30 ? "core" : "warmup",
+      question,
+      answer: ctx ? numSpec(N, `${N} ${unit}`) : fracSpec(N, d, { form: "improper" }),
+      display: ctx ? `${N} ${unit}` : m(`${N}/${d}`),
+      correctFeedback: `${w} × ${d} = ${w * d}, and ${w * d} + ${n} = ${N}${ctx ? ` ${unit}` : `, so ${m(`${w} ${n}/${d} = ${N}/${d}`)}`}.`,
+      wrong: W.list,
+      explanation,
+      solution: [
+        `One whole is ${d} ${ctx ? unit : pieces(d)}, so ${w} wholes are ${w} × ${d} = ${w * d}.`,
+        `Add the extra ${n}: ${w * d} + ${n} = ${N}${ctx ? ` ${unit}` : `, so ${m(`${w} ${n}/${d} = ${N}/${d}`)}`}.`,
+        `Check: ${N} ÷ ${d} = ${w} remainder ${n} ✓`,
+      ],
+      hints: [`How many ${ctx ? unit : pieces(d)} are there in one whole? So how many in ${w} wholes?`, `Then add on the ${n} extra ${ctx ? (n === 1 ? unit.replace(/s$/, "") : unit) : nWord}.`],
+      verify: ctx ? `(${w}+${n}/${d})*${d}` : `${w}+${n}/${d}`,
+      commonError: "Multiplying the whole number by the numerator instead of the denominator, or forgetting to add the numerator.",
+      marks: ctx ? 2 : 1,
+      sig: `${w} ${n}/${d}`,
+    };
+  },
+};
+
+// ---------------------------------------------------------------------------
+// fr-mixed — improper fraction → mixed number (sometimes the fraction part simplifies)
+// ---------------------------------------------------------------------------
+
+const frMixed: Generator = {
+  id: "fr-mixed",
+  topic: "fr",
+  section: "fr-equivalent",
+  label: "Write an improper fraction as a mixed number",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const simp = r.chance(0.3);
+    let N = 23, D = 4;
+    if (simp) {
+      for (;;) {
+        const d0 = r.pick([2, 3, 4, 5, 6]);
+        const g = r.pick([2, 3, 4, 5]);
+        if (d0 * g > 12) continue;
+        const r0 = properFraction(r, d0);
+        const q0 = r.int(2, 9);
+        N = (q0 * d0 + r0) * g;
+        D = d0 * g;
+        break;
+      }
+    } else {
+      D = r.pick([2, 3, 4, 5, 6, 7, 8, 9, 10, 12]);
+      N = r.int(2, D <= 6 ? 9 : 7) * D + properFraction(r, D);
+    }
+    const q = Math.floor(N / D);
+    const rem = N % D;
+    const g = gcd(rem, D);
+    const [fn, fd] = [rem / g, D / g];
+    const f = m(`${N}/${D}`);
+    const question = `Write ${f} as a mixed number${simp ? " in its simplest form" : ""}.`;
+    /** A mixed-number slip; in the "simplest form" version a careful pupil would simplify its fraction part too. */
+    const show = (w: number, n: number, d: number) => (simp ? fr(w * d + n, d) : frRaw(w * d + n, d));
+    const W = wrongSet(N / D);
+    const slip = (w: number, n: number, d: number, feedback: string) =>
+      W.add(w + n / d, { display: show(w, n, d), spec: fracSpec(w * d + n, d, { simplest: false }), feedback });
+    if (simp && q % g === 0) slip(q / g, fn, fd, `You divided the whole number ${q} by ${g} as well. Only the fraction part gets simplified: ${m(`${rem}/${D} = ${fn}/${fd}`)}, and the ${q} wholes stay as ${q}.`);
+    slip(q, rem, N, `The remainder ${rem} has gone over ${N}. The pieces are still ${pieces(D)}, so the remainder sits over ${D}.`);
+    slip(q * D, rem, D, `${q * D} is the number of ${pieces(D)} in ${q} wholes (${q} × ${D}), not the number of wholes. ${N} ÷ ${D} = ${q} remainder ${rem}, so there are ${q} wholes.`);
+    if (rem < q && q !== D) slip(D, rem, q, `The ${q} and the ${D} have swapped places. ${q} is the number of wholes, and the pieces are ${pieces(D)}, so the denominator stays ${D}.`);
+    if (q < D && rem !== q) slip(rem, q, D, `You've swapped the whole number and the remainder. ${N} ÷ ${D} = ${q} remainder ${rem}, so it's ${q} wholes and ${rem} ${rem === 1 ? pieceName(D) : pieces(D)} left over.`);
+    if (rem <= 9) W.add(q + rem / 10, { display: `${q}.${rem}`, spec: numSpec(q + rem / 10), feedback: `${q}.${rem} comes from writing the remainder ${rem} after a decimal point. A remainder of ${rem} means ${rem} ${rem === 1 ? pieceName(D) : pieces(D)} left over, not ${rem} tenths.` });
+    slip(q + 1, D * (q + 1) - N, D, `${D} × ${q + 1} = ${D * (q + 1)} is more than ${N}, so ${D} only goes into ${N} ${q} times. The ${D * (q + 1) - N} is how far ${N} is below ${D * (q + 1)}, not the remainder.`);
+
+    const simpText = simp ? ` The fraction part simplifies: ${m(`${rem}/${D} = ${fn}/${fd}`)} (divide the top and bottom by ${g}), so the answer is ${fr(N, D)}. (You could also simplify first: ${m(`${N}/${D} = ${N / g}/${D / g}`)}.)` : "";
+    return {
+      difficulty: simp || N > 40 ? "core" : "warmup",
+      question,
+      answer: fracSpec(N, D, { form: "mixed" }),
+      display: fr(N, D),
+      correctFeedback: `${N} ÷ ${D} = ${q} remainder ${rem}: ${q} wholes and ${m(`${rem}/${D}`)}${simp ? ` = ${m(`${fn}/${fd}`)}` : ""} left over.`,
+      wrong: W.list,
+      explanation: `Ask how many wholes you can make: ${D} ${pieces(D)} make 1 whole, and ${N} ÷ ${D} = ${q} remainder ${rem}. So ${f} is ${q} wholes with ${rem} ${rem === 1 ? pieceName(D) : pieces(D)} left over: ${m(`${q} ${rem}/${D}`)}. The denominator doesn't change — the pieces are still ${pieces(D)}.${simpText} Check: ${q} × ${D} + ${rem} = ${N} ✓`,
+      solution: [
+        `${N} ÷ ${D} = ${q} remainder ${rem}.`,
+        `That's ${q} wholes and ${rem} ${rem === 1 ? pieceName(D) : pieces(D)}: ${m(`${N}/${D} = ${q} ${rem}/${D}`)}.`,
+        ...(simp ? [`Simplify the fraction part: ${m(`${rem}/${D} = ${fn}/${fd}`)}, so the answer is ${fr(N, D)}.`] : []),
+        `Check: ${q} × ${D} + ${rem} = ${N} ✓`,
+      ],
+      hints: [`How many times does ${D} go into ${N}, and how many are left over?`, simp ? "Then check whether the fraction part can be simplified." : `The number of times is the whole number. What are the leftover ${pieces(D)}?`],
+      verify: `${N}/${D}`,
+      commonError: simp ? "Leaving the fraction part unsimplified, or dividing the whole number as well when simplifying." : "Putting the remainder over the wrong number — the denominator stays the same.",
+      marks: simp ? 2 : 1,
+      sig: `${N}/${D}`,
+    };
+  },
+};
+
+// ---------------------------------------------------------------------------
+// fr-simplify — write a fraction in its simplest form
+// ---------------------------------------------------------------------------
+
+function primeFactors(n: number): number[] {
+  const out: number[] = [];
+  for (let p = 2; p * p <= n; p++) {
+    while (n % p === 0) {
+      out.push(p);
+      n /= p;
+    }
+  }
+  if (n > 1) out.push(n);
+  return out;
+}
+const divisorsOf = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter((d) => n % d === 0);
+
+const frSimplify: Generator = {
+  id: "fr-simplify",
+  topic: "fr",
+  section: "fr-equivalent",
+  label: "Write a fraction in its simplest form",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const prime = r.chance(0.2);
+    let a = 3, b = 4, k = 6;
+    for (;;) {
+      b = r.int(3, 15);
+      a = r.int(2, b - 1);
+      k = prime ? r.pick([7, 11, 13]) : r.pick([4, 6, 8, 9, 10, 12, 14, 15, 18, 20]);
+      if (gcd(a, b) === 1 && b * k <= 180) break;
+    }
+    const N = a * k, D = b * k;
+    const f = m(`${N}/${D}`);
+    const question = `Write ${f} in its simplest form.`;
+    const W = wrongSet(a / b);
+    // a believable slip divides by a number close to the HCF (a times-table neighbour), e.g. 56 ÷ 8 instead of 56 ÷ 7
+    const near = (xs: number[]) => xs.filter((v) => v !== 1 && v !== k && Math.abs(v - k) <= Math.max(3, Math.ceil(k / 2))).sort((u, v) => Math.abs(u - k) - Math.abs(v - k) || u - v);
+    const fb = near(divisorsOf(D).filter((v) => v !== D)).find((v) => gcd(a, D / v) === 1 && a < D / v && a * b !== D / v);
+    if (fb) W.add(a / (D / fb), { display: m(`${a}/${D / fb}`), spec: fracSpec(a, D / fb, { simplest: false }), feedback: `You divided the top by ${k} but the bottom by ${fb}. To keep the fraction the same size, divide the top **and** the bottom by the same number — the HCF of ${N} and ${D} is ${k}.` });
+    const ft = near(divisorsOf(N).filter((v) => v !== N)).find((v) => gcd(N / v, b) === 1 && N / v < b && N / v !== a);
+    if (ft) W.add(N / ft / b, { display: m(`${N / ft}/${b}`), spec: fracSpec(N / ft, b, { simplest: false }), feedback: `You divided the top by ${ft} but the bottom by ${k}. Divide the top **and** the bottom by the same number — the HCF of ${N} and ${D} is ${k}.` });
+    W.add(b / a, { display: m(`${b}/${a}`), spec: fracSpec(b, a, { simplest: false }), feedback: `This is upside down. ${N} is on the top, so the simplified top is ${N} ÷ ${k} = ${a}.` });
+    W.add(a / D, { display: m(`${a}/${D}`), spec: fracSpec(a, D, { simplest: false }), feedback: `You divided the top by ${k} but left the bottom as ${D}. Divide the top **and** the bottom by ${k}.` });
+    W.add(N / b, { display: m(`${N}/${b}`), spec: fracSpec(N, b, { simplest: false }), feedback: `You divided the bottom by ${k} but left the top as ${N}. Divide the top **and** the bottom by ${k}.` });
+    W.add((N - k) / (D - k), { display: m(`${N - k}/${D - k}`), spec: fracSpec(N - k, D - k, { simplest: false }), feedback: `You took ${k} away from the top and the bottom. Simplifying means **dividing** the top and the bottom by the same number, not subtracting.` });
+
+    const ps = primeFactors(k);
+    let cn = N, cd = D;
+    const steps = ps.map((p) => {
+      cn /= p;
+      cd /= p;
+      return `÷ ${p} gives ${m(`${cn}/${cd}`)}`;
+    });
+    const stepText = ps.length > 1 ? ` If you don't spot ${k} straight away, simplify in steps: ${steps.join(", then ")}.` : "";
+    return {
+      difficulty: k <= 6 && D <= 40 ? "warmup" : "core",
+      question,
+      answer: fracSpec(a, b, { simplest: true }),
+      display: fr(a, b),
+      correctFeedback: `The HCF of ${N} and ${D} is ${k}: ${N} ÷ ${k} = ${a} and ${D} ÷ ${k} = ${b}.`,
+      wrong: W.list,
+      explanation: `Find the highest common factor (HCF) of ${N} and ${D}: it's ${k}. Divide the top and the bottom by ${k}: ${m(`${N}/${D} = ${a}/${b}`)}.${stepText} ${a} and ${b} have no common factor except 1, so ${fr(a, b)} is in its simplest form.`,
+      solution: [
+        `The HCF of ${N} and ${D} is ${k}.`,
+        `${N} ÷ ${k} = ${a} and ${D} ÷ ${k} = ${b}, so ${m(`${N}/${D} = ${a}/${b}`)}.`,
+        ...(ps.length > 1 ? [`In steps: ${steps.join(", then ")}.`] : []),
+        `${a} and ${b} share no factor except 1, so this is the simplest form.`,
+      ],
+      hints: [`What is the biggest number that divides exactly into both ${N} and ${D}?`, "If you can't spot it, divide the top and bottom by a small common factor (like 2 or 3), and keep going until nothing else divides both."],
+      verify: `${N}/${D}`,
+      commonError: "Stopping before the fraction is fully simplified — keep going until the top and bottom share no factor except 1.",
+      strategy: "Spot the common factor",
+      marks: k <= 6 && D <= 40 ? 1 : 2,
+      sig: `${N}/${D}`,
+    };
+  },
+};
+
+// ---------------------------------------------------------------------------
+// fr-order — which of four fractions is the largest / smallest? (multiple choice only)
+// ---------------------------------------------------------------------------
+// The options are "Name = fraction" (not bare fractions): the app shows numeric options smallest
+// first, which would always put the largest fraction last. Names give each option its own label,
+// so the options are shuffled instead — and the label is ignored when the value is read.
+
+const ORDER_CONTEXTS: { setup: string; frac: string; most: string; least: string }[] = [
+  { setup: "each have an identical bottle of water", frac: "The fraction of the bottle each of them has drunk is", most: "Who has drunk the most water?", least: "Who has drunk the least water?" },
+  { setup: "are each reading the same book", frac: "The fraction of the book each of them has read so far is", most: "Who has read the most?", least: "Who has read the least?" },
+  { setup: "are each walking the same trail", frac: "The fraction of the trail each of them has walked so far is", most: "Who has walked the furthest?", least: "Who has walked the shortest distance?" },
+  { setup: "each have an identical pizza", frac: "The fraction of the pizza each of them has eaten is", most: "Who has eaten the most pizza?", least: "Who has eaten the least pizza?" },
+];
+
+/** max (sign 1) or min (sign −1) of two numbers as a verify expression: (a + b ± √((a − b)²)) / 2. */
+const pickExpr = (a: string, b: string, sign: 1 | -1) => `((${a})+(${b})${sign > 0 ? "+" : "-"}sqrt(((${a})-(${b}))^2))/2`;
+
+const frOrder: Generator = {
+  id: "fr-order",
+  topic: "fr",
+  section: "fr-equivalent",
+  label: "Which fraction is the largest / smallest?",
+  kinds: ["mcq"],
+  make(r) {
+    const most = r.chance(0.5);
+    const ctx = r.pick(ORDER_CONTEXTS);
+    const names = r.shuffle(PEOPLE).slice(0, 4).map((z) => z.name);
+    let fs: { n: number; d: number }[] = [];
+    let ai = 0;
+    for (let tries = 0; tries < 2000; tries++) {
+      const L = r.pick([12, 18, 20, 24, 30, 36, 40]);
+      const dens = r.shuffle(divisorsOf(L).filter((v) => v >= 3)).slice(0, 4);
+      if (dens.length < 4) continue;
+      fs = dens.map((d) => ({ n: properFraction(r, d), d }));
+      const vals = fs.map((x) => x.n / x.d);
+      if (new Set(fs.map((x) => (x.n * L) / x.d)).size < 4) continue;
+      if (Math.min(...vals) < 0.3 || Math.max(...vals) - Math.min(...vals) > 0.4) continue;
+      const arg = (xs: number[], big: boolean) => {
+        const t = big ? Math.max(...xs) : Math.min(...xs);
+        return xs.filter((v) => v === t).length === 1 ? xs.indexOf(t) : -1;
+      };
+      ai = arg(vals, most);
+      const byD = arg(fs.map((x) => x.d), most);
+      const byN = arg(fs.map((x) => x.n), most);
+      if (byD < 0 || byN < 0 || byD === ai || byN === ai) continue;
+      break;
+    }
+    const Lc = fs.map((x) => x.d).reduce((u, v) => lcm(u, v));
+    const inL = (x: { n: number; d: number }) => (x.n * Lc) / x.d;
+    const ans = fs[ai];
+    const label = (i: number) => `${names[i]} = ${m(`${fs[i].n}/${fs[i].d}`)}`;
+    const conv = (x: { n: number; d: number }) => (x.d === Lc ? m(`${x.n}/${x.d}`) : m(`${x.n}/${x.d} = ${inL(x)}/${Lc}`));
+    const dens = fs.map((x) => x.d);
+    const nums = fs.map((x) => x.n);
+    const ansL = inL(ans);
+    const cmp = most ? "less" : "more";
+    const wrong: Wrong[] = [];
+    fs.forEach((x, i) => {
+      if (i === ai) return;
+      const tail = `In ${pieces(Lc)}: ${conv(x)} is ${cmp} than ${conv(ans)}.`;
+      let why: string;
+      if (most && x.d === Math.max(...dens)) why = `${m(`${x.n}/${x.d}`)} has the biggest denominator, but a bigger denominator means **smaller** pieces.`;
+      else if (!most && x.d === Math.min(...dens)) why = `${m(`${x.n}/${x.d}`)} has the smallest denominator, but a smaller denominator means **bigger** pieces.`;
+      else if (most && x.n === Math.max(...nums)) why = `${m(`${x.n}/${x.d}`)} has the biggest numerator, but its pieces are ${pieces(x.d)}, which are small.`;
+      else if (!most && x.n === Math.min(...nums)) why = `${m(`${x.n}/${x.d}`)} has the smallest numerator, but its pieces are ${pieces(x.d)}, which are big.`;
+      else if (x.d - x.n === ans.d - ans.n) why = `${m(`${x.n}/${x.d}`)} and ${m(`${ans.n}/${ans.d}`)} are both ${x.d - x.n} piece${x.d - x.n > 1 ? "s" : ""} short of a whole, but ${pieces(x.d)} are ${x.d < ans.d ? "bigger" : "smaller"} pieces than ${pieces(ans.d)}, so ${m(`${x.n}/${x.d}`)} is ${x.d < ans.d ? "further from" : "closer to"} 1.`;
+      else if (most && x.d === Math.min(...dens)) why = `${cap(pieces(x.d))} are the biggest pieces here, but there are only ${x.n} of them.`;
+      else if (!most && x.d === Math.max(...dens)) why = `${cap(pieces(x.d))} are the smallest pieces here, but there are ${x.n} of them.`;
+      else why = `Compare the fractions with a common denominator.`;
+      wrong.push({ display: label(i), feedback: `${why} ${tail}` });
+    });
+    const order = fs.map((x, i) => ({ x, i })).sort((u, v) => u.x.n / u.x.d - v.x.n / v.x.d);
+    const listed = fs.map((x, i) => `${names[i]} ${m(`${x.n}/${x.d}`)}`);
+    const question = `${names.slice(0, 3).join(", ")} and ${names[3]} ${ctx.setup}. ${ctx.frac}: ${listed.slice(0, 3).join(", ")} and ${listed[3]}. ${most ? ctx.most : ctx.least}`;
+    const verify = pickExpr(pickExpr(`${fs[0].n}/${fs[0].d}`, `${fs[1].n}/${fs[1].d}`, most ? 1 : -1), pickExpr(`${fs[2].n}/${fs[2].d}`, `${fs[3].n}/${fs[3].d}`, most ? 1 : -1), most ? 1 : -1);
+    return {
+      difficulty: Lc <= 12 ? "warmup" : "core",
+      question,
+      answer: fracSpec(ans.n, ans.d),
+      display: label(ai),
+      correctFeedback: `In ${pieces(Lc)} the four fractions are ${fs.map(inL).join(", ")} ${pieces(Lc)}, and ${ansL} is the ${most ? "biggest" : "smallest"}.`,
+      wrong,
+      explanation: `Fractions are easy to compare once the pieces are the same size. The LCM of ${dens.join(", ")} is ${Lc}, so change each fraction into ${pieces(Lc)}: ${fs.map(conv).join(", ")}. Now compare the numerators. From smallest to largest: ${order.map((o) => m(`${o.x.n}/${o.x.d}`)).join(", ")}. So the ${most ? "largest" : "smallest"} is ${names[ai]}'s ${m(`${ans.n}/${ans.d}`)}. Watch out: a bigger denominator means **smaller** pieces.`,
+      solution: [`The LCM of ${dens.join(", ")} is ${Lc}.`, `${fs.map(conv).join(", ")}.`, `The ${most ? "largest" : "smallest"} numerator is ${ansL}, so the answer is ${names[ai]} (${m(`${ans.n}/${ans.d}`)}).`],
+      hints: ["Fractions are easy to compare when the pieces are the same size. What could you change them all into?", `The LCM of ${dens.join(", ")} is ${Lc}. Write each fraction in ${pieces(Lc)}.`],
+      verify,
+      commonError: "Thinking a bigger denominator (or a bigger numerator) means a bigger fraction — compare with a common denominator instead.",
+      strategy: "Find a common denominator",
+      sig: `${most ? "max" : "min"}:${fs.map((x) => `${x.n}/${x.d}`).sort().join(",")}`,
+    };
+  },
+};
+
+// ---------------------------------------------------------------------------
+// fr-algebraic — simplify, multiply and divide simple algebraic fractions
+// ---------------------------------------------------------------------------
+// (The syllabus asks for simplifying, multiplying and dividing — not adding — algebraic fractions.)
+
+/** A number times letters to powers, e.g. 9n² = { c: 9, v: { n: 2 } }. */
+interface Mono {
+  c: number;
+  v: Record<string, number>;
+}
+/** An algebraic fraction top/bottom. */
+interface AFrac {
+  t: Mono;
+  b: Mono;
+}
+// no "m": the answer checker reads a trailing "m^2" as square metres when the answer has no letters
+const ALG_LETTERS = ["x", "y", "a", "b", "c", "n", "p", "q"];
+/** Values used only to tell slips apart (never shown). */
+const ALG_VALUES: Record<string, number> = { x: 1.37, y: 0.83, a: 2.21, b: 0.46, c: 1.93, n: 0.71, p: 3.17, q: 1.29 };
+
+const letters = (x: Mono) => Object.keys(x.v).filter((l) => x.v[l] > 0).sort();
+function monoText(x: Mono): string {
+  const ls = letters(x).map((l) => (x.v[l] === 1 ? l : `${l}^${x.v[l]}`)).join("");
+  return (x.c === 1 && ls ? "" : String(x.c)) + ls;
+}
+const factorCount = (x: Mono) => (x.c !== 1 ? 1 : 0) + letters(x).length;
+const hasPower = (x: Mono) => letters(x).some((l) => x.v[l] > 1);
+/** ASCII for {{ }} and for answer specs: 2/(3x), (15m^2n)/(25mn^2), 6pq. */
+function afText(f: AFrac): string {
+  const top = monoText(f.t);
+  if (f.b.c === 1 && !letters(f.b).length) return top;
+  const tb = hasPower(f.t) && factorCount(f.t) > 1 ? `(${top})` : top;
+  const bb = factorCount(f.b) > 1 || hasPower(f.b) ? `(${monoText(f.b)})` : monoText(f.b);
+  return `${tb}/${bb}`;
+}
+const monoValue = (x: Mono) => letters(x).reduce((s, l) => s * ALG_VALUES[l] ** x.v[l], x.c);
+const afValue = (f: AFrac) => monoValue(f.t) / monoValue(f.b);
+function monoMul(x: Mono, y: Mono): Mono {
+  const v = { ...x.v };
+  for (const l of letters(y)) v[l] = (v[l] ?? 0) + y.v[l];
+  return { c: x.c * y.c, v };
+}
+const flipAF = (f: AFrac): AFrac => ({ t: f.b, b: f.t });
+/** Product without cancelling. */
+const afTimes = (f: AFrac, g: AFrac): AFrac => ({ t: monoMul(f.t, g.t), b: monoMul(f.b, g.b) });
+/** Cancel common factors. */
+function afSimplify(f: AFrac): AFrac {
+  const g = gcd(f.t.c, f.b.c);
+  const tv: Record<string, number> = {};
+  const bv: Record<string, number> = {};
+  for (const l of new Set([...letters(f.t), ...letters(f.b)])) {
+    const d = (f.t.v[l] ?? 0) - (f.b.v[l] ?? 0);
+    if (d > 0) tv[l] = d;
+    else if (d < 0) bv[l] = -d;
+  }
+  return { t: { c: f.t.c / g, v: tv }, b: { c: f.b.c / g, v: bv } };
+}
+const powText = (l: string, p: number) => (p === 1 ? l : `${l}^${p}`);
+/** How the cancelling goes, in words: numbers first, then each letter. */
+function cancelText(f: AFrac): string {
+  const out: string[] = [];
+  const g = gcd(f.t.c, f.b.c);
+  if (g > 1) out.push(`${f.t.c} and ${f.b.c} share ${g}, which leaves ${f.t.c / g} and ${f.b.c / g}`);
+  for (const l of [...new Set([...letters(f.t), ...letters(f.b)])].sort()) {
+    const a = f.t.v[l] ?? 0;
+    const b = f.b.v[l] ?? 0;
+    if (!a || !b) continue;
+    if (a === b) out.push(`${m(`${powText(l, a)}/${powText(l, b)} = 1`)}, so the ${l}'s cancel completely`);
+    else if (a > b) out.push(`${m(`${powText(l, a)}/${powText(l, b)} = ${powText(l, a - b)}`)}, so ${a - b === 1 ? `one ${l} is` : powText(l, a - b) + " is"} left on the top`);
+    else out.push(`${m(`${powText(l, a)}/${powText(l, b)} = 1/${powText(l, b - a)}`)}, so ${b - a === 1 ? `one ${l} is` : powText(l, b - a) + " is"} left on the bottom`);
+  }
+  return out.length ? `Cancel: ${out.join("; ")}.` : "Nothing cancels.";
+}
+
+const frAlgebraic: Generator = {
+  id: "fr-algebraic",
+  topic: "fr",
+  section: "fr-algebraic",
+  label: "Simplify, multiply and divide simple algebraic fractions",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const mode = r.pick(["simp", "mul1", "mul1", "mul2", "div1", "div1", "div2"] as const);
+    const [u, v, w] = r.shuffle(ALG_LETTERS).slice(0, 3);
+    const mono = (c: number, v: Record<string, number> = {}): Mono => ({ c, v });
+    let F1: AFrac = { t: mono(1), b: mono(1) };
+    let F2: AFrac = { t: mono(1), b: mono(1) };
+    let ans: AFrac = F1;
+    let raw: AFrac = F1;
+    for (let tries = 0; tries < 2000; tries++) {
+      const A = r.int(1, 9), B = r.int(1, 9), C = r.int(1, 12), D = r.int(1, 12);
+      const i = r.int(1, 2), j = r.int(1, 2);
+      if (mode === "simp") {
+        // one fraction: coefficients share a factor, at least one letter on both top and bottom
+        const a0 = r.int(1, 9), b0 = r.int(1, 9), g = r.int(1, 7);
+        if (gcd(a0, b0) !== 1 || (a0 === 1 && b0 === 1)) continue;
+        const pats: [number, number][] = [[1, 1], [2, 1], [1, 2], [1, 0], [0, 1]];
+        const [tu, bu] = r.pick(pats.slice(0, 3));
+        const [tv, bv] = r.pick(pats);
+        const tw = r.chance(0.3) ? 1 : 0;
+        const top = mono(a0 * g, { [u]: tu, ...(tv ? { [v]: tv } : {}), ...(tw ? { [w]: 1 } : {}) });
+        const bot = mono(b0 * g, { [u]: bu, ...(bv ? { [v]: bv } : {}) });
+        if (top.c > 60 || bot.c > 60) continue;
+        F1 = { t: top, b: bot };
+        raw = F1;
+      } else if (mode === "mul1") {
+        if (gcd(A, B) !== 1 || gcd(C, D) !== 1 || A * C === 1) continue;
+        const letterTop = r.chance(0.6);
+        F1 = letterTop ? { t: mono(A, { [u]: i }), b: mono(B) } : { t: mono(A), b: mono(B, { [u]: i }) };
+        F2 = letterTop ? { t: mono(C), b: mono(D, { [u]: j }) } : { t: mono(C, { [u]: j }), b: mono(D) };
+        raw = afTimes(F1, F2);
+      } else if (mode === "mul2") {
+        if (gcd(A, B) !== 1 || gcd(C, D) !== 1) continue;
+        const i2 = r.int(1, 2), j2 = r.int(1, 2);
+        if (i === i2 && j === j2) continue;
+        F1 = { t: mono(A, { [u]: i }), b: mono(B, { [v]: j }) };
+        F2 = { t: mono(C, { [v]: j2 }), b: mono(D, { [u]: i2 }) };
+        raw = afTimes(F1, F2);
+      } else if (mode === "div1") {
+        if (gcd(A, B) !== 1 || gcd(C, D) !== 1) continue;
+        F1 = { t: mono(A, { [u]: i }), b: mono(B) };
+        F2 = { t: mono(C, { [u]: j }), b: mono(D) };
+        raw = afTimes(F1, flipAF(F2));
+      } else {
+        if (gcd(A, B) !== 1 || gcd(C, D) !== 1) continue;
+        const i2 = r.int(1, 2), j2 = r.int(1, 2);
+        if (i === i2 && j === j2) continue;
+        F1 = { t: mono(A, { [u]: i }), b: mono(B, { [v]: j }) };
+        F2 = { t: mono(C, { [u]: i2 }), b: mono(D, { [v]: j2 }) };
+        raw = afTimes(F1, flipAF(F2));
+      }
+      const proper = (f: AFrac) => f.b.c > 1 || letters(f.b).length > 0;
+      if (!proper(F1) || (mode !== "simp" && !proper(F2))) continue;
+      ans = afSimplify(raw);
+      // something must cancel, the answer must be tidy and not just 1
+      if (gcd(raw.t.c, raw.b.c) === 1 && mode !== "simp") continue;
+      if (ans.t.c > 12 || ans.b.c > 12) continue;
+      if (ans.t.c === 1 && ans.b.c === 1 && !letters(ans.t).length && !letters(ans.b).length) continue;
+      if (mode !== "simp" && raw.t.c > 150) continue;
+      break;
+    }
+    const isDiv = mode === "div1" || mode === "div2";
+    const q = mode === "simp" ? m(afText(F1)) : m(`${afText(F1)} ${isDiv ? "÷" : "*"} ${afText(F2)}`);
+    const question = mode === "simp" ? `Simplify ${q} fully.` : `Work out ${q}. Give your answer in its simplest form.`;
+    const ansText = afText(ans);
+
+    const seen = [afValue(ans)];
+    const wrong: Wrong[] = [];
+    const add = (f: AFrac, feedback: string) => {
+      const s = afSimplify(f);
+      const val = afValue(s);
+      if (!Number.isFinite(val) || seen.some((x) => same(x, val))) return;
+      seen.push(val);
+      const t = afText(s);
+      wrong.push({ display: m(t), spec: exprSpec(t), feedback });
+    };
+    const ansLetters = [...letters(ans.t), ...letters(ans.b)];
+    const side = (x: Mono, s: string) => {
+      const ls = letters(x).map((l) => (x.v[l] === 1 ? l : m(powText(l, x.v[l]))));
+      return ls.length ? `${ls.join(" and ")} ${ls.length > 1 ? "are" : "is"} left on the ${s}` : "";
+    };
+    const where = [side(ans.t, "top"), side(ans.b, "bottom")].filter(Boolean).join(", and ");
+    if (isDiv) {
+      add(afTimes(F1, F2), `${m(afText(afSimplify(afTimes(F1, F2))))} comes from multiplying without flipping. To divide, keep ${m(afText(F1))}, change ÷ to × and flip ${m(afText(F2))} into ${m(afText(flipAF(F2)))}.`);
+      add(afTimes(flipAF(F1), F2), `You flipped the first fraction instead of the second, which works out the division the wrong way round. Keep ${m(afText(F1))} and flip ${m(afText(F2))}.`);
+      add(afTimes(F1, { t: { c: F2.b.c, v: F2.t.v }, b: { c: F2.t.c, v: F2.b.v } }), `You flipped only the numbers in ${m(afText(F2))} and left the letters where they were. The whole fraction flips: ${m(afText(F2))} becomes ${m(afText(flipAF(F2)))}.`);
+    } else if (mode !== "simp") {
+      add(afTimes(F1, flipAF(F2)), `This comes from flipping ${m(afText(F2))} — flipping is only for dividing. To multiply, multiply the tops and multiply the bottoms, then cancel.`);
+    }
+    if (ansLetters.length) {
+      add({ t: { c: ans.t.c, v: ans.b.v }, b: { c: ans.b.c, v: ans.t.v } }, `The numbers are right, but the letters are on the wrong side. After cancelling, ${where}.`);
+      add({ t: { c: ans.t.c, v: {} }, b: { c: ans.b.c, v: {} } }, letters(ans.t).length && letters(ans.b).length
+        ? `You cancelled ${letters(ans.t).join("")} with ${letters(ans.b).join("")}, but only matching letters cancel. After cancelling, ${where}.`
+        : `The letters don't all cancel. A power like ${m(`${ansLetters[0]}^2`)} means ${ansLetters[0]} × ${ansLetters[0]}, so cancelling one ${ansLetters[0]} still leaves one: ${where}.`);
+    }
+    if (ans.t.c !== ans.b.c) add({ t: { c: ans.b.c, v: ans.t.v }, b: { c: ans.t.c, v: ans.b.v } }, `The letters are right, but the numbers are upside down: ${raw.t.c} is on the top, so the number part is ${fr(raw.t.c, raw.b.c, false)}.`);
+    // cancelled a letter on one side only
+    const l = letters(raw.t).find((z) => (raw.b.v[z] ?? 0) > 0);
+    if (l) {
+      const k = Math.min(raw.t.v[l], raw.b.v[l]);
+      add({ t: ans.t, b: monoMul(ans.b, { c: 1, v: { [l]: k } }) }, `When a letter cancels, it goes from the top **and** the bottom. The ${m(powText(l, k))} on the top cancels with ${m(powText(l, k))} on the bottom, so nothing is left of it underneath.`);
+      add({ t: monoMul(ans.t, { c: 1, v: { [l]: k } }), b: ans.b }, `When a letter cancels, it goes from the top **and** the bottom. The ${m(powText(l, k))} on the bottom cancels with ${m(powText(l, k))} on the top, so nothing is left of it on the top.`);
+    }
+
+    const steps =
+      mode === "simp"
+        ? [`Deal with the numbers and the letters separately. ${cancelText(raw)}`, `So ${m(`${afText(F1)} = ${ansText}`)}.`]
+        : [
+            ...(isDiv ? [`Keep, change, flip: ${m(`${afText(F1)} ÷ ${afText(F2)} = ${afText(F1)} * ${afText(flipAF(F2))}`)}.`] : []),
+            `Multiply the tops and multiply the bottoms: ${m(`${afText(F1)} * ${afText(isDiv ? flipAF(F2) : F2)} = ${afText(raw)}`)}.`,
+            `${cancelText(raw)} So the answer is ${m(ansText)}.`,
+          ];
+    // a real check: put small numbers in for the letters and compare
+    const used = [...new Set([...letters(F1.t), ...letters(F1.b), ...letters(F2.t), ...letters(F2.b)])].sort();
+    const small = [2, 3, 5];
+    const env: Record<string, number> = Object.fromEntries(used.map((l, k) => [l, small[k]]));
+    const rat = (x: Mono): [number, number] => [letters(x).reduce((s, l) => s * env[l] ** x.v[l], x.c), 1];
+    const ratF = (f: AFrac): [number, number] => reduce(rat(f.t)[0], rat(f.b)[0]);
+    const [q1n, q1d] = ratF(F1);
+    const [q2n, q2d] = ratF(F2);
+    const [qn, qd] = mode === "simp" ? [q1n, q1d] : isDiv ? reduce(q1n * q2d, q1d * q2n) : reduce(q1n * q2n, q1d * q2d);
+    const [an2, ad2] = ratF(ans);
+    const check = qn * ad2 === an2 * qd
+      ? `Check with ${used.map((l) => `${l} = ${env[l]}`).join(" and ")}: the question works out as ${fr(qn, qd, false)}, and so does ${m(ansText)} ✓`
+      : "";
+    return {
+      difficulty: mode === "div2" ? "challenge" : "core",
+      question,
+      prompt: "If the bottom of your answer has more than one factor, type it in brackets, e.g. 2/(5a).",
+      answer: exprSpec(ansText, "simplified"),
+      display: m(ansText),
+      correctFeedback: mode === "simp" ? `${cancelText(raw)} That leaves ${m(ansText)}.` : `${m(`${afText(raw)} = ${ansText}`)} after cancelling.`,
+      wrong,
+      explanation: `${steps.join(" ")} ${check}`,
+      solution: steps,
+      hints:
+        mode === "simp"
+          ? ["Deal with the numbers and the letters separately. What is the HCF of the numbers?", "Which letters appear on both the top and the bottom? Cancel one of each matching pair."]
+          : isDiv
+            ? ["Dividing by a fraction means multiplying by its reciprocal. Which fraction do you flip?", `Work out ${m(`${afText(F1)} * ${afText(flipAF(F2))}`)}, then cancel.`]
+            : ["Multiply the tops together and the bottoms together.", "Cancel the numbers first, then deal with each letter: how many are on the top, and how many on the bottom?"],
+      verify: mode === "simp" ? afText(F1) : `(${afText(F1)})${isDiv ? "/" : "*"}(${afText(F2)})`,
+      commonError: isDiv ? "Forgetting to flip the second fraction, or flipping the first one instead." : "Cancelling a letter completely when a power leaves one behind — or leaving the leftover letter on the wrong side.",
+      strategy: "Spot the common factor",
+      marks: mode === "simp" ? (hasPower(F1.t) || hasPower(F1.b) ? 2 : 1) : 2,
+      sig: mode === "simp" ? `s:${afText(F1)}` : isDiv ? `d:${afText(F1)}÷${afText(F2)}` : `m:${[afText(F1), afText(F2)].sort().join("*")}`,
+    };
+  },
+};
+
+export const GEN_FR: Generator[] = [frImproper, frMixed, frSimplify, frOrder, frAdd, frMixedAddSub, frMul, frDiv, frOf, frLeft, frAlgebraic];

@@ -70,3 +70,18 @@ for (const g of gens) {
     }
   });
 }
+
+test("written prompts never repeat the question", async () => {
+  const { writtenPrompt } = await import("../lib/gen/index.ts");
+  assert.equal(writtenPrompt({ question: "Work out {{1/2 + 1/3}}.", prompt: "Work out {{1/2 + 1/3}}. Give your answer in its simplest form." }), "Give your answer in its simplest form.");
+  assert.equal(writtenPrompt({ question: "Q?", prompt: "Q?" }), undefined);
+  assert.equal(writtenPrompt({ question: "Q?", prompt: "Show your working." }), "Show your working.");
+  for (const g of GENERATORS) {
+    if (!g.kinds.includes("qa")) continue;
+    for (let seed = 1; seed <= 40; seed++) {
+      const q = materialise(genId({ gen: g.id, kind: "qa", seed }));
+      const prompt = (q!.q as { parts: { prompt?: string }[] }).parts[0].prompt ?? "";
+      assert.ok(!prompt.includes(q!.q.question.trim()), `${g.id}: written prompt repeats the question`);
+    }
+  }
+});
