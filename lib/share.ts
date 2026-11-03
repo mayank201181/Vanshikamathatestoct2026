@@ -1,5 +1,5 @@
 import type { Progress } from "./store";
-import { ALL_SETS, ALL_QUESTIONS, qaMarks } from "./content";
+import { ALL_SETS, ALL_QUESTIONS, lookup, qaMarks } from "./content";
 import { SECTIONS, TOPICS, TOPIC_IDS } from "./sections";
 import type { QA, TopicId } from "./types";
 
@@ -44,7 +44,7 @@ export function topicProgress(p: Progress): TopicProgress[] {
 
 export function openMistakes(p: Progress): string[] {
   return Object.entries(p.mistakes)
-    .filter(([id, open]) => open && ALL_QUESTIONS.some((x) => x.q.id === id))
+    .filter(([id, open]) => open && !!lookup(id))
     .map(([id]) => id);
 }
 

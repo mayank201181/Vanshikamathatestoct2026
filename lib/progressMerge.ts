@@ -77,6 +77,11 @@ export interface Progress {
   guidePos: Record<string, string>;
   /** guide quick checks, keyed "sectionId:index" */
   quick: Record<string, QuickCheckState>;
+  /**
+   * Exact questions already shown in a mock, so a mock never repeats one: "b:<bank id>" for
+   * hand-written questions, "g:<generator>|<numbers>" for fresh-number ones. Value: when.
+   */
+  shown: Record<string, number>;
   /** the class-test date (yyyy-mm-dd), if set */
   testDate?: string;
 }
@@ -98,6 +103,7 @@ export const EMPTY_PROGRESS: Progress = {
   days: {},
   guidePos: {},
   quick: {},
+  shown: {},
 };
 
 export function emptyAttempt(ids?: string[]): SetAttempt {
@@ -117,6 +123,7 @@ export function normaliseProgress(raw: Partial<Progress> | null | undefined): Pr
     resets: p.resets ?? {},
     guidePos: p.guidePos ?? {},
     quick: p.quick ?? {},
+    shown: p.shown ?? {},
     version: 1,
   };
 }
@@ -218,9 +225,24 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
     cards: { ...a.cards, ...b.cards },
     plan: { ...a.plan, ...b.plan },
     days: maxRecord(a.days, b.days),
+    shown: maxRecord(a.shown, b.shown),
     last,
     guidePos: { ...(a.guidePos ?? {}), ...(b.guidePos ?? {}) },
     quick: { ...(a.quick ?? {}), ...(b.quick ?? {}) },
     testDate: b.testDate ?? a.testDate,
   };
+}
+
+/**
+ * Update the Mistakes list after an answer. A fresh-number twin of a mistake (id ending
+ * "~o~<original>") stands in for the original: right → the original is fixed; wrong → it
+ * stays open. The twin itself never goes on the list.
+ */
+export function noteMistake(prev: Record<string, boolean>, qid: string, good: boolean): Record<string, boolean> {
+  const mistakes = { ...prev };
+  const origin = qid.startsWith("g~") ? qid.split("~o~")[1] : undefined;
+  const key = origin ?? qid;
+  if (!good) mistakes[key] = true;
+  else if (key in mistakes) mistakes[key] = false;
+  return mistakes;
 }

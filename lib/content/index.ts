@@ -17,6 +17,7 @@ import { WRITTEN_SU } from "./su/written.ts";
 import { GUIDE_SQ } from "./sq/guide.ts";
 import { MCQ_SQ } from "./sq/mcq.ts";
 import { WRITTEN_SQ } from "./sq/written.ts";
+import { isGenerated, materialise } from "../gen/index.ts";
 
 export const GUIDES: Record<TopicId, TopicGuide> = {
   fr: GUIDE_FR,
@@ -91,7 +92,13 @@ function build(): Record<string, IndexedQuestion> {
 export const QUESTION_INDEX: Record<string, IndexedQuestion> = build();
 
 export function lookup(qid: string): IndexedQuestion | undefined {
-  return QUESTION_INDEX[qid];
+  const bank = QUESTION_INDEX[qid];
+  if (bank) return bank;
+  if (isGenerated(qid)) {
+    const g = materialise(qid);
+    if (g) return { kind: g.kind, q: g.q, setId: "fresh", setTitle: "Fresh numbers", number: 0 };
+  }
+  return undefined;
 }
 
 /** Every question, for per-section mastery and practice-by-section. */

@@ -30,7 +30,7 @@ fi
 grep -E "Aliased" "$WORK/deploy.log" || true
 
 failed=0
-for path in / /set/fr-mcq-1 /set/sq-written-4 /guide/fr /mock /review; do
+for path in / /set/fr-mcq-1 /set/sq-written-4 /guide/fr /mock /mock/mistakes /review; do
   code="$(curl -sS -o /dev/null -w '%{http_code}' "$SITE$path" || true)"
   echo "$code $path"
   [ "$code" = "200" ] || failed=1
