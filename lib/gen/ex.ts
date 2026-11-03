@@ -14,7 +14,7 @@
 
 import type { Difficulty } from "../types.ts";
 import { exprEquivalent, parseExpr } from "../mathParse.ts";
-import { cap, exprSpec, gcd, m, num, poly, term, type Generator, type Rng, type Wrong } from "./core.ts";
+import { cap, exprSpec, gcd, m, num, poly, term, type Draft, type Generator, type Rng, type Wrong } from "./core.ts";
 
 // ---------------------------------------------------------------------------
 // A small algebra toolkit: a term is a number times a product of letters.
@@ -287,7 +287,10 @@ const exCollect: Generator = {
         ),
       );
 
-    const steps = groups.map((g) => (g.length > 1 ? gSum(g) : `${m(tq(g[0]))} has no like term, so it stays as it is`));
+    const singles = groups.filter((g) => g.length === 1).map((g) => m(tq(g[0])));
+    const stepsText =
+      list(groups.filter((g) => g.length > 1).map(gSum)) +
+      (singles.length ? `; ${list(singles)} ${singles.length > 1 ? "have no like terms, so they stay as they are" : "has no like term, so it stays as it is"}` : "");
     const env: Env = tpl === "two" ? { [L]: 2, [L2]: 3 } : { [L]: 2 };
     const envText = tpl === "two" ? `${L} = 2 and ${L2} = 3` : `${L} = 2`;
     const check = `Quick check with ${envText}: the question gives ${sumStr(terms.map((x) => valT(x, env)))}, and ${m(ans)} gives ${sumStr(answer.map((a) => valT(a, env)))} ✓`;
@@ -302,10 +305,10 @@ const exCollect: Generator = {
       display: m(ans),
       correctFeedback: `${cap(list(groups.filter((g) => g.length > 1).map(gSum)))}, so the answer is ${m(ans)}.`,
       wrong: distinct(ans, [...powers, signs[0], unlike, lone, ...negTotals, ...signs.slice(1)]),
-      explanation: `Like terms have the same letters **and** the same powers. Collect each group, keeping the sign in front of each term: ${list(steps)}. So the answer is ${m(ans)}. ${check}.`,
+      explanation: `Like terms have the same letters **and** the same powers. Collect each group, keeping the sign in front of each term: ${stepsText}. So the answer is ${m(ans)}. ${check}.`,
       solution: [
         `Like terms have exactly the same letters with the same powers — ${unlikePair} are **not** like terms. Group the like terms, keeping the sign in front of each one.`,
-        `${cap(list(steps))}.`,
+        `${cap(stepsText)}.`,
         `So the answer is ${m(ans)}.`,
         `${check}.`,
       ],
@@ -1202,4 +1205,416 @@ const exDouble: Generator = {
   },
 };
 
-export const GEN_EX: Generator[] = [exCollect, exMultiply, exExpand, exFactorise, exDouble];
+// ---------------------------------------------------------------------------
+// ex-forming — form and simplify an expression: perimeters and missing angles
+// ---------------------------------------------------------------------------
+
+const Xx = (c: number) => tm(c, pw("x"));
+/** A side or an angle px + a (a may be 0). */
+const lin = (p: number, a: number) => [Xx(p), tm(a)].filter((t) => t.c !== 0);
+/** A side in the text: "(3x+2)" in brackets, or a single term. */
+const sideStr = (s: T[]) => (s.length > 1 ? m(`(${P(s)})`) : m(P(s)));
+/** ASCII for adding/subtracting a side or an angle: bracketed when it has two terms. */
+const brA = (s: T[]) => (s.length > 1 ? `(${P(s)})` : P(s));
+const twice = (s: T[]) => s.map((t) => tm(2 * t.c, t.v));
+/** Multiply out a product of two sums. */
+const mulP = (a: T[], b: T[]) => collect(a.flatMap((x) => b.map((y) => mul(x, y))));
+/** "8 × 5 + 2 = 42": a linear expression worked out at x = x0, in plain text. */
+function evalLin(xs: T[], x0: number): string {
+  const s = xs
+    .map((t, i) => {
+      const body = deg(t.v) ? (Math.abs(t.c) === 1 ? `${x0}` : `${Math.abs(t.c)} × ${x0}`) : `${Math.abs(t.c)}`;
+      return i === 0 ? `${t.c < 0 ? "−" : ""}${body}` : `${t.c < 0 ? " − " : " + "}${body}`;
+    })
+    .join("");
+  return `${s} = ${num(valP(xs, { x: x0 }))}`;
+}
+
+function formPerimeter(r: Rng, tpl: "rect" | "tri" | "iso" | "join"): Draft {
+  const at = (s: T[], v: number) => valP(s, { x: v });
+  let per: T[] = [];
+  let x0 = 5;
+  let question = "";
+  let verify = "";
+  let sig = "";
+  let correctFeedback = "";
+  let explanation = "";
+  let solution: string[] = [];
+  let hints: string[] = [];
+  let commonError = "";
+  let difficulty: Difficulty = "core";
+  let cands: (Wrong | null)[] = [];
+  let all: T[] = [];
+
+  if (tpl === "rect") {
+    let len: T[] = [];
+    let wid: T[] = [];
+    for (;;) {
+      len = lin(r.int(2, 5), nz(r, 1, 9, 0.35));
+      wid = r.chance(0.3) ? [tm(r.int(2, 9))] : lin(r.int(1, 3), nz(r, 1, 6, 0.35));
+      per = collect([...len, ...len, ...wid, ...wid]);
+      const ok = [5, 10].find((v) => at(len, v) > 0 && at(wid, v) > 0);
+      if (per.length === 2 && ok && P(len) !== P(wid)) {
+        x0 = ok;
+        break;
+      }
+    }
+    all = [...len, ...len, ...wid, ...wid];
+    const one = [...len, ...wid];
+    const consts = all.filter((t) => !deg(t.v)).map((t) => t.c);
+    const doubled = P([...twice(len), ...twice(wid)]);
+    const lv = at(len, x0);
+    const wv = at(wid, x0);
+    difficulty = wid.length === 1 ? "warmup" : "core";
+    question = `A rectangle is ${sideStr(len)} cm long and ${sideStr(wid)} cm wide. Find an expression for its perimeter, in cm. Simplify it fully.`;
+    verify = `2(${P(len)})+2(${P(wid)})`;
+    sig = `rect:${P(len)}|${P(wid)}`;
+    cands = [
+      wrong(P(collect(one)), "That's only one length and one width. A rectangle has **four** sides — two lengths and two widths — so the perimeter is twice this."),
+      wrong(P(collect(mulP(len, wid))), "That's the area (length × width). The perimeter is the distance all the way round, so add the four sides."),
+      wrong(
+        P(collect([...twice(one.filter((t) => deg(t.v))), ...one.filter((t) => !deg(t.v))])),
+        `You doubled the x-terms but not the numbers. There are two lengths and two widths, so the numbers are ${sumStr(consts)}.`,
+      ),
+      wrong(P(collect([...len, ...len, ...wid])), "That's only three of the sides (two lengths and one width). A rectangle has four sides."),
+    ];
+    correctFeedback = `Two lengths and two widths: ${m(`2(${P(len)}) + 2(${P(wid)}) = ${P(per)}`)}.`;
+    const check = `Check with x = ${x0}: the sides are ${num(lv)} cm and ${num(wv)} cm, so the perimeter is ${sumStr([lv, wv, lv, wv])} cm, and ${evalLin(per, x0)} ✓`;
+    explanation = `The perimeter is the distance all the way round: two lengths and two widths. ${m(`2(${P(len)}) + 2(${P(wid)}) = ${doubled} = ${P(per)}`)}. ${check}.`;
+    solution = [
+      `Perimeter = two lengths + two widths = ${m(`2(${P(len)}) + 2(${P(wid)})`)}.`,
+      `Multiply out the brackets: ${m(doubled)}.`,
+      `Collect like terms: the perimeter is ${m(P(per))} cm.`,
+      `${check}.`,
+    ];
+    hints = ["A rectangle has four sides: two lengths and two widths. The perimeter is all four added together.", "Double the length and double the width, then collect the x-terms and the number terms."];
+    commonError = "Adding only one length and one width, or mixing up perimeter (add the sides) and area (multiply them).";
+  } else if (tpl === "tri") {
+    let sides: T[][] = [];
+    for (;;) {
+      const ps = [r.int(1, 4), r.int(1, 4), r.int(1, 4)];
+      if (r.chance(0.5)) ps[r.int(0, 2)] = 1;
+      const as = [nz(r, 1, 12, 0.3), nz(r, 1, 12, 0.3), r.chance(0.25) ? 0 : nz(r, 1, 12, 0.3)];
+      if (!as.some((a) => a < 0)) as[r.int(0, 1)] *= -1;
+      sides = r.shuffle(ps.map((p, i) => lin(p, as[i])));
+      per = collect(sides.flat());
+      const ok = [5, 10].find((v) => sides.every((s) => at(s, v) > 0));
+      if (per.length === 2 && ok && new Set(sides.map(P)).size === 3) {
+        x0 = ok;
+        break;
+      }
+    }
+    all = sides.flat();
+    const xs = all.filter((t) => deg(t.v));
+    const consts = all.filter((t) => !deg(t.v)).map((t) => t.c);
+    const sumX = xs.reduce((s, t) => s + t.c, 0);
+    const sumC = consts.reduce((s, c) => s + c, 0);
+    const negC = consts.find((c) => c < 0) ?? 0;
+    const vals = sides.map((s) => at(s, x0));
+    question = `A triangle has sides of length ${list(sides.map(sideStr))} cm. Find an expression for its perimeter, in cm. Simplify it fully.`;
+    verify = sides.map((s) => `(${P(s)})`).join("+");
+    sig = `tri:${sides.map(P).sort().join("|")}`;
+    cands = [
+      negC ? wrong(P([Xx(sumX), tm(sumC - 2 * negC)]), `Careful with the ${m(String(negC))}: it is taken away, not added. The numbers are ${sumStr(consts)}.`) : null,
+      sides.some((s) => s[0].c === 1) ? wrong(P([Xx(sumX - 1), tm(sumC)]), `${m("x")} on its own means one ${m("x")}, so the x-terms are ${m(`${P(xs)} = ${ts(Xx(sumX))}`)}.`) : null,
+      wrong(ts(Xx(sumX)), `Don't lose the number terms: ${sumStr(consts)}, so the perimeter is ${m(P(per))}.`),
+      wrong(P(collect([...sides[0], ...sides[1]])), "That's only two of the sides. The perimeter is the total of all **three** sides."),
+    ];
+    correctFeedback = `Add all three sides: ${m(`${sides.map(brA).join(" + ")} = ${P(per)}`)}.`;
+    const check = `Check with x = ${x0}: the sides are ${list(vals.map((v) => `${num(v)} cm`))}, which add up to ${num(valP(per, { x: x0 }))} cm, and ${evalLin(per, x0)} ✓`;
+    explanation = `The perimeter is the total of the three sides: ${m(sides.map(brA).join(" + "))}. Collect the x-terms, ${m(`${P(xs)} = ${ts(Xx(sumX))}`)}, and the numbers, ${sumStr(consts)}. So the perimeter is ${m(P(per))} cm. ${check}.`;
+    solution = [
+      `Add the three sides: ${m(sides.map(brA).join(" + "))}.`,
+      `The x-terms: ${m(`${P(xs)} = ${ts(Xx(sumX))}`)}. The numbers: ${sumStr(consts)}.`,
+      `So the perimeter is ${m(P(per))} cm.`,
+      `${check}.`,
+    ];
+    hints = ["The perimeter is the total length of all three sides.", "Collect the x-terms and the numbers separately — watch the minus sign, and remember that x on its own means one x."];
+    commonError = "Losing a minus sign, or forgetting that x on its own means one x.";
+  } else if (tpl === "iso") {
+    let e: T[] = [];
+    let bs: T[] = [];
+    for (;;) {
+      e = lin(r.int(1, 4), nz(r, 1, 9, 0.3));
+      bs = lin(r.int(1, 3), r.chance(0.3) ? 0 : nz(r, 1, 9, 0.4));
+      per = collect([...e, ...e, ...bs]);
+      const ok = [5, 10].find((v) => at(e, v) > 0 && at(bs, v) > 0);
+      if (per.length === 2 && ok && P(e) !== P(bs)) {
+        x0 = ok;
+        break;
+      }
+    }
+    all = [...e, ...e, ...bs];
+    const consts = all.filter((t) => !deg(t.v)).map((t) => t.c);
+    const ev = at(e, x0);
+    const bv = at(bs, x0);
+    question = `An isosceles triangle has two equal sides of length ${sideStr(e)} cm and a third side of length ${sideStr(bs)} cm. Find an expression for its perimeter, in cm. Simplify it fully.`;
+    verify = `2(${P(e)})+${brA(bs)}`;
+    sig = `iso:${P(e)}|${P(bs)}`;
+    cands = [
+      wrong(P(collect([...e, ...bs])), `An isosceles triangle has **two** equal sides, so ${sideStr(e)} must be counted twice.`),
+      wrong(P(collect([...e, ...bs, ...bs])), `It's the two equal sides that are ${sideStr(e)} cm long; the third side is only counted once.`),
+      e.length > 1 ? wrong(P(collect([tm(2 * e[0].c, e[0].v), e[1], ...bs])), `Two equal sides make ${m(`2(${P(e)}) = ${P(twice(e))}`)} — double the number as well as the x-term.`) : null,
+      consts.some((c) => c < 0) ? wrong(P(collect([...all.filter((t) => deg(t.v)), tm(consts.reduce((s, c) => s + Math.abs(c), 0))])), `Careful with the minus sign: the numbers are ${sumStr(consts)}.`) : null,
+    ];
+    correctFeedback = `Two equal sides and the third side: ${m(`2(${P(e)}) + ${brA(bs)} = ${P(per)}`)}.`;
+    const check = `Check with x = ${x0}: the sides are ${num(ev)} cm, ${num(ev)} cm and ${num(bv)} cm, which add up to ${num(2 * ev + bv)} cm, and ${evalLin(per, x0)} ✓`;
+    explanation = `An isosceles triangle has two equal sides, so its perimeter is ${m(`2(${P(e)}) + ${brA(bs)}`)}. Multiply out and collect like terms: ${m(`${P([...twice(e), ...bs])} = ${P(per)}`)}. ${check}.`;
+    solution = [
+      `The two equal sides are both ${sideStr(e)} cm, so the perimeter is ${m(`2(${P(e)}) + ${brA(bs)}`)}.`,
+      `Multiply out: ${m(P([...twice(e), ...bs]))}.`,
+      `Collect like terms: the perimeter is ${m(P(per))} cm.`,
+      `${check}.`,
+    ];
+    hints = ["How many sides of each length does an isosceles triangle have?", "Add two of the equal sides and the third side, then collect like terms."];
+    commonError = "Counting the equal side only once — an isosceles triangle has two sides of that length.";
+  } else {
+    let len: T[] = [];
+    let wid: T[] = [];
+    let alongLen = true;
+    for (;;) {
+      len = lin(r.int(1, 4), r.int(1, 9));
+      const w = r.int(1, 3);
+      wid = r.pick([[tm(r.int(2, 9))], [Xx(w)], lin(w, r.int(1, 5))]);
+      alongLen = r.chance(0.5);
+      const J0 = alongLen ? len : wid;
+      const O0 = alongLen ? wid : len;
+      per = collect([...J0, ...J0, ...O0, ...O0, ...O0, ...O0]);
+      if (per.length === 2 && P(len) !== P(wid)) break;
+    }
+    const J = alongLen ? len : wid;
+    const O = alongLen ? wid : len;
+    const O2 = twice(O);
+    all = [...J, ...J, ...O2, ...O2];
+    const jv = at(J, x0);
+    const ov = at(O, x0);
+    difficulty = "challenge";
+    question = `Two identical rectangles each measure ${sideStr(len)} cm by ${sideStr(wid)} cm. They are joined along their ${sideStr(J)} cm sides to make one bigger rectangle. Find an expression for the perimeter of the bigger rectangle, in cm. Simplify it fully.`;
+    verify = `2(${P(J)})+4(${P(O)})`;
+    sig = `join:${P(J)}|${P(O)}`;
+    cands = [
+      wrong(P(collect([...J, ...J, ...J, ...J, ...O, ...O, ...O, ...O])), `That's the two perimeters added together. The joined ${sideStr(J)} cm sides are inside the bigger rectangle now, so they aren't part of its perimeter.`),
+      wrong(P(collect([...J, ...J, ...J, ...O, ...O, ...O, ...O])), `You took off one joined side, but the join hides a side of **each** rectangle, so take ${m(`2(${P(J)})`)} off the two perimeters.`),
+      wrong(P(collect([...J, ...J, ...O, ...O])), `That's the perimeter of one small rectangle. The bigger rectangle is ${sideStr(J)} cm by ${sideStr(O2)} cm.`),
+      wrong(P(collect([...J, ...J, ...J, ...J, ...O, ...O])), `That's what you'd get by joining along the ${sideStr(O)} cm sides instead. Joining along the ${sideStr(J)} cm sides doubles the **other** side.`),
+    ];
+    correctFeedback = `The bigger rectangle is ${sideStr(J)} cm by ${sideStr(O2)} cm, so its perimeter is ${m(`2(${P(J)}) + 2(${P(O2)}) = ${P(per)}`)}.`;
+    const check = `Check with x = ${x0}: the bigger rectangle is ${num(jv)} cm by ${num(2 * ov)} cm, so its perimeter is ${sumStr([jv, 2 * ov, jv, 2 * ov])} cm, and ${evalLin(per, x0)} ✓`;
+    explanation = `Joining along the ${sideStr(J)} cm sides means those sides touch, so the bigger rectangle is ${sideStr(J)} cm by ${m(`2(${P(O)}) = ${P(O2)}`)} cm. Its perimeter is ${m(`2(${P(J)}) + 2(${P(O2)}) = ${P([...twice(J), ...twice(O2)])} = ${P(per)}`)}. The joined sides are inside the shape now, so they don't count. ${check}.`;
+    solution = [
+      `The ${sideStr(J)} cm sides touch, so the other sides line up: the bigger rectangle is ${sideStr(J)} cm by ${m(`2(${P(O)}) = ${P(O2)}`)} cm.`,
+      `Perimeter = ${m(`2(${P(J)}) + 2(${P(O2)}) = ${P([...twice(J), ...twice(O2)])}`)}.`,
+      `Collect like terms: ${m(P(per))} cm. (The joined sides are inside the shape, so they don't count.)`,
+      `${check}.`,
+    ];
+    hints = ["Sketch the two rectangles joined together. What are the length and the width of the bigger rectangle?", "The joined sides end up inside the bigger rectangle, so they are not part of its perimeter."];
+    commonError = "Adding the two perimeters — the joined sides are inside the new shape, so they don't count.";
+  }
+
+  const ans = P(per);
+  const [ax, a0] = per;
+  const merged = tm(ax.c + a0.c, ax.v);
+  if (merged.c)
+    cands.push(wrong(ts(merged), `${m(ts(ax))} and ${m(ts(a0))} are unlike terms — one has ${m("x")} in it and the other is just a number — so they can't be combined into ${m(ts(merged))}.`));
+  return {
+    difficulty,
+    question,
+    prompt: "Write your expression with no brackets and the like terms collected.",
+    answer: exprSpec(ans, "simplified"),
+    display: m(ans),
+    correctFeedback,
+    wrong: distinct(ans, cands),
+    explanation,
+    solution,
+    hints,
+    verify,
+    commonError,
+    strategy: "Draw a diagram",
+    marks: difficulty === "challenge" ? 3 : 2,
+    sig,
+  };
+}
+
+function formAngle(r: Rng, tpl: "aTri" | "aLine" | "aPoint" | "aQuad" | "aIsoApex" | "aIsoBase"): Draft {
+  const x0 = r.pick([10, 15, 20, 25, 30]);
+  const at = (g: T[]) => valP(g, { x: x0 });
+  /** An angle px + a whose size at x = x0 is between lo and hi degrees. */
+  const pick = (lo: number, hi: number) => {
+    for (;;) {
+      const g = lin(r.int(1, 5), 5 * r.int(-6, 12));
+      if (at(g) >= lo && at(g) <= hi) return g;
+    }
+  };
+  const angStr = (g: T[]) => `${sideStr(g)}°`;
+  const y = `${m("y")}°`;
+  /** y = K − Px */
+  const yOf = (K: number, Pc: number) => P([tm(K), Xx(-Pc)]);
+  const findY = `Find an expression for ${m("y")} in terms of ${m("x")}. Simplify it fully.`;
+
+  let question = "";
+  let verify = "";
+  let sig = "";
+  let ans = "";
+  let correctFeedback = "";
+  let explanation = "";
+  let solution: string[] = [];
+  let hints: string[] = [];
+  let commonError = "";
+  let difficulty: Difficulty = "core";
+  let cands: (Wrong | null)[] = [];
+
+  if (tpl === "aIsoApex") {
+    let p = 1;
+    let a = 0;
+    for (;;) {
+      p = r.int(1, 3);
+      a = 5 * r.int(-3, 8);
+      const v = 2 * p * x0 + 2 * a;
+      if (v >= 20 && v <= 140) break;
+    }
+    const A = lin(2 * p, 2 * a);
+    const both = yOf(180 - 2 * a, 2 * p);
+    const A0 = at(A);
+    const y0 = (180 - A0) / 2;
+    ans = yOf(90 - a, p);
+    difficulty = "challenge";
+    question = `In an isosceles triangle the two base angles are equal. The third angle is ${angStr(A)} and each base angle is ${y}. ${findY}`;
+    verify = `(180-${brA(A)})/2`;
+    sig = `isoApex:${P(A)}`;
+    cands = [
+      wrong(both, `That's the two base angles **together**. They are equal, so each one is half of it: ${m(`y = (${both})/2`)}.`),
+      wrong(yOf(90 - 2 * a, 2 * p), `You halved the 180 but not the third angle. Halve **all** of ${m(both)}: ${m(`(${both})/2 = ${ans}`)}.`),
+      a ? wrong(yOf(90 + a, p), `${m(`180 - ${brA(A)} = ${P([tm(180), ...A.map(neg)])}`)} — the minus sign changes the sign of **every** term in the bracket. Then halve.`) : null,
+      wrong(yOf(180 - a, p), "The angles in a triangle add up to 180°, not 360°."),
+    ];
+    correctFeedback = `The two base angles together are ${m(`180 - ${brA(A)} = ${both}`)}, so each one is ${m(`(${both})/2 = ${ans}`)}.`;
+    const check = `Check with x = ${x0}: the third angle is ${A0}° and each base angle is ${y0}°, and ${A0} + ${y0} + ${y0} = 180 ✓`;
+    explanation = `The angles in a triangle add up to 180°. Taking away the third angle leaves the two base angles together: ${m(`180 - ${brA(A)} = ${both}`)}. The base angles are equal, so halve **every** term: ${m(`y = (${both})/2 = ${ans}`)}. ${check}.`;
+    solution = [
+      `The angles in a triangle add up to 180°, so the two base angles together are ${m(`180 - ${brA(A)} = ${both}`)}.`,
+      `The base angles are equal, so halve it: ${m(`y = (${both})/2 = ${ans}`)}.`,
+      `${check}.`,
+    ];
+    hints = ["What do the angles in a triangle add up to? The two base angles are equal.", `Take ${angStr(A)} away from 180°, then share what is left equally between the two base angles.`];
+    commonError = "Forgetting to halve: 180° minus the third angle gives both base angles together.";
+  } else if (tpl === "aIsoBase") {
+    let B: T[] = [];
+    for (;;) {
+      B = lin(r.int(1, 4), 5 * r.int(-4, 10));
+      if (at(B) >= 20 && at(B) <= 80) break;
+    }
+    const bx = B[0].c;
+    const ba = B[1]?.c ?? 0;
+    const B0 = at(B);
+    const y0 = 180 - 2 * B0;
+    const out = P([tm(180), ...B.map((t) => tm(-2 * t.c, t.v))]);
+    ans = yOf(180 - 2 * ba, 2 * bx);
+    difficulty = "challenge";
+    question = `An isosceles triangle has two equal base angles of ${angStr(B)} each. Its third angle is ${y}. ${findY}`;
+    verify = `180-2(${P(B)})`;
+    sig = `isoBase:${P(B)}`;
+    cands = [
+      wrong(yOf(180 - ba, bx), `There are **two** base angles of ${angStr(B)}, so take both of them away: ${m(`y = 180 - 2(${P(B)})`)}.`),
+      ba ? wrong(yOf(180 - ba, 2 * bx), `Both base angles include the ${m(String(ba))}: ${m(`2(${P(B)}) = ${P(twice(B))}`)}.`) : null,
+      ba ? wrong(yOf(180 + 2 * ba, 2 * bx), `${m(`180 - 2(${P(B)}) = ${out}`)} — the minus sign changes the sign of **every** term in the bracket.`) : null,
+      wrong(yOf(360 - 2 * ba, 2 * bx), "The angles in a triangle add up to 180°, not 360°."),
+    ];
+    correctFeedback = `Take both base angles away from 180°: ${m(`y = 180 - 2(${P(B)}) = ${ans}`)}.`;
+    const check = `Check with x = ${x0}: the base angles are ${B0}° each and ${m("y")} = ${y0}°, and ${B0} + ${B0} + ${y0} = 180 ✓`;
+    explanation = `The angles in a triangle add up to 180°, and there are two base angles of ${angStr(B)}. So ${m(`y = 180 - 2(${P(B)})`)}. Multiply out — the minus sign changes the sign of every term in the bracket: ${m(`y = ${out}`)}. Collect: ${m(`y = ${ans}`)}. ${check}.`;
+    solution = [
+      `The angles add up to 180° and the two base angles are equal, so ${m(`y = 180 - 2(${P(B)})`)}.`,
+      `Multiply out the bracket: ${m(`y = ${out}`)}.`,
+      `Collect like terms: ${m(`y = ${ans}`)}.`,
+      `${check}.`,
+    ];
+    hints = ["What do the angles in a triangle add up to?", `There are two base angles of ${angStr(B)} — take both of them away from 180°.`];
+    commonError = "Taking away only one base angle — an isosceles triangle has two equal base angles.";
+  } else {
+    const T0 = tpl === "aTri" || tpl === "aLine" ? 180 : 360;
+    const T2 = T0 === 180 ? 360 : 180;
+    const count = tpl === "aTri" ? 2 : tpl === "aLine" ? r.int(1, 2) : tpl === "aPoint" ? r.int(2, 3) : 3;
+    const [lo, hi] = tpl === "aQuad" ? [40, 150] : tpl === "aPoint" ? [30, 170] : count === 1 ? [20, 160] : [20, 110];
+    let G: T[][] = [];
+    for (;;) {
+      G = Array.from({ length: count }, () => pick(lo, hi));
+      const y0 = T0 - G.reduce((s, g) => s + at(g), 0);
+      if (y0 >= lo && y0 <= hi && new Set(G.map(P)).size === count) break;
+    }
+    const S = collect(G.flat());
+    const Pc = S.find((t) => deg(t.v))?.c ?? 0;
+    const sumA = S.find((t) => !deg(t.v))?.c ?? 0;
+    ans = yOf(T0 - sumA, Pc);
+    const fact = tpl === "aTri" ? "The angles in a triangle" : tpl === "aLine" ? "Angles on a straight line" : tpl === "aPoint" ? "Angles around a point" : "The angles in a quadrilateral";
+    const minus = `${T0} - ${G.map(brA).join(" - ")}`;
+    const opened = P([tm(T0), ...G.flat().map(neg)]);
+    const vals = [...G.map(at), T0 - G.reduce((s, g) => s + at(g), 0)];
+    difficulty = count === 1 ? "warmup" : "core";
+    question =
+      tpl === "aTri"
+        ? `The angles of a triangle are ${list([...G.map(angStr), y])}. ${findY}`
+        : tpl === "aLine"
+          ? count === 1
+            ? `Two angles sit next to each other on a straight line. One is ${angStr(G[0])} and the other is ${y}. ${findY}`
+            : `Three angles sit next to each other on a straight line: ${list([...G.map(angStr), y])}. ${findY}`
+          : tpl === "aPoint"
+            ? `${count === 2 ? "Three" : "Four"} angles meet at a point: ${list([...G.map(angStr), y])}. ${findY}`
+            : `Three angles of a quadrilateral are ${list(G.map(angStr))}. The fourth angle is ${y}. ${findY}`;
+    verify = `${T0}-${G.map((g) => `(${P(g)})`).join("-")}`;
+    sig = `${tpl}:${G.map(P).sort().join("|")}`;
+    const g0 = G[0];
+    cands = [
+      sumA ? wrong(yOf(T0 + sumA, Pc), `Take away **all** of each angle: ${m(`${minus} = ${opened}`)}. The minus sign in front of a bracket changes the sign of **every** term inside it.`) : null,
+      wrong(yOf(T2 - sumA, Pc), `${fact} add up to ${T0}°, not ${T2}°.`),
+      count > 1 ? wrong(yOf(T0 - (g0[1]?.c ?? 0), g0[0].c), `You only took away ${angStr(g0)}. **Every** other angle comes off ${T0}° too: ${m(`y = ${minus}`)}.`) : null,
+      wrong(P([Xx(Pc), tm(sumA - T0)]), `This is the wrong way round — it's the negative of the answer. ${m("y")} is what is **left** when you take the other angles away from ${T0}°.`),
+    ];
+    correctFeedback = `${fact} add up to ${T0}°, so ${m(`y = ${minus} = ${ans}`)}.`;
+    const check = `Check with x = ${x0}: the angles are ${list(vals.map((v) => `${v}°`))}, which add up to ${T0}° ✓`;
+    explanation = `${fact} add up to ${T0}°, so ${m(`y = ${minus}`)}. Take away **every** term in each bracket: ${m(`y = ${opened}`)}. Collect the numbers and the x-terms: ${m(`y = ${ans}`)}. ${check}.`;
+    solution = [
+      `${fact} add up to ${T0}°, so ${m(`y = ${minus}`)}.`,
+      `Remove the brackets — each minus sign changes the sign of every term in its bracket: ${m(`y = ${opened}`)}.`,
+      `Collect like terms: ${m(`y = ${ans}`)}.`,
+      `${check}.`,
+    ];
+    hints = [`What do ${fact.charAt(0).toLowerCase()}${fact.slice(1)} add up to?`, `Write ${m(`y = ${minus}`)}, then remove the brackets carefully and collect like terms.`];
+    const gb = G.find((g) => g.length > 1);
+    commonError = gb
+      ? `Taking away only the first term of a bracketed angle, e.g. writing ${m(`${T0} - (${P(gb)}) = ${P([tm(T0), neg(gb[0]), gb[1]])}`)} instead of ${m(P([tm(T0), neg(gb[0]), neg(gb[1])]))}.`
+      : "Using the wrong angle fact: 180° for a triangle or a straight line, 360° around a point or in a quadrilateral.";
+  }
+
+  return {
+    difficulty,
+    question,
+    prompt: `Give ${m("y")} in terms of ${m("x")}, simplified.`,
+    answer: exprSpec(ans, "simplified"),
+    display: m(ans),
+    correctFeedback,
+    wrong: distinct(ans, cands),
+    explanation,
+    solution,
+    hints,
+    verify,
+    commonError,
+    strategy: "Check by substituting",
+    marks: difficulty === "warmup" ? 1 : difficulty === "challenge" ? 3 : 2,
+    sig,
+  };
+}
+
+const exForming: Generator = {
+  id: "ex-forming",
+  topic: "ex",
+  section: "ex-forming",
+  label: "Form and simplify an expression for a perimeter or a missing angle",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const tpl = r.pick(["rect", "rect", "tri", "iso", "join", "aTri", "aTri", "aLine", "aPoint", "aQuad", "aIsoApex", "aIsoBase"] as const);
+    if (tpl === "rect" || tpl === "tri" || tpl === "iso" || tpl === "join") return formPerimeter(r, tpl);
+    return formAngle(r, tpl);
+  },
+};
+
+export const GEN_EX: Generator[] = [exCollect, exMultiply, exExpand, exFactorise, exDouble, exForming];

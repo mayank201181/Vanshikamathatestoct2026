@@ -3,7 +3,7 @@
 //   pc-of              a percentage of an amount, built from 10%, 5% and 1% (non-calculator)
 //   pc-change          increase or decrease an amount by a percentage (incl. increases over 100%)
 
-import { cap, fr, gcd, m, money, num, numSpec, reduce, tidy, type Draft, type Generator, type Rng, type Wrong } from "./core.ts";
+import { cap, fr, fracSpec, gcd, m, money, num, numSpec, reduce, tidy, type Draft, type Generator, type Rng, type Wrong } from "./core.ts";
 import type { Difficulty } from "../types.ts";
 
 // ---------------------------------------------------------------------------
@@ -136,6 +136,280 @@ function splitText(p: number): string {
   if (rest > 0) out.push(pct(rest));
   return out.join(" + ");
 }
+
+// ---------------------------------------------------------------------------
+// pc-fdp — convert between fractions, decimals and percentages
+// ---------------------------------------------------------------------------
+
+/** Fraction (denominator a factor of 100, or eighths) → percentage. */
+function fracToPct(r: Rng): Draft {
+  const eighths = r.chance(0.2);
+  const d = eighths ? 8 : r.pick([4, 5, 10, 20, 25, 50]);
+  let n = r.int(1, d - 1);
+  while (gcd(n, d) !== 1) n = r.int(1, d - 1);
+  const p = tidy((100 * n) / d);
+  const dec = tidy(n / d);
+  const k = 100 / d; // whole number unless d = 8
+  const f = m(`${n}/${d}`);
+
+  const wrong: Wrong[] = [
+    {
+      display: pct(n),
+      spec: numSpec(n),
+      feedback: eighths
+        ? `${pct(n)} would be ${m(`${n}/100`)}, but here the whole is split into 8 equal parts, not 100. Each eighth is 12.5%, so ${f} = ${n} × 12.5% = ${pct(p)}.`
+        : `${pct(n)} would be ${m(`${n}/100`)}. Here the denominator is ${d}, so scale it up to 100 first: ${d} × ${k} = 100, so ${f} = ${raw(p, 100)}.`,
+    },
+    {
+      display: pct(p / 10),
+      spec: numSpec(p / 10),
+      feedback: `${n} ÷ ${d} = ${num(dec)}, but to change a decimal into a percentage you multiply by 100, not 10: ${num(dec)} × 100 = ${pct(p)}.`,
+    },
+    {
+      display: pct(dec),
+      spec: numSpec(dec),
+      feedback: `${num(dec)} is ${f} as a decimal, not as a percentage. Multiply it by 100 to make a percentage: ${num(dec)} × 100 = ${pct(p)}.`,
+    },
+    eighths
+      ? {
+          display: pct(10 * n),
+          spec: numSpec(10 * n),
+          feedback: `That treats each eighth as 10%, but 10% pieces would need 10 equal parts. Each eighth is 12.5% (half of 25%), so ${f} = ${pct(p)}.`,
+        }
+      : {
+          display: pct(n + 100 - d),
+          spec: numSpec(n + 100 - d),
+          feedback: `You added ${100 - d} to the top and the bottom to make the denominator 100. Adding changes the size of a fraction — multiply instead: ${d} × ${k} = 100, so the top becomes ${n} × ${k} = ${p}.`,
+        },
+  ];
+
+  const times = n === 1 ? "" : `${n} × 12.5% = `;
+  return {
+    difficulty: eighths ? "core" : d <= 10 ? "warmup" : r.chance(0.5) ? "warmup" : "core",
+    question: `Write ${f} as a percentage.`,
+    answer: numSpec(p, pct(p)),
+    display: pct(p),
+    correctFeedback: eighths ? `${m("1/8")} = 12.5%, so ${f} = ${times}${pct(p)}.` : `${d} × ${k} = 100, so ${f} = ${raw(p, 100)} = ${pct(p)}.`,
+    wrong,
+    explanation: eighths
+      ? `8 is not a factor of 100, so use a fact you know: ${m("1/4")} = 25%, and ${m("1/8")} is half of ${m("1/4")}, so ${m("1/8")} = 12.5%.${n === 1 ? "" : ` Then ${f} = ${times}${pct(p)}.`} Check by dividing: ${n} ÷ 8 = ${num(dec)}, and ${num(dec)} × 100 = ${num(p)} ✓.`
+      : `*Per cent* means "out of 100". ${d} × ${k} = 100, so multiply the top and the bottom by ${k}: ${f} = ${raw(p, 100)} = ${pct(p)}. Check by dividing: ${n} ÷ ${d} = ${num(dec)}, and ${num(dec)} × 100 = ${num(p)} ✓.`,
+    solution: eighths
+      ? [
+          `8 does not go into 100 exactly, so use ${m("1/8")} = 12.5% (half of ${m("1/4")} = 25%).`,
+          `${f} = ${times}**${pct(p)}**.`,
+          `Check: ${n} ÷ 8 = ${num(dec)}, and ${num(dec)} × 100 = ${num(p)} ✓`,
+        ]
+      : [
+          `*Per cent* means "out of 100", so rewrite ${f} with a denominator of 100.`,
+          `${d} × ${k} = 100, so multiply the top and the bottom by ${k}: ${f} = ${raw(p, 100)}.`,
+          `${raw(p, 100)} = **${pct(p)}**.`,
+        ],
+    hints: eighths
+      ? [`8 doesn't go into 100 exactly. What is ${m("1/4")} as a percentage, and how is ${m("1/8")} related to ${m("1/4")}?`, `${m("1/8")} is half of 25%. How many eighths do you need?`]
+      : [`*Per cent* means "out of 100". What do you multiply ${d} by to make 100?`, "Whatever you multiply the bottom by, multiply the top by the same number."],
+    verify: `${n}/${d}*100`,
+    commonError: `Writing the numerator as the percentage (${f} = ${pct(n)}), or stopping at the decimal ${num(dec)} instead of multiplying by 100.`,
+    strategy: eighths ? "Find a pattern" : "Find a common denominator",
+    marks: eighths ? 2 : 1,
+    sig: `f>p:${n}/${d}`,
+  };
+}
+
+/** Decimal (less than 1) → percentage. */
+function decToPct(r: Rng): Draft {
+  const three = r.chance(0.3);
+  // two decimal places (0.35, 0.4, 0.07), or three ending in 5 (0.465 = 46.5%)
+  const x = tidy(three ? (r.int(1, 98) * 10 + 5) / 1000 : r.int(1, 99) / 100);
+  const p = tidy(x * 100);
+  const oneDp = !three && p % 10 === 0; // 0.4
+  const tiny = !three && p < 10; // 0.07
+  const xs = num(x);
+
+  const wrong: Wrong[] = [
+    {
+      display: pct(x * 10),
+      spec: numSpec(x * 10),
+      feedback: oneDp
+        ? `${xs} is ${num(p / 10)} *tenths*, which is ${num(p)} hundredths — so ${xs} = ${pct(p)}, not ${pct(x * 10)}. Multiply by 100, not 10.`
+        : `You multiplied by 10. Multiplying by 100 moves every digit two places, not one: ${xs} × 100 = ${num(p)}, so ${xs} = ${pct(p)}.`,
+    },
+    {
+      display: pct(x * 1000),
+      spec: numSpec(x * 1000),
+      feedback: tiny
+        ? `${xs} is ${num(p)} *hundredths*, not ${num(p)} tenths (${num(p / 10)} would be ${pct(p * 10)}). Per cent means hundredths, so ${xs} = ${pct(p)}.`
+        : `You moved the digits three places (× 1000). Multiplying by 100 moves them two places: ${xs} × 100 = ${num(p)}, so ${xs} = ${pct(p)}.`,
+    },
+    {
+      display: pct(x),
+      spec: numSpec(x),
+      feedback: `${pct(x)} means ${xs} out of 100 — less than 1%. To change a decimal into a percentage, multiply by 100: ${xs} × 100 = ${num(p)}, so ${pct(p)}.`,
+    },
+    {
+      display: pct(x / 100),
+      spec: numSpec(x / 100),
+      feedback: `You divided by 100. Going from a decimal to a percentage the number gets bigger, so multiply by 100: ${xs} × 100 = ${num(p)}.`,
+    },
+  ];
+
+  const why = oneDp ? `Think of ${xs} as ${xs}0: that's ${num(p)} hundredths, and per cent means hundredths.` : `${xs} is ${num(p)} hundredths, and per cent means hundredths.`;
+  return {
+    difficulty: three || tiny ? "core" : "warmup",
+    question: `Write ${xs} as a percentage.`,
+    answer: numSpec(p, pct(p)),
+    display: pct(p),
+    correctFeedback: `${xs} × 100 = ${num(p)}, so ${xs} = ${pct(p)}.`,
+    wrong,
+    explanation: `To change a decimal into a percentage, multiply by 100 — every digit moves two places to the left. ${xs} × 100 = ${num(p)}, so ${xs} = ${pct(p)}. ${why} Check: ${pct(p)} = ${num(p)} ÷ 100 = ${xs} ✓.`,
+    solution: [`*Per cent* means "out of 100", so multiply the decimal by 100.`, `${xs} × 100 = ${num(p)} (every digit moves two places to the left).`, `So ${xs} = **${pct(p)}**.`],
+    hints: [`*Per cent* means "out of 100". How many hundredths is ${xs}?`, `Multiply ${xs} by 100 — every digit moves two places to the left.`],
+    verify: `${xs}*100`,
+    commonError: oneDp ? `Writing ${xs} as ${pct(x * 10)} — ${xs} is ${num(p)} hundredths, so it is ${pct(p)}.` : "Multiplying by 10 instead of 100, or just putting a % sign on the decimal.",
+    marks: 1,
+    sig: `d>p:${xs}`,
+  };
+}
+
+/** Percentage (less than 100%) → fraction in its simplest form. */
+function pctToFrac(r: Rng): Draft {
+  const half = r.chance(0.2);
+  let p: number;
+  if (half) p = r.pick([2.5, 7.5, 12.5, 17.5, 37.5, 62.5, 87.5]);
+  else {
+    p = r.int(2, 98);
+    while (gcd(p, 100) === 1 || (p % 10 === 0 && p !== 20 && p !== 50)) p = r.int(2, 98);
+  }
+  // p% = top/bot in whole numbers: p/100, or 2p/200 to clear a half
+  const top = half ? 2 * p : p;
+  const bot = half ? 200 : 100;
+  const g = gcd(top, bot);
+  const [a, b] = reduce(top, bot);
+  const ans = fr(a, b);
+  const P = pct(p);
+  const over100 = half ? m(`${num(p)}/100`) : raw(p, 100);
+
+  const wrong: Wrong[] = [];
+  // out of 10 instead of out of 100 (for a half: cleared the decimal on the top only)
+  const [tn, td] = reduce(half ? 2 * p : p, half ? 20 : 10);
+  if (td !== 1) {
+    wrong.push({
+      display: fr(tn, td, false),
+      spec: fracSpec(tn, td, { simplest: false }),
+      feedback: half
+        ? `You turned ${num(p)} into ${num(p * 10)} (× 10) but left 100 on the bottom, and ${raw(p * 10, 100)} is ${pct(p * 10)}. Whatever you do to the top, do to the bottom: ${over100} = ${raw(top, bot)}.`
+        : `This is ${raw(p, 10)} simplified — ${p} out of 10. But per cent means out of **100**: ${P} = ${raw(p, 100)}, which simplifies to ${ans}.`,
+    });
+  }
+  // "p% = 1/p"
+  if (!half && 100 % p === 0 && p * p !== 100) {
+    wrong.push({
+      display: fr(1, p),
+      spec: fracSpec(1, p, { simplest: false }),
+      feedback: `${fr(1, p)} means 1 out of ${p}, which is ${pct(100 / p)}, not ${P}. ${P} means ${p} out of 100: ${raw(p, 100)} = ${ans}.`,
+    });
+  }
+  // divided the top by the common factor but not the bottom
+  wrong.push({
+    display: raw(a, bot),
+    spec: fracSpec(a, bot, { simplest: false }),
+    feedback: `You divided the top by ${g} but not the bottom. A fraction keeps its value only if you divide the top **and** the bottom by the same number: ${raw(top, bot)} = ${ans}.`,
+  });
+  // out of 1000
+  const [kn, kd] = reduce(top, bot * 10);
+  wrong.push({
+    display: fr(kn, kd),
+    spec: fracSpec(kn, kd, { simplest: false }),
+    feedback: `${fr(kn, kd)} is ${num(top)} out of ${big(bot * 10)}, which is only ${pct(p / 10)}. Per cent means out of 100: ${P} = ${over100} = ${ans}.`,
+  });
+
+  const start = half ? `${P} = ${over100}. Double the top and the bottom to clear the decimal: ${raw(top, bot)}.` : `${P} = ${raw(p, 100)}.`;
+  return {
+    difficulty: half ? "challenge" : b <= 10 ? "warmup" : "core",
+    question: `Write ${P} as a fraction in its simplest form.`,
+    answer: fracSpec(a, b),
+    display: ans,
+    correctFeedback: `${start} Divide the top and the bottom by ${g}: ${ans}.`,
+    wrong,
+    explanation: `*Per cent* means "out of 100". ${start} The highest common factor of ${top} and ${bot} is ${g}, so divide the top and the bottom by ${g}: ${raw(top, bot)} = ${ans}. Check: ${a} ÷ ${b} = ${num(a / b)}, which is ${P} ✓.`,
+    solution: [
+      half ? `${P} = ${over100}, and doubling the top and the bottom clears the decimal: ${raw(top, bot)}.` : `*Per cent* means "out of 100", so ${P} = ${raw(p, 100)}.`,
+      `The highest common factor of ${top} and ${bot} is ${g}. Divide the top and the bottom by ${g}: ${raw(top, bot)} = **${ans}**.`,
+      `Check: ${a} ÷ ${b} = ${num(a / b)} = ${P} ✓`,
+    ],
+    hints: half
+      ? [`Write ${P} over 100, then double the top and the bottom to get rid of the decimal.`, "Now find the highest common factor of the top and the bottom, and divide both by it."]
+      : [`*Per cent* means "out of 100". Write ${P} as a fraction with 100 on the bottom.`, "Find the highest common factor of the top and the bottom, and divide both by it."],
+    verify: `${num(p)}/100`,
+    commonError: "Not simplifying fully, or dividing the top by a number but forgetting to divide the bottom by it too.",
+    strategy: "Spot the common factor",
+    marks: half ? 2 : b <= 10 ? 1 : 2,
+    sig: `p>f:${num(p)}`,
+  };
+}
+
+/** Percentage → decimal. */
+function pctToDec(r: Rng): Draft {
+  const half = r.chance(0.25);
+  const p = half ? r.int(1, 99) + 0.5 : r.int(1, 99);
+  const x = tidy(p / 100);
+  const P = pct(p);
+  const xs = num(x);
+
+  const wrong: Wrong[] = [
+    {
+      display: num(p / 10),
+      spec: numSpec(p / 10, undefined, { allowFraction: false }),
+      feedback: `${num(p / 10)} is ${pct(p * 10)}. You divided by 10, but ${P} means ${num(p)} out of 100, so divide by 100: ${num(p)} ÷ 100 = ${xs}.`,
+    },
+    {
+      display: num(p / 1000),
+      spec: numSpec(p / 1000, undefined, { allowFraction: false }),
+      feedback: `${num(p / 1000)} is only ${pct(p / 10)} — you divided by 1000. Dividing by 100 moves the digits two places: ${num(p)} ÷ 100 = ${xs}.`,
+    },
+  ];
+  if (!half && [2, 4, 5, 8].includes(p)) {
+    wrong.push({
+      display: num(1 / p),
+      spec: numSpec(1 / p, undefined, { allowFraction: false }),
+      feedback: `${num(1 / p)} is ${fr(1, p)} as a decimal, and ${fr(1, p)} is ${pct(100 / p)}, not ${P}. ${P} = ${raw(p, 100)} = ${xs}.`,
+    });
+  }
+  wrong.push({
+    display: big(p * 100),
+    spec: numSpec(p * 100, undefined, { allowFraction: false }),
+    feedback: `You multiplied by 100. Going from a percentage to a decimal the number gets smaller, so divide by 100: ${num(p)} ÷ 100 = ${xs}.`,
+  });
+
+  const placeholder = p < 10 ? ` You need a 0 straight after the point as a placeholder: ${xs}, not ${num(p / 10)}.` : "";
+  return {
+    difficulty: half ? "core" : "warmup",
+    question: `Write ${P} as a decimal.`,
+    answer: numSpec(x, undefined, { allowFraction: false }),
+    display: xs,
+    correctFeedback: `${P} = ${num(p)} ÷ 100 = ${xs}.`,
+    wrong,
+    explanation: `*Per cent* means "out of 100", so ${P} = ${num(p)} ÷ 100. Dividing by 100 moves every digit two places to the right: ${num(p)} ÷ 100 = ${xs}.${placeholder} Check: ${xs} × 100 = ${num(p)} ✓.`,
+    solution: [`*Per cent* means "out of 100", so ${P} = ${num(p)} ÷ 100.`, `Dividing by 100 moves every digit two places to the right: ${num(p)} ÷ 100 = **${xs}**.`, `Check: ${xs} × 100 = ${num(p)} ✓`],
+    hints: [`*Per cent* means "out of 100". What do you divide by?`, "Dividing by 100 moves every digit two places to the right."],
+    verify: `${num(p)}/100`,
+    commonError: p < 10 ? `Writing ${P} as ${num(p / 10)} — that is ${pct(p * 10)}. ${P} = ${xs}.` : `Dividing by 10 instead of 100 (${P} → ${num(p / 10)}).`,
+    marks: 1,
+    sig: `p>d:${num(p)}`,
+  };
+}
+
+const pcFdp: Generator = {
+  id: "pc-fdp",
+  topic: "pc",
+  section: "pc-fdp",
+  label: "Convert between fractions, decimals and percentages",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    const dir = r.int(0, 3);
+    return dir === 0 ? fracToPct(r) : dir === 1 ? decToPct(r) : dir === 2 ? pctToFrac(r) : pctToDec(r);
+  },
+};
 
 // ---------------------------------------------------------------------------
 // pc-of — a percentage of an amount, without a calculator
@@ -855,4 +1129,4 @@ const pcMultiplier: Generator = {
   },
 };
 
-export const GEN_PC: Generator[] = [pcOf, pcAsPercent, pcChange, pcPercentChange, pcMultiplier];
+export const GEN_PC: Generator[] = [pcFdp, pcOf, pcAsPercent, pcChange, pcPercentChange, pcMultiplier];

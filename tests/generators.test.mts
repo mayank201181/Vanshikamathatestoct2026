@@ -3,7 +3,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { rng } from "../lib/gen/core.ts";
-import { GENERATORS, draftFor, draftProblems, genId, materialise, parseGenId } from "../lib/gen/index.ts";
+import { GENERATORS, draftFor, draftProblems, genId, materialise, mcqOptions, parseGenId } from "../lib/gen/index.ts";
+import { sameOptionValue } from "../lib/verify.ts";
 import { SECTIONS } from "../lib/sections.ts";
 
 const SEEDS = Number(process.env.GEN_SEEDS ?? 600);
@@ -40,6 +41,19 @@ for (const g of gens) {
       assert.ok(rate <= 0.2, `${g.id} (${kind}): ${(rate * 100).toFixed(1)}% of first rolls are unusable (max 20%)\n${examples.join("\n")}`);
     }
   });
+
+  if (g.kinds.includes("mcq")) {
+    test(`${g.id}: no two multiple-choice options give the same answer`, () => {
+      for (let seed = 1; seed <= Math.min(SEEDS, 300); seed++) {
+        const d = draftFor(g, seed, "mcq");
+        if (!d) continue;
+        const { options } = mcqOptions(d);
+        for (let i = 0; i < options.length; i++)
+          for (let j = i + 1; j < options.length; j++)
+            assert.ok(!sameOptionValue(options[i], options[j]), `${g.id} seed ${seed}: "${options[i]}" and "${options[j]}" give the same answer`);
+      }
+    });
+  }
 
   test(`${g.id}: plenty of different numbers (so mocks never need to repeat)`, () => {
     const sigs = new Set<string>();

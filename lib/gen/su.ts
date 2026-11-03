@@ -109,6 +109,8 @@ function build(it: Item): Draft {
 
 /** A fraction (or whole number) as {{ }} maths, reduced, mixed if improper: used for slips. */
 const frac = (n: number, d: number) => fr(n, d);
+/** The same, but improper (4/3 rather than 1 1/3) — how a power-of-a-fraction slip comes out. */
+const fracI = (n: number, d: number) => fr(n, d, false);
 /** The spec for a fractional slip: any equal fraction or mixed number she might type. */
 const fracTrap = (n: number, d: number) => fracSpec(n, d, { simplest: false });
 
@@ -1183,7 +1185,7 @@ function formulaEnergy(r: Rng): Item {
   slips.push(
     { v: mass * sq, feedback: `This is m × ${m("v^2")} = ${mass} × ${sq} — you forgot to halve. The ${m("1/2")} at the front means divide by 2.` },
     { v: (mass * vel) / 2, feedback: `This comes from forgetting to square v (${m("1/2")} × ${mass} × ${vb(vel)}). Square the velocity first: ${m(`${v(vel)}^2`)} = ${sq}.` },
-    { v: ((mass * V) / 2) ** 2, feedback: `This comes from squaring the whole of ${m("1/2")} × ${mass} × ${V} = ${(mass * V) / 2}. Only the v is squared.` },
+    { v: ((mass * V) / 2) ** 2, feedback: `This comes from squaring the whole of ${m("1/2")} × ${mass} × ${vb(vel)} = ${num((mass * vel) / 2)}. Only the v is squared.` },
     { v: ((mass * V) ** 2) / 2, feedback: `This comes from squaring m as well as v (${m("1/2")} × ${m(`${mass * V}^2`)}). In ${m("1/2 mv^2")} only the v is squared.` },
   );
   return {
@@ -1489,4 +1491,356 @@ const suDecimals: Generator = {
   },
 };
 
-export const GEN_SU: Generator[] = [suBasics, suNegatives, suFormula, suDecimals];
+// ---------------------------------------------------------------------------
+// su-powers — squares, cubes and roots of negatives and of numbers between 0 and 1
+// ---------------------------------------------------------------------------
+
+/** 0.3² — and is it bigger or smaller than 0.3? */
+function powDecSquare(r: Rng): Item {
+  const k = r.int(2, 9);
+  const x = k / 10;
+  const ans = tidy(x * x);
+  const X = num(x);
+  const style = r.int(0, 2);
+  const L = r.pick(["d", "x", "p", "y"]);
+  const question =
+    style === 0
+      ? `Is ${m(`${X}^2`)} bigger or smaller than ${X}? Work out ${m(`${X}^2`)} to find out.`
+      : style === 1
+        ? `Work out ${m(`${X}^2`)} without a calculator.`
+        : `If ${given([[L, X]])}, work out ${m(`${L}^2`)}.`;
+  return {
+    difficulty: k <= 5 ? "warmup" : "core",
+    question,
+    answer: ans,
+    correct: `${X} × ${X} = ${num(ans)} (${k} × ${k} = ${k * k}, with 2 decimal places).`,
+    slips: [
+      { v: tidy(2 * x), feedback: `${num(tidy(2 * x))} is ${X} × 2 — you doubled instead of squaring. Squaring means multiplying the number by itself: ${X} × ${X}.` },
+      { v: tidy(ans * 10), feedback: `Check the decimal point: ${k} × ${k} = ${k * k}, and ${X} × ${X} has two decimal places in total (one from each ${X}), so it is ${num(ans)}.` },
+      { v: tidy(ans / 10), feedback: `That has one decimal place too many. ${X} × ${X} has 1 + 1 = 2 decimal places, so it is ${num(ans)}.` },
+      { v: tidy(x / 2), feedback: `${num(tidy(x / 2))} is half of ${X}. Squaring isn't halving: ${X}² = ${X} × ${X}.` },
+    ],
+    explanation: `${m(`${X}^2`)} means ${X} × ${X}. Work out ${k} × ${k} = ${k * k}, then count decimal places: 1 + 1 = 2, so the answer is ${num(ans)}. Notice ${num(ans)} is *smaller* than ${X}: squaring a number between 0 and 1 makes it smaller, because you are taking a part (${X}) of something that is already less than 1.`,
+    solution: [
+      `${m(`${X}^2`)} = ${X} × ${X}.`,
+      `${k} × ${k} = ${k * k}, and there are 2 decimal places in total, so ${m(`${X}^2`)} = **${num(ans)}**.`,
+      `${num(ans)} < ${X}: squaring a number between 0 and 1 makes it smaller.`,
+    ],
+    hints: [`${m(`${X}^2`)} means ${X} × ${X}. Try ${k} × ${k} first, then count the decimal places.`, `How many decimal places are there altogether in ${X} × ${X}?`],
+    verify: `${X}^2`,
+    commonError: `Writing ${m(`${X}^2`)} = ${num(tidy(ans * 10))} (decimal point in the wrong place) or ${num(tidy(2 * x))} (doubling).`,
+    sig: `p2:${X}`,
+  };
+}
+
+/** 0.2³ */
+function powDecCube(r: Rng): Item {
+  const k = r.int(2, 5);
+  const x = k / 10;
+  const ans = tidy(x ** 3);
+  const X = num(x);
+  const sq = tidy(x * x);
+  const L = r.pick(["x", "y", "n", "a"]);
+  const asLetter = r.chance(0.5);
+  return {
+    difficulty: "core",
+    question: asLetter ? `If ${given([[L, X]])}, work out ${m(`${L}^3`)}.` : `Work out ${m(`${X}^3`)} without a calculator.`,
+    answer: ans,
+    correct: `${X} × ${X} × ${X} = ${num(ans)} (${k} × ${k} × ${k} = ${k ** 3}, with 3 decimal places).`,
+    slips: [
+      { v: tidy(3 * x), feedback: `${num(tidy(3 * x))} is ${X} × 3 — you multiplied by 3 instead of cubing. Cubing means ${X} × ${X} × ${X}.` },
+      { v: sq, feedback: `${num(sq)} is ${m(`${X}^2`)} — you squared instead of cubing. Multiply by ${X} once more.` },
+      { v: tidy(ans * 10), feedback: `Check the decimal point: ${k} × ${k} × ${k} = ${k ** 3}, and there are 1 + 1 + 1 = 3 decimal places, so the answer is ${num(ans)}.` },
+    ],
+    explanation: `${m(`${X}^3`)} means ${X} × ${X} × ${X}. Work out ${k} × ${k} × ${k} = ${k ** 3}, then count decimal places: 1 + 1 + 1 = 3, so the answer is ${num(ans)}. It's much smaller than ${X} — every extra multiplication by a number between 0 and 1 makes the answer smaller still (${m(`${X}^2`)} = ${num(sq)}, ${m(`${X}^3`)} = ${num(ans)}).`,
+    solution: [
+      `${m(`${X}^3`)} = ${X} × ${X} × ${X}.`,
+      `${X} × ${X} = ${num(sq)}, then ${num(sq)} × ${X} = **${num(ans)}**.`,
+      `Check: ${k}³ = ${k ** 3} and there are 3 decimal places in total.`,
+    ],
+    hints: [`Write it out: ${X} × ${X} × ${X}. What is ${X} × ${X}?`, `Count the decimal places: one from each ${X}.`],
+    verify: `${X}^3`,
+    commonError: `Multiplying by 3 instead of cubing, or putting the decimal point in the wrong place.`,
+    sig: `p3:${X}`,
+  };
+}
+
+/** √0.49 */
+function powDecRoot(r: Rng): Item {
+  const k = r.int(2, 9);
+  const ans = k / 10;
+  const inside = tidy(ans * ans);
+  const I = num(inside);
+  const L = r.pick(["p", "y", "x", "w"]);
+  const style = r.int(0, 2);
+  const question =
+    style === 0
+      ? `Work out ${m(`sqrt(${I})`)} without a calculator.`
+      : style === 1
+        ? `If ${given([[L, I]])}, work out ${m(`sqrt(${L})`)}.`
+        : `Which positive number, multiplied by itself, gives ${I}? Work out ${m(`sqrt(${I})`)}.`;
+  return {
+    difficulty: "core",
+    question,
+    answer: ans,
+    correct: `${num(ans)} × ${num(ans)} = ${I}, so ${m(`sqrt(${I})`)} = ${num(ans)}.`,
+    slips: [
+      { v: tidy(ans / 10), feedback: `${num(tidy(ans / 10))} has the decimal point in the wrong place: ${num(tidy(ans / 10))} × ${num(tidy(ans / 10))} = ${num(tidy(inside / 100))}. Check by squaring: ${num(ans)} × ${num(ans)} = ${I}.` },
+      { v: tidy(inside / 2), feedback: `${num(tidy(inside / 2))} is half of ${I} — you halved instead of square-rooting. The square root is the number that multiplies by itself to give ${I}.` },
+      { v: tidy(inside * inside), feedback: `${num(tidy(inside * inside))} is ${m(`${I}^2`)} — you squared instead of square-rooting.` },
+      { v: k, feedback: `${k} is ${m(`sqrt(${k * k})`)}, not ${m(`sqrt(${I})`)}. ${I} is ${k * k} hundredths, so its square root is ${k} tenths: ${num(ans)}.` },
+    ],
+    explanation: `${m(`sqrt(${I})`)} asks: which number times itself makes ${I}? Since ${k} × ${k} = ${k * k}, try ${num(ans)}: ${num(ans)} × ${num(ans)} = ${I} (two decimal places). So ${m(`sqrt(${I})`)} = ${num(ans)}. Notice the root is *bigger* than ${I} — square-rooting a number between 0 and 1 makes it bigger.`,
+    solution: [
+      `Look for a number that squares to ${I}. Since ${k} × ${k} = ${k * k}, try ${num(ans)}.`,
+      `Check: ${num(ans)} × ${num(ans)} = ${I} ✓, so ${m(`sqrt(${I})`)} = **${num(ans)}**.`,
+      `${num(ans)} > ${I}: square-rooting a number between 0 and 1 makes it bigger.`,
+    ],
+    hints: [`Which number multiplied by itself gives ${I}? Think about ${k} × ${k} = ${k * k}.`, `Check your answer by squaring it — count the decimal places.`],
+    verify: `sqrt(${I})`,
+    commonError: `Getting ${m(`sqrt(${I})`)} = ${num(tidy(ans / 10))}: check by squaring — ${num(tidy(ans / 10))} × ${num(tidy(ans / 10))} = ${num(tidy(inside / 100))}.`,
+    strategy: "Work backwards",
+    sig: `pr:${I}`,
+  };
+}
+
+/** (−2)³, (−5)², −5², (−0.3)², ∛(−27) */
+function powNegative(r: Rng): Item {
+  const kind = r.pick(["cube", "square", "minusSquare", "decSquare", "cbrt"] as const);
+  if (kind === "cube" || kind === "square") {
+    const K = kind === "cube" ? r.int(2, 5) : r.int(3, 9);
+    const n = kind === "cube" ? 3 : 2;
+    const ans = (-K) ** n;
+    const pw = kind === "cube" ? "cube" : "square";
+    return {
+      difficulty: "warmup",
+      question: `Work out ${m(`(-${K})^${n}`)}.`,
+      answer: ans,
+      correct: kind === "cube" ? `(−${K}) × (−${K}) = ${K * K}, then ${K * K} × (−${K}) = ${ans}.` : `(−${K}) × (−${K}) = ${ans}: negative × negative is positive.`,
+      slips:
+        kind === "cube"
+          ? [
+              { v: K ** 3, feedback: `The size is right but the sign isn't: (−${K}) × (−${K}) = ${K * K}, then ${K * K} × (−${K}) = ${ans}. Three negatives multiplied give a negative.` },
+              { v: -3 * K, feedback: `This is −${K} × 3. Cubing means multiplying three copies: (−${K}) × (−${K}) × (−${K}).` },
+              { v: K * K, feedback: `${K * K} is ${m(`(-${K})^2`)} — you squared instead of cubing. Multiply by −${K} once more.` },
+            ]
+          : [
+              { v: -K * K, feedback: `Two negatives multiplied give a positive: (−${K}) × (−${K}) = +${K * K}. (−${K * K} would be ${m(`-${K}^2`)}, with no brackets.)` },
+              { v: -2 * K, feedback: `This is −${K} × 2. Squaring means multiplying the number by itself: (−${K}) × (−${K}).` },
+              { v: 2 * K, feedback: `This comes from doubling ${K} instead of squaring −${K}. Squaring means (−${K}) × (−${K}).` },
+            ],
+      explanation:
+        kind === "cube"
+          ? `${m(`(-${K})^3`)} means (−${K}) × (−${K}) × (−${K}). Do it in pairs: (−${K}) × (−${K}) = ${K * K}, then ${K * K} × (−${K}) = ${ans}. An odd power of a negative number is negative; an even power is positive.`
+          : `${m(`(-${K})^2`)} means (−${K}) × (−${K}). The two minus signs pair up, so the answer is positive: ${ans}. The ${pw} of any negative number is positive.`,
+      solution: [
+        `Write out the multiplication: ${m(`(-${K})^${n}`)} = ${Array(n).fill(`(−${K})`).join(" × ")}.`,
+        kind === "cube" ? `(−${K}) × (−${K}) = ${K * K}, then ${K * K} × (−${K}) = **${ans}**.` : `Negative × negative = positive, so the answer is **${ans}**.`,
+      ],
+      hints: [kind === "cube" ? `Write it out: (−${K}) × (−${K}) × (−${K}). What do the first two make?` : `What is a negative number times a negative number?`],
+      verify: `(-${K})^${n}`,
+      commonError: kind === "cube" ? `Losing the sign: an odd number of negatives multiplied gives a negative.` : `Writing ${m(`(-${K})^2`)} = −${K * K}; a negative squared is positive.`,
+      sig: `pn:${kind}:${K}`,
+    };
+  }
+  if (kind === "minusSquare") {
+    const K = r.int(3, 9);
+    const ans = -K * K;
+    return {
+      difficulty: "core",
+      question: `Work out ${m(`-${K}^2`)}.`,
+      answer: ans,
+      correct: `The power is on the ${K} only: ${K}² = ${K * K}, and the minus in front makes it −${K * K}.`,
+      slips: [
+        { v: K * K, feedback: `${K * K} is ${m(`(-${K})^2`)}, with brackets. Here the power belongs to the ${K} only, so square ${K} first and then apply the minus: −(${K * K}) = −${K * K}.` },
+        { v: -2 * K, feedback: `This comes from doubling instead of squaring. ${m(`${K}^2`)} = ${K} × ${K} = ${K * K}, so ${m(`-${K}^2`)} = −${K * K}.` },
+        { v: 2 * K, feedback: `This comes from doubling ${K} and dropping the minus. Square first: ${K} × ${K} = ${K * K}, then the minus in front gives −${K * K}.` },
+      ],
+      explanation: `In ${m(`-${K}^2`)} the power touches only the ${K} — BIDMAS does the power first. So work out ${K}² = ${K * K}, then put the minus in front: −${K * K}. Compare ${m(`(-${K})^2`)} = (−${K}) × (−${K}) = +${K * K}: the brackets make all the difference, which is why you always bracket a negative when you substitute it.`,
+      solution: [
+        `The power belongs to the ${K} only: ${m(`-${K}^2`)} = −(${K} × ${K}).`,
+        `${K} × ${K} = ${K * K}, so ${m(`-${K}^2`)} = **−${K * K}**.`,
+        `(With brackets it would be different: ${m(`(-${K})^2`)} = +${K * K}.)`,
+      ],
+      hints: [`Is the minus sign inside the power or outside it? There are no brackets.`, `Square ${K} first, then apply the minus sign.`],
+      verify: `-${K}^2`,
+      commonError: `Treating ${m(`-${K}^2`)} as ${m(`(-${K})^2`)}: without brackets only the ${K} is squared.`,
+      sig: `pn:ms:${K}`,
+    };
+  }
+  if (kind === "decSquare") {
+    const k = r.int(2, 9);
+    const x = -k / 10;
+    const ans = tidy(x * x);
+    const X = num(-x);
+    return {
+      difficulty: "core",
+      question: `Work out ${m(`(-${X})^2`)}.`,
+      answer: ans,
+      correct: `(−${X}) × (−${X}) = ${num(ans)}: negative × negative is positive, and ${k} × ${k} = ${k * k} with 2 decimal places.`,
+      slips: [
+        { v: -ans, feedback: `A negative times a negative is positive: (−${X}) × (−${X}) = +${num(ans)}.` },
+        { v: tidy(2 * x), feedback: `This is −${X} × 2 — you doubled instead of squaring. Squaring means (−${X}) × (−${X}).` },
+        { v: tidy(ans * 10), feedback: `Check the decimal point: ${k} × ${k} = ${k * k}, and there are 2 decimal places in total, so it is ${num(ans)}.` },
+      ],
+      explanation: `${m(`(-${X})^2`)} means (−${X}) × (−${X}). The signs: negative × negative is positive. The size: ${k} × ${k} = ${k * k}, with 1 + 1 = 2 decimal places, so ${num(ans)}. Squaring a negative number always gives a positive answer.`,
+      solution: [`${m(`(-${X})^2`)} = (−${X}) × (−${X}).`, `Negative × negative is positive, and ${X} × ${X} = ${num(ans)}, so the answer is **${num(ans)}**.`],
+      hints: [`Do the sign and the size separately. What sign does negative × negative give?`, `Then work out ${X} × ${X}: try ${k} × ${k} and count the decimal places.`],
+      verify: `(-${X})^2`,
+      commonError: `Giving a negative answer, or putting the decimal point in the wrong place.`,
+      sig: `pn:ds:${k}`,
+    };
+  }
+  const K = r.pick([3, 4]);
+  const inside = K ** 3;
+  const slips: Cand[] = [
+    { v: K, feedback: `Check by cubing: ${K} × ${K} × ${K} = +${inside}, not −${inside}. Three negatives multiply to a negative, so the cube root of a negative number is negative: −${K}.` },
+  ];
+  if (K === 3) {
+    slips.push(
+      { v: -9, feedback: `This is −27 ÷ 3. A cube root isn't dividing by 3: it asks which number, multiplied by itself three times, gives −27.` },
+      { v: 9, feedback: `This comes from dividing 27 by 3 and losing the sign. A cube root asks which number cubes to −27: (−3)³ = −27.` },
+    );
+  } else {
+    slips.push(
+      { v: -8, feedback: `−8 comes from taking the square root of 64 (8 × 8 = 64). A cube root needs three equal factors: (−4) × (−4) × (−4) = −64.` },
+      { v: 8, feedback: `8 is the square root of 64, and the sign is lost too. A cube root needs three equal factors: (−4) × (−4) × (−4) = −64.` },
+    );
+  }
+  return {
+    difficulty: "core",
+    question: `Work out ${m(`cbrt(-${inside})`)}, the cube root of −${inside}.`,
+    answer: -K,
+    correct: `(−${K}) × (−${K}) × (−${K}) = −${inside}, so ${m(`cbrt(-${inside})`)} = −${K}.`,
+    slips,
+    explanation: `${m(`cbrt(-${inside})`)} asks: which number, multiplied by itself three times, gives −${inside}? Since ${K}³ = ${inside}, try −${K}: (−${K}) × (−${K}) = ${K * K}, and ${K * K} × (−${K}) = −${inside} ✓. Cube roots of negative numbers are fine (unlike square roots, which can't be negative inside).`,
+    solution: [`Look for a number that cubes to −${inside}. Since ${K}³ = ${inside}, try −${K}.`, `(−${K}) × (−${K}) × (−${K}) = ${K * K} × (−${K}) = −${inside} ✓, so the answer is **−${K}**.`],
+    hints: [`Which whole number cubes to ${inside}?`, `Will the answer be positive or negative? Think about (−) × (−) × (−).`],
+    verify: `cbrt(-${inside})`,
+    commonError: `Giving +${K}: a positive number cubed is positive, so the cube root of −${inside} must be negative.`,
+    strategy: "Work backwards",
+    sig: `pn:cb:${K}`,
+  };
+}
+
+/** (2/3)², (1/2)³, √(4/9) */
+function powFraction(r: Rng): Item {
+  const kind = r.pick(["sq", "cube", "root"] as const);
+  const [p, q] =
+    kind === "cube"
+      ? r.pick([[1, 2], [1, 3], [2, 3], [3, 4], [2, 5], [3, 5]] as const)
+      : r.pick([[2, 3], [3, 4], [2, 5], [3, 5], [4, 5], [5, 6], [2, 7], [3, 7]] as const);
+  const fx = `${p}/${q}`;
+  if (kind === "root") {
+    const top = p * p, bot = q * q;
+    return {
+      difficulty: "core",
+      question: `Work out ${m(`sqrt(${top}/${bot})`)}.`,
+      prompt: "Give your answer as a fraction.",
+      answer: p / q,
+      display: m(fx),
+      spec: fracSpec(p, q),
+      correct: `${m(`${fx} * ${fx} = ${top}/${bot}`)}, so ${m(`sqrt(${top}/${bot}) = ${fx}`)}.`,
+      slips: [
+        { v: top / q, display: fracI(top, q), spec: fracTrap(top, q), feedback: `This comes from square-rooting only the bottom. Root the top and the bottom: ${m(`sqrt(${top}) = ${p}`)} and ${m(`sqrt(${bot}) = ${q}`)}.` },
+        { v: p / bot, display: fracI(p, bot), spec: fracTrap(p, bot), feedback: `This comes from square-rooting only the top. Root the top and the bottom: ${m(`sqrt(${bot}) = ${q}`)} as well.` },
+        { v: (top * top) / (bot * bot), display: fracI(top * top, bot * bot), spec: fracTrap(top * top, bot * bot), feedback: `That is ${m(`(${top}/${bot})^2`)} — you squared instead of square-rooting.` },
+        { v: top / (2 * bot), display: fracI(top, 2 * bot), spec: fracTrap(top, 2 * bot), feedback: `That is half of ${m(`${top}/${bot}`)}. A square root isn't halving: it's the number that multiplies by itself to give ${m(`${top}/${bot}`)}.` },
+      ],
+      explanation: `Square-root the top and the bottom separately: ${m(`sqrt(${top}) = ${p}`)} and ${m(`sqrt(${bot}) = ${q}`)}, so ${m(`sqrt(${top}/${bot}) = ${fx}`)}. Check: ${m(`${fx} * ${fx} = ${top}/${bot}`)} ✓. The root (${m(fx)}) is bigger than ${m(`${top}/${bot}`)} — square-rooting a number between 0 and 1 makes it bigger.`,
+      solution: [`Root the top: ${m(`sqrt(${top}) = ${p}`)}. Root the bottom: ${m(`sqrt(${bot}) = ${q}`)}.`, `So ${m(`sqrt(${top}/${bot})`)} = **${m(fx)}**. Check: ${m(`${fx} * ${fx} = ${top}/${bot}`)} ✓`],
+      hints: [`Which fraction multiplied by itself gives ${m(`${top}/${bot}`)}?`, `Square-root the top and the bottom separately.`],
+      verify: `sqrt(${top}/${bot})`,
+      commonError: `Square-rooting only the top or only the bottom of the fraction.`,
+      strategy: "Work backwards",
+      sig: `pf:root:${fx}`,
+    };
+  }
+  const n = kind === "sq" ? 2 : 3;
+  const top = p ** n, bot = q ** n;
+  const slips: Cand[] = [
+    { v: top / q, display: fracI(top, q), spec: fracTrap(top, q), feedback: `This comes from ${kind === "sq" ? "squaring" : "cubing"} only the top. The power applies to the whole fraction: ${m(`(${fx})^${n} = ${top}/${bot}`)}.` },
+    { v: (n * p) / q, display: fracI(n * p, q), spec: fracTrap(n * p, q), feedback: `This comes from multiplying by ${n} instead of ${kind === "sq" ? "squaring" : "cubing"}. ${m(`(${fx})^${n}`)} means ${Array(n).fill(m(fx)).join(" × ")}.` },
+  ];
+  if (kind === "cube") {
+    slips.push({ v: (p * p) / (q * q), display: fracI(p * p, q * q), spec: fracTrap(p * p, q * q), feedback: `${m(`${p * p}/${q * q}`)} is ${m(`(${fx})^2`)} — you squared instead of cubing. Multiply by ${m(fx)} once more.` });
+  } else {
+    slips.push({ v: p / (q * q), display: fracI(p, q * q), spec: fracTrap(p, q * q), feedback: `This comes from squaring only the bottom. Square the top AND the bottom: ${m(`(${fx})^2 = ${top}/${bot}`)}.` });
+  }
+  slips.push({ v: (n * p) / (n * q), display: m(`${n * p}/${n * q}`), spec: fracTrap(n * p, n * q), feedback: `This comes from multiplying the top and the bottom by ${n}, which leaves the fraction the same size. ${kind === "sq" ? "Squaring" : "Cubing"} means multiplying the fraction by itself: ${Array(n).fill(m(fx)).join(" × ")}.` });
+  return {
+    difficulty: kind === "cube" && q >= 4 ? "challenge" : "core",
+    question: `Work out ${m(`(${fx})^${n}`)}.`,
+    prompt: "Give your answer as a fraction.",
+    answer: top / bot,
+    display: m(`${top}/${bot}`),
+    spec: fracSpec(top, bot),
+    correct: `${kind === "sq" ? "Square" : "Cube"} the top (${top}) and the bottom (${bot}) to get ${m(`${top}/${bot}`)}.`,
+    slips,
+    explanation: `${m(`(${fx})^${n}`)} means ${Array(n).fill(m(fx)).join(" × ")}. Multiply the tops: ${Array(n).fill(p).join(" × ")} = ${top}. Multiply the bottoms: ${Array(n).fill(q).join(" × ")} = ${bot}. So the answer is ${m(`${top}/${bot}`)}. It's smaller than ${m(fx)} — ${kind === "sq" ? "squaring" : "cubing"} any number between 0 and 1 makes it smaller.`,
+    solution: [
+      `Write it out: ${m(`(${fx})^${n}`)} = ${Array(n).fill(m(fx)).join(" × ")}.`,
+      `Tops: ${Array(n).fill(p).join(" × ")} = ${top}. Bottoms: ${Array(n).fill(q).join(" × ")} = ${bot}.`,
+      `So ${m(`(${fx})^${n}`)} = **${m(`${top}/${bot}`)}**.`,
+    ],
+    hints: [`Write it out as ${Array(n).fill(m(fx)).join(" × ")}.`, `Multiply the tops together and the bottoms together.`],
+    verify: `(${fx})^${n}`,
+    commonError: `${kind === "sq" ? "Squaring" : "Cubing"} only the top of the fraction: the power applies to the top and the bottom.`,
+    sig: `pf:${kind}:${fx}`,
+  };
+}
+
+/** x³ + x² or x³ − x² with x negative */
+function powNegMix(r: Rng): Item {
+  const L = r.pick(["x", "n", "a", "t"]);
+  const K = r.int(2, 4);
+  const sub = r.chance(0.5);
+  const c3 = -(K ** 3), c2 = K * K;
+  const ans = sub ? c3 - c2 : c3 + c2;
+  const op = sub ? "-" : "+";
+  const opT = sub ? "−" : "+";
+  return {
+    difficulty: "challenge",
+    question: `If ${given([[L, `-${K}`]])}, work out ${m(`${L}^3 ${op} ${L}^2`)}.`,
+    answer: ans,
+    correct: `${m(`${L}^3`)} = ${c3} and ${m(`${L}^2`)} = ${c2}, so ${c3} ${opT} ${c2} = ${ans}.`,
+    slips: [
+      { v: sub ? -c3 - c2 : -c3 + c2, feedback: `This comes from thinking ${m(`(-${K})^3`)} = +${K ** 3}. Three negatives multiplied give a negative: (−${K}) × (−${K}) × (−${K}) = ${c3}.` },
+      { v: sub ? c3 + c2 : c3 - c2, feedback: `This comes from thinking ${m(`(-${K})^2`)} = −${c2}. Two negatives multiplied give a positive: (−${K}) × (−${K}) = +${c2}.` },
+      { v: sub ? -3 * K + 2 * K : -3 * K - 2 * K, feedback: `This comes from multiplying by the powers instead (3 × (−${K}) ${opT} 2 × (−${K})). ${m(`${L}^3`)} means ${L} × ${L} × ${L}, not 3 × ${L}.` },
+      { v: sub ? -c3 + c2 : -c3 - c2, feedback: `Both signs are flipped here. ${m(`(-${K})^3`)} = ${c3} (odd power: negative) and ${m(`(-${K})^2`)} = +${c2} (even power: positive).` },
+    ],
+    explanation: `Do each power carefully, with brackets. ${m(`${L}^2`)} = (−${K}) × (−${K}) = +${c2} (two negatives make a positive). ${m(`${L}^3`)} = ${m(`${L}^2`)} × ${L} = ${c2} × (−${K}) = ${c3} (one more negative makes it negative again). So ${m(`${L}^3 ${op} ${L}^2`)} = ${c3} ${opT} ${c2} = ${ans}. Rule of thumb: an even power of a negative number is positive, an odd power is negative.`,
+    solution: [
+      `Put the value in with brackets: ${m(`(-${K})^3 ${op} (-${K})^2`)}.`,
+      `${m(`(-${K})^2`)} = ${c2} and ${m(`(-${K})^3`)} = ${c2} × (−${K}) = ${c3}.`,
+      `${c3} ${opT} ${c2} = **${ans}**.`,
+    ],
+    hints: [`Work out ${m(`(-${K})^2`)} and ${m(`(-${K})^3`)} separately.`, `Count the negative numbers being multiplied: is it an even or an odd number of them?`],
+    verify: `(-${K})^3${op}(-${K})^2`,
+    commonError: `Getting a sign wrong: ${m(`(-${K})^3`)} is negative but ${m(`(-${K})^2`)} is positive.`,
+    sig: `pm:${op}:${K}`,
+  };
+}
+
+const suPowers: Generator = {
+  id: "su-powers",
+  topic: "su",
+  section: "su-powers",
+  label: "Squares, cubes and roots of negatives and of numbers between 0 and 1",
+  kinds: ["mcq", "qa"],
+  make(r) {
+    return build(
+      pickTemplate(r, [
+        [3, powDecSquare],
+        [2, powDecCube],
+        [2, powDecRoot],
+        [3, powNegative],
+        [2, powFraction],
+        [1, powNegMix],
+      ]),
+    );
+  },
+};
+
+export const GEN_SU: Generator[] = [suBasics, suNegatives, suFormula, suDecimals, suPowers];

@@ -6,7 +6,7 @@
 
 import type { MCQ, QA, SectionId, TopicId } from "../types.ts";
 import { checkAnswer } from "../answerCheck.ts";
-import { plainOption, verifyAnswer, verifyMcq } from "../verify.ts";
+import { plainOption, sameOptionValue, verifyAnswer, verifyMcq } from "../verify.ts";
 import { rng, type Draft, type Generator, type Wrong } from "./core.ts";
 import { GEN_FR } from "./fr.ts";
 import { GEN_PC } from "./pc.ts";
@@ -76,7 +76,8 @@ export function mcqOptions(d: Draft): { options: string[]; wrongs: Wrong[] } {
     const key = plainOption(w.display).replace(/\s+/g, "");
     if (seen.has(key)) continue;
     const options = [d.display, ...wrongs.map((x) => x.display), w.display];
-    if (verifyMcq(options, 0, d.verify).length) continue; // same value as the answer or another option
+    if (verifyMcq(options, 0, d.verify).length) continue; // same value as the answer
+    if (wrongs.some((x) => sameOptionValue(x.display, w.display))) continue; // same answer as another wrong option (0.5 and ½)
     seen.add(key);
     wrongs.push(w);
     if (wrongs.length === 3) break;

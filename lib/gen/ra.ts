@@ -184,10 +184,12 @@ function simplifyCounts(r: Rng, n: 2 | 3): Draft {
 
   const slips = ratioSlips(ans);
   if (permuted) {
-    slips.add(base, `${rat(base)} keeps the order the amounts are listed in. The question asks for ${askText}, so the number for ${ctx.nouns[order[0]]} goes first: ${rat(ans)}.`);
+    slips.add(base, `${rat(base)} keeps the order the amounts are listed in. The question asks for ${askText}, so the parts must go in that order: ${rat(ans)}.`);
   } else if (n === 2) {
-    const first = useCtx ? `the ${ctx.nouns[0]} (${vals[0]})` : `the ${vals[0]}`;
-    slips.add([ans[1], ans[0]], `${rat([ans[1], ans[0]])} has the parts the wrong way round. Order matters in a ratio: ${first} came first, so its part comes first.`);
+    const why = useCtx
+      ? `the question asks for the ratio of ${ctx.nouns[0]} to ${ctx.nouns[1]}, so the number for ${ctx.nouns[0]} goes first`
+      : `${vals[0]} comes first in the question, so its part comes first`;
+    slips.add([ans[1], ans[0]], `${rat([ans[1], ans[0]])} has the parts the wrong way round. Order matters in a ratio: ${why}.`);
   }
 
   const divs = asked.map((v) => `${v} ÷ ${k} = ${v / k}`);
@@ -516,7 +518,7 @@ function shareDraft(r: Rng): Draft {
   // part : part (or part : rest) used as a fraction of the total
   const rest = T - parts[i];
   const pp = tidy((total / rest) * parts[i]);
-  if (s.nice(pp)) {
+  if (parts[i] < rest && s.nice(pp)) {
     slips.add(
       pp,
       f(pp),
@@ -546,7 +548,7 @@ function shareDraft(r: Rng): Draft {
     prompt: s.money ? `Give your answer in ${s.cur}.` : undefined,
     answer: numSpec(ans, f(ans)),
     display: f(ans),
-    correctFeedback: `There are ${T} parts, so 1 part is ${f(total)} ÷ ${T} = ${f(u)}, and ${X}'s ${partsWord(parts[i])} make ${f(ans)}.`,
+    correctFeedback: `There are ${T} parts, so 1 part is ${f(total)} ÷ ${T} = ${f(u)}, and ${X}'s ${partsWord(parts[i])} ${parts[i] === 1 ? "makes" : "make"} ${f(ans)}.`,
     wrong: slips.list,
     explanation: `Add the parts: ${sumText} = ${T} parts. One part is ${f(total)} ÷ ${T} = ${f(u)}. ${largestNote}${X} has ${partsWord(parts[i])}, so ${X} gets ${parts[i]} × ${f(u)} = ${f(ans)}. Check: ${shares.join(" + ")} = ${f(total)} ✓.`,
     solution: [
@@ -602,6 +604,8 @@ function givenDraft(r: Rng): Draft {
   const askTotal = r.chance(0.4);
   const k = askTotal ? -1 : r.pick(others);
   const target = askTotal ? T : parts[k];
+  // the answer must not just repeat the amount in the question
+  if (target === kp) return givenDraft(r);
   const ans = tidy(target * u);
   const knownWho = andList(knownIdx.map((x) => who[x]));
   const sumText = parts.join(" + ");
@@ -615,8 +619,9 @@ function givenDraft(r: Rng): Draft {
   }
   // 2. matched the known amount to the wrong number in the ratio
   if (pair) {
-    const v = tidy((knownVal / parts[i]) * target);
-    if (s.nice(v)) slips.add(v, f(v), `${f(v)} comes from dividing ${f(knownVal)} by ${parts[i]} only. ${f(knownVal)} is what ${knownWho} get together, so it covers ${parts[knownIdx[0]]} + ${parts[knownIdx[1]]} = ${kp} parts.`);
+    const only = Math.max(...knownIdx.map((x) => parts[x]));
+    const v = tidy((knownVal / only) * target);
+    if (s.nice(v)) slips.add(v, f(v), `${f(v)} comes from dividing ${f(knownVal)} by ${only} only. ${f(knownVal)} is what ${knownWho} get together, so it covers ${parts[knownIdx[0]]} + ${parts[knownIdx[1]]} = ${kp} parts.`);
   } else {
     const w = askTotal ? (i + 1) % n : k;
     const v = tidy((knownVal / parts[w]) * (askTotal ? T : parts[i]));
@@ -638,14 +643,14 @@ function givenDraft(r: Rng): Draft {
     slips.add(v, f(v), `${f(v)} comes from ${diff > 0 ? "adding" : "taking away"} ${Math.abs(diff)}, because ${who[k]} has ${Math.abs(diff)} ${diff > 0 ? "more" : "fewer"} part${Math.abs(diff) === 1 ? "" : "s"}. Ratios work by multiplying: one part is worth ${f(u)}, not ${s.money ? f(1) : "1"}.`);
   }
   // 6. multiplying the ratio numbers to get the total number of parts (2 people)
-  if (!three && askTotal && parts[0] * parts[1] !== T) {
+  if (!three && askTotal && Math.min(...parts) > 1) {
     const v = tidy(u * parts[0] * parts[1]);
     if (s.nice(v)) slips.add(v, f(v), `${f(v)} comes from multiplying ${parts[0]} × ${parts[1]} = ${parts[0] * parts[1]} parts. The total number of parts is ${sumText} = ${T}: add the parts, don't multiply them.`);
   }
 
   const knownSentence = pair ? `${knownWho} have ${parts[knownIdx[0]]} + ${parts[knownIdx[1]]} = ${kp} parts between them` : `${who[i]} has ${partsWord(parts[i])}`;
   const targetSentence = askTotal ? `Altogether there are ${sumText} = ${T} parts, so the total is ${T} × ${f(u)} = ${f(ans)}.` : `${who[k]} has ${partsWord(parts[k])}, so ${who[k]} gets ${parts[k]} × ${f(u)} = ${f(ans)}.`;
-  const told = pair ? `${knownWho} get ${s.money ? f(knownVal) : `${knownVal} ${s.noun}`} altogether.` : `${who[i]} gets ${s.money ? f(knownVal) : `${knownVal} ${s.noun}`}.`;
+  const told = pair ? `${knownWho} get ${s.money ? f(knownVal) : `${knownVal} ${s.noun}`} between them.` : `${who[i]} gets ${s.money ? f(knownVal) : `${knownVal} ${s.noun}`}.`;
   const ask = askTotal ? (s.money ? "How much money is shared altogether?" : `How many ${s.noun} are there altogether?`) : s.money ? `How much does ${who[k]} get?` : `How many ${s.noun} does ${who[k]} get?`;
   const difficulty: Draft["difficulty"] = pair ? "challenge" : !three && !askTotal && T <= 8 && u <= 10 ? "warmup" : "core";
   return {
@@ -740,11 +745,11 @@ function differenceDraft(r: Rng): Draft {
   const slips = numSlips(ans);
   // 1. the difference shared over all the parts
   const v1 = tidy((D / T) * target);
-  if (money ? hasDp(v1, 2) : isWhole(v1)) {
+  if (!askTotal && (money ? hasDp(v1, 2) : isWhole(v1))) {
     slips.add(v1, f(v1), `${f(v1)} comes from dividing ${f(D)} by all ${T} parts. ${f(D)} is the **difference**, which is only ${parts[hi]} − ${parts[lo]} = ${partsWord(dp)}.`);
   }
   // 2. the difference used as one part
-  if (dp > 1) {
+  if (dp > 1 && target !== 1) {
     const v = D * target;
     slips.add(v, f(v), `${f(v)} treats the ${f(D)} as one part. It is the difference between ${nameOf(hi)} and ${nameOf(lo)}, which is ${parts[hi]} − ${parts[lo]} = ${dp} parts, so 1 part = ${f(D)} ÷ ${dp} = ${f(u)}.`);
   }
@@ -760,7 +765,7 @@ function differenceDraft(r: Rng): Draft {
     slips.add(T * u, f(T * u), `${f(T * u)} is the **total** (all ${T} parts). The question asks only for ${shareOf(k)}.`);
   }
   // 5. one part only
-  if (target !== 1) slips.add(u, f(u), `${f(u)} is one part (${f(D)} ÷ ${dp}). ${askTotal ? `There are ${T} parts altogether` : `${cap(shareOf(k))} is ${partsWord(parts[k])}`}, so multiply by ${target}.`);
+  if (target !== 1) slips.add(u, f(u), `${f(u)} is ${dp === 1 ? "the difference, which is just one part" : `one part (${f(D)} ÷ ${dp})`}. ${askTotal ? `There are ${T} parts altogether` : `${cap(shareOf(k))} is ${partsWord(parts[k])}`}, so multiply by ${target}.`);
 
   const question = money
     ? `${andList(who)} share some money in the ratio ${rat(parts)}. ${who[hi]} gets ${f(D)} more than ${who[lo]}. ${askTotal ? "How much money is shared altogether?" : `How much does ${who[k]} get?`}`
@@ -812,22 +817,26 @@ const raDifference: Generator = {
 // ---------------------------------------------------------------------------
 
 interface FracCtx {
+  /** short names used in the question */
   labels: string[];
+  /** names used in sentences, and their verb ("the squash is", "the boys are") */
+  nouns: string[];
+  be: "is" | "are";
   stem: (R: string) => string;
   ask: (label: string) => string;
   whole: string;
 }
 
 const FRAC2: FracCtx[] = [
-  { labels: ["boys", "girls"], stem: (R) => `In a class, the ratio of boys to girls is ${R}.`, ask: (l) => `What fraction of the class are ${l}?`, whole: "class" },
-  { labels: ["red", "white"], stem: (R) => `Siti mixes red paint and white paint in the ratio ${R} to make pink paint.`, ask: (l) => `What fraction of the pink paint is ${l}?`, whole: "pink paint" },
-  { labels: ["squash", "water"], stem: (R) => `A drink is made by mixing squash and water in the ratio ${R}.`, ask: (l) => `What fraction of the drink is ${l}?`, whole: "drink" },
-  { labels: ["red", "blue"], stem: (R) => `A bag holds red counters and blue counters in the ratio ${R}.`, ask: (l) => `What fraction of the counters are ${l}?`, whole: "bag of counters" },
+  { labels: ["boys", "girls"], nouns: ["boys", "girls"], be: "are", stem: (R) => `In a class, the ratio of boys to girls is ${R}.`, ask: (l) => `What fraction of the class are ${l}?`, whole: "class" },
+  { labels: ["red", "white"], nouns: ["red paint", "white paint"], be: "is", stem: (R) => `Siti mixes red paint and white paint in the ratio ${R} to make pink paint.`, ask: (l) => `What fraction of the pink paint is ${l}?`, whole: "pink paint" },
+  { labels: ["squash", "water"], nouns: ["squash", "water"], be: "is", stem: (R) => `A drink is made by mixing squash and water in the ratio ${R}.`, ask: (l) => `What fraction of the drink is ${l}?`, whole: "drink" },
+  { labels: ["red", "blue"], nouns: ["red counters", "blue counters"], be: "are", stem: (R) => `A bag holds red counters and blue counters in the ratio ${R}.`, ask: (l) => `What fraction of the counters are ${l}?`, whole: "bag of counters" },
 ];
 
 const FRAC3: FracCtx[] = [
-  { labels: ["red", "blue", "green"], stem: (R) => `A bag holds red, blue and green counters in the ratio ${R}.`, ask: (l) => `What fraction of the counters are ${l}?`, whole: "bag of counters" },
-  { labels: ["apples", "pears", "plums"], stem: (R) => `A fruit bowl has apples, pears and plums in the ratio ${R}.`, ask: (l) => `What fraction of the fruit are ${l}?`, whole: "fruit bowl" },
+  { labels: ["red", "blue", "green"], nouns: ["red counters", "blue counters", "green counters"], be: "are", stem: (R) => `A bag holds red, blue and green counters in the ratio ${R}.`, ask: (l) => `What fraction of the counters are ${l}?`, whole: "bag of counters" },
+  { labels: ["apples", "pears", "plums"], nouns: ["apples", "pears", "plums"], be: "are", stem: (R) => `A fruit bowl has apples, pears and plums in the ratio ${R}.`, ask: (l) => `What fraction of the fruit are ${l}?`, whole: "fruit bowl" },
 ];
 
 const BACK_CTX: { place: string; groups: [string, string] }[] = [
@@ -848,16 +857,20 @@ function fracOfWhole(r: Rng): Draft {
   const pk = parts[k];
   const L = ctx.labels;
   const slips = numSlips(pk / T);
-  const add = (n: number, d: number, feedback: string) => slips.add(n / d, frRaw(n, d), feedback, fracSpec(n, d, { simplest: false }));
+  // a slip's fraction exactly as worked out: not simplified, top-heavy rather than mixed
+  const raw = (n: number, d: number) => frRaw(n, d, false);
+  const add = (n: number, d: number, feedback: string) => slips.add(n / d, raw(n, d), feedback, fracSpec(n, d, { simplest: false }));
+  const N = ctx.nouns;
+  const be = ctx.be;
   if (parts.length === 2) {
-    add(pk, parts[o], `${frRaw(pk, parts[o])} compares the ${L[k]} with the ${L[o]} (part : part). A fraction of the ${ctx.whole} compares the ${L[k]} with the **whole**: ${pk} parts out of ${T}.`);
-    add(parts[o], pk, `${frRaw(parts[o], pk)} is ${L[o]} ÷ ${L[k]}, part : part and upside down. A fraction of the whole can't be bigger than 1 — the ${L[k]} are ${pk} of the ${T} parts.`);
+    add(pk, parts[o], `${raw(pk, parts[o])} compares the ${N[k]} with the ${N[o]} (part : part). A fraction of the ${ctx.whole} compares the ${N[k]} with the **whole**: ${pk} parts out of ${T}.`);
+    add(parts[o], pk, `${raw(parts[o], pk)} is ${L[o]} ÷ ${L[k]}: part : part, and the wrong way up. ${parts[o] > pk ? "A fraction of the whole can't be bigger than 1. " : ""}The ${N[k]} ${be} ${pk} of the ${T} parts.`);
   } else {
-    add(pk, T - pk, `${frRaw(pk, T - pk)} compares the ${L[k]} with the other two together (${pk} : ${T - pk}, part : part). As a fraction of the whole, the ${L[k]} are ${pk} parts out of ${T}.`);
-    add(pk, parts[o], `${frRaw(pk, parts[o])} compares the ${L[k]} with the ${L[o]} only. A fraction of the ${ctx.whole} compares with all ${T} parts.`);
+    add(pk, T - pk, `${raw(pk, T - pk)} compares the ${N[k]} with the other two together (${pk} : ${T - pk}, part : part). As a fraction of the whole, the ${N[k]} ${be} ${pk} parts out of ${T}.`);
+    add(pk, parts[o], `${raw(pk, parts[o])} compares the ${N[k]} with the ${N[o]} only. A fraction of the ${ctx.whole} compares with all ${T} parts.`);
   }
-  add(parts[o], T, `${frRaw(parts[o], T)} is the fraction that is ${L[o]}. The ${L[k]} are ${partsWord(pk)}, not ${parts[o]}.`);
-  if (pk !== 1) add(1, T, `${frRaw(1, T)} is just one part. The ${L[k]} are ${partsWord(pk)}, so multiply by ${pk}.`);
+  add(parts[o], T, `${raw(parts[o], T)} is the fraction for the ${N[o]}. The ${N[k]} ${be} ${partsWord(pk)}, not ${parts[o]}.`);
+  if (pk !== 1) add(1, T, `${raw(1, T)} is just one part. The ${N[k]} ${be} ${partsWord(pk)}, so multiply by ${pk}.`);
 
   const reduces = gcd(pk, T) !== 1;
   const frac = `${m(`${pk}/${T}`)}${reduces ? ` = ${fr(pk, T)}` : ""}`;
@@ -867,19 +880,19 @@ function fracOfWhole(r: Rng): Draft {
     prompt: "Give your answer as a fraction in its simplest form.",
     answer: fracSpec(pk, T),
     display: fr(pk, T),
-    correctFeedback: `There are ${parts.join(" + ")} = ${T} equal parts and the ${L[k]} are ${pk} of them, so the fraction is ${frac}.`,
+    correctFeedback: `There are ${parts.join(" + ")} = ${T} equal parts and the ${N[k]} ${be} ${pk} of them, so the fraction is ${frac}.`,
     wrong: slips.list,
-    explanation: `A ratio of ${rat(parts)} splits the ${ctx.whole} into ${parts.join(" + ")} = ${T} equal parts, and the ${L[k]} are ${pk} of them. So the ${L[k]} are ${frac} of the ${ctx.whole}.${reduces ? ` (Divide the top and bottom by ${gcd(pk, T)} to simplify.)` : ""} A ratio compares part with part; a fraction of the ${ctx.whole} compares a part with the **whole**.`,
+    explanation: `A ratio of ${rat(parts)} splits the ${ctx.whole} into ${parts.join(" + ")} = ${T} equal parts, and the ${N[k]} ${be} ${pk} of them. So the ${N[k]} ${be} ${frac} of the ${ctx.whole}.${reduces ? ` (Divide the top and bottom by ${gcd(pk, T)} to simplify.)` : ""} A ratio compares part with part; a fraction of the ${ctx.whole} compares a part with the **whole**.`,
     solution: [
       `Total number of parts: ${parts.join(" + ")} = ${T}.`,
-      `The ${L[k]} are ${pk} of those ${T} parts, so the fraction is ${frac}.`,
+      `The ${N[k]} ${be} ${pk} of those ${T} parts, so the fraction is ${frac}.`,
     ],
-    hints: [`How many equal parts make up the whole ${ctx.whole}?`, `How many of those parts are ${L[k]}?`],
+    hints: [`How many equal parts make up the whole ${ctx.whole}?`, `How many of those parts are for the ${N[k]}?`],
     verify: `${pk}/(${parts.join("+")})`,
     commonError:
       parts.length === 2
-        ? `Writing ${frRaw(pk, parts[o])}, which compares the ${L[k]} with the ${L[o]} (part : part) instead of with the whole.`
-        : `Comparing the ${L[k]} with the rest (${pk} : ${T - pk}) instead of with the whole (${pk} out of ${T}).`,
+        ? `Writing ${raw(pk, parts[o])}, which compares the ${N[k]} with the ${N[o]} (part : part) instead of with the whole.`
+        : `Comparing the ${N[k]} with the rest (${pk} : ${T - pk}) instead of with the whole (${pk} out of ${T}).`,
     strategy: "Use a bar model",
     marks: three ? 2 : 1,
     sig: `whole|${ratKey(parts)}|${k}`,
@@ -934,9 +947,9 @@ function fracBack(r: Rng): Draft {
   let n = 1;
   let d = 3;
   do {
-    d = r.int(3, 10);
+    d = r.int(5, 10);
     n = r.int(1, d - 1);
-  } while (gcd(n, d) !== 1 || 2 * n === d);
+  } while (gcd(n, d) !== 1 || 2 * n === d || n < 2 || d - n < 2);
   const j = r.int(1, d <= 5 ? 3 : 2);
   const u = d * j; // keeps every slip a whole number
   const ctx = r.pick(BACK_CTX);
@@ -1027,37 +1040,44 @@ function combineDraft(r: Rng): Draft {
   // a wrong three-part answer, cut down to a : c when that is what's asked
   const pick3 = (x: number[]) => (askAC ? [x[0], x[2]] : x);
 
+  // "the blue part", "the b part", "the seniors part"
+  const bp = `the ${B} part`;
   const slips = ratioSlips(ans);
-  slips.add(pick3([p, q, s]), `${rat(pick3([p, q, s]))} just joins the two ratios together. But ${B} is ${q} in one ratio and ${b2} in the other, so the parts are different sizes — make the ${B} parts equal first.`);
-  slips.add(pick3([p, b2, s]), `${rat(pick3([p, b2, s]))} joins the ratios without making ${B} match: ${B} is ${q} in ${A} : ${B} but ${b2} in ${B} : ${C}. Use the LCM of ${q} and ${b2}, which is ${L}.`);
-  if (m1 !== 1) slips.add(pick3([p, L, s * m2]), `${rat(pick3([p, L, s * m2]))} scales ${B} : ${C} up to ${L} : ${s * m2} but leaves ${A} : ${B} as ${p} : ${q}. If ${B} becomes ${L}, ${A} must be multiplied by ${m1} as well.`);
-  if (m2 !== 1) slips.add(pick3([p * m1, L, s]), `${rat(pick3([p * m1, L, s]))} scales ${A} : ${B} up to ${p * m1} : ${L} but leaves ${B} : ${C} as ${b2} : ${s}. If ${B} becomes ${L}, ${C} must be multiplied by ${m2} as well.`);
-  if (m1 !== m2) slips.add(pick3([p * m2, q * m2, s * m1]), `${rat(pick3([p * m2, q * m2, s * m1]))} uses the multipliers the wrong way round: ${p} : ${q} × ${m2} makes ${B} ${q * m2}, but ${b2} : ${s} × ${m1} makes ${B} ${b2 * m1}. Multiply the first ratio by ${m1} and the second by ${m2}, so ${B} is ${L} in both.`);
+  slips.add(pick3([p, q, s]), `${rat(pick3([p, q, s]))} just joins the two ratios together. But ${bp} is ${q} in one ratio and ${b2} in the other, so the parts are different sizes — make ${bp} equal first.`);
+  slips.add(pick3([p, b2, s]), `${rat(pick3([p, b2, s]))} joins the ratios without making ${bp} match: it is ${q} in ${A} : ${B} but ${b2} in ${B} : ${C}. Use the LCM of ${q} and ${b2}, which is ${L}.`);
+  if (m1 !== 1) slips.add(pick3([p, L, s * m2]), `${rat(pick3([p, L, s * m2]))} scales ${B} : ${C} up to ${L} : ${s * m2} but leaves ${A} : ${B} as ${p} : ${q}. If ${bp} becomes ${L}, ${A} must be multiplied by ${m1} as well.`);
+  if (m2 !== 1) slips.add(pick3([p * m1, L, s]), `${rat(pick3([p * m1, L, s]))} scales ${A} : ${B} up to ${p * m1} : ${L} but leaves ${B} : ${C} as ${b2} : ${s}. If ${bp} becomes ${L}, ${C} must be multiplied by ${m2} as well.`);
+  if (m1 !== 1 && m2 !== 1) slips.add(pick3([p * m2, q * m2, s * m1]), `${rat(pick3([p * m2, q * m2, s * m1]))} uses the multipliers the wrong way round: ${p} : ${q} × ${m2} makes ${bp} ${q * m2}, but ${b2} : ${s} × ${m1} makes it ${b2 * m1}. Multiply the first ratio by ${m1} and the second by ${m2}, so ${bp} is ${L} in both.`);
   const gap = Math.abs(q - b2);
   const added = q > b2 ? [p, q, s + gap] : [p + gap, b2, s];
-  slips.add(pick3(added), `${rat(pick3(added))} comes from adding ${gap} to both parts of ${q > b2 ? `${B} : ${C}` : `${A} : ${B}`} to make ${B} match. Adding the same number changes a ratio — multiply both parts by the same number instead.`);
+  slips.add(pick3(added), `${rat(pick3(added))} comes from adding ${gap} to both parts of ${q > b2 ? `${B} : ${C}` : `${A} : ${B}`} to make ${bp} match. Adding the same number changes a ratio — multiply both parts by the same number instead.`);
 
-  const scale = (x: number, y: number, k: number) => (k === 1 ? `${x} : ${y} (this one already has ${B} = ${L})` : `${x} : ${y} = ${x * k} : ${y * k} (× ${k})`);
+  const scale = (x: number, y: number, k: number) => (k === 1 ? `${x} : ${y} (already ${L})` : `${x} : ${y} = ${x * k} : ${y * k} (× ${k})`);
   const acNote = askAC ? ` So ${A} : ${C} = ${abc[0]} : ${abc[2]}${ans[0] !== abc[0] ? ` = ${rat(ans)} (dividing both by ${abc[0] / ans[0]})` : ""}.` : "";
   const hard = askAC || (m1 !== 1 && m2 !== 1 && L >= 12);
+  const checks = [
+    ...(m1 !== 1 ? [`${abc[0]} : ${L} simplifies to ${p} : ${q}`] : []),
+    ...(m2 !== 1 ? [`${L} : ${abc[2]} simplifies to ${b2} : ${s}`] : []),
+  ];
+  const shared = `The two ratios share ${B}: ${bp} is ${q} in ${A} : ${B} and ${b2} in ${B} : ${C}.`;
   return {
     difficulty: hard ? "challenge" : "core",
     question: `${ctx.intro(rat([p, q]), rat([b2, s]))} Write ${want} in its simplest form.`,
     prompt: "Type the ratio with colons between the parts.",
     answer: { type: "ratio", parts: ans, simplest: true },
     display: rat(ans),
-    correctFeedback: `Making ${B} = ${L} in both ratios gives ${rat([abc[0], L])} and ${rat([L, abc[2]])}, so ${A} : ${B} : ${C} = ${rat(abc)}.${acNote}`,
+    correctFeedback: `Making ${bp} ${L} in both ratios gives ${rat([abc[0], L])} and ${rat([L, abc[2]])}, so ${A} : ${B} : ${C} = ${rat(abc)}.${acNote}`,
     wrong: slips.list,
-    explanation: `${cap(B)} is in both ratios, but it is ${q} in the first and ${b2} in the second, so make it the same. The LCM of ${q} and ${b2} is ${L}: ${A} : ${B} = ${scale(p, q, m1)} and ${B} : ${C} = ${scale(b2, s, m2)}. Now ${B} is ${L} in both, so ${A} : ${B} : ${C} = ${rat(abc)}.${acNote} Check: ${abc[0]} : ${L} simplifies to ${p} : ${q} and ${L} : ${abc[2]} simplifies to ${b2} : ${s} ✓.`,
+    explanation: `${shared} Make it the same in both: the LCM of ${q} and ${b2} is ${L}, so ${A} : ${B} = ${scale(p, q, m1)} and ${B} : ${C} = ${scale(b2, s, m2)}. Now ${bp} is ${L} in both, so ${A} : ${B} : ${C} = ${rat(abc)}.${acNote} Check: ${andList(checks)} ✓.`,
     solution: [
-      `${cap(B)} is ${q} in ${A} : ${B} and ${b2} in ${B} : ${C}. The LCM of ${q} and ${b2} is ${L}.`,
+      `${shared} The LCM of ${q} and ${b2} is ${L}.`,
       `${A} : ${B} = ${scale(p, q, m1)}.`,
       `${B} : ${C} = ${scale(b2, s, m2)}.`,
       askAC ? `${A} : ${B} : ${C} = ${rat(abc)}, so ${A} : ${C} = **${rat(ans)}**.` : `So ${A} : ${B} : ${C} = **${rat(abc)}**.`,
     ],
-    hints: [`${cap(B)} is ${q} in one ratio and ${b2} in the other. What is the smallest number that both ${q} and ${b2} go into?`, `Rewrite both ratios so that ${B} is that number, then put them together.`],
+    hints: [`In one ratio ${bp} is ${q}, and in the other it is ${b2}. What is the smallest number that both ${q} and ${b2} go into?`, `Rewrite both ratios so that ${bp} is that number, then put them together.`],
     verify: askAC ? `${p}*${b2}:${q}*${s}` : `${p}*${b2}:${q}*${b2}:${q}*${s}`,
-    commonError: `Joining the ratios as ${p} : ${q} : ${s} without first making the ${B} parts equal.`,
+    commonError: `Joining the ratios as ${p} : ${q} : ${s} without first making ${bp} the same in both.`,
     strategy: "Make the shared part equal",
     marks: hard ? 3 : 2,
     sig: `${p}:${q}|${b2}:${s}|${askAC ? "ac" : "abc"}`,
@@ -1083,43 +1103,47 @@ interface Ingredient {
   unit: "g" | "ml" | "";
   step: number;
   max: number;
+  /** a realistic amount for one person */
+  per: [number, number];
 }
 
 const INGREDIENTS: Ingredient[] = [
-  { dish: "dal", what: "lentils", unit: "g", step: 25, max: 600 },
-  { dish: "pancakes", what: "flour", unit: "g", step: 25, max: 500 },
-  { dish: "pancakes", what: "milk", unit: "ml", step: 50, max: 900 },
-  { dish: "vegetable curry", what: "coconut milk", unit: "ml", step: 50, max: 800 },
-  { dish: "pasta bake", what: "pasta", unit: "g", step: 25, max: 600 },
-  { dish: "flapjacks", what: "oats", unit: "g", step: 25, max: 500 },
-  { dish: "paneer tikka", what: "paneer", unit: "g", step: 25, max: 600 },
-  { dish: "vegetable risotto", what: "rice", unit: "g", step: 25, max: 500 },
-  { dish: "fruit smoothies", what: "bananas", unit: "", step: 1, max: 12 },
-  { dish: "tomato soup", what: "tomatoes", unit: "", step: 1, max: 12 },
-  { dish: "lemonade", what: "lemons", unit: "", step: 1, max: 9 },
+  { dish: "dal", what: "lentils", unit: "g", step: 25, max: 900, per: [40, 100] },
+  { dish: "pancakes", what: "flour", unit: "g", step: 25, max: 600, per: [25, 75] },
+  { dish: "pancakes", what: "milk", unit: "ml", step: 50, max: 1000, per: [50, 150] },
+  { dish: "vegetable curry", what: "coconut milk", unit: "ml", step: 50, max: 1000, per: [40, 120] },
+  { dish: "pasta bake", what: "pasta", unit: "g", step: 25, max: 1000, per: [60, 125] },
+  { dish: "flapjacks", what: "oats", unit: "g", step: 25, max: 600, per: [25, 75] },
+  { dish: "paneer tikka", what: "paneer", unit: "g", step: 25, max: 1000, per: [50, 125] },
+  { dish: "vegetable risotto", what: "rice", unit: "g", step: 25, max: 800, per: [50, 100] },
+  { dish: "fruit smoothies", what: "bananas", unit: "", step: 1, max: 12, per: [0.5, 2] },
+  { dish: "tomato soup", what: "tomatoes", unit: "", step: 1, max: 15, per: [1, 3] },
+  { dish: "lemonade", what: "lemons", unit: "", step: 1, max: 9, per: [0.5, 1.5] },
 ];
 
-const ITEMS: [string, string][] = [
-  ["pen", "pens"],
-  ["notebook", "notebooks"],
-  ["bus ticket", "bus tickets"],
-  ["packet of seeds", "packets of seeds"],
-  ["mango", "mangoes"],
-  ["glue stick", "glue sticks"],
+/** [one, many, cheapest and dearest believable price of one] */
+const ITEMS: [string, string, number, number][] = [
+  ["pen", "pens", 0.5, 3],
+  ["notebook", "notebooks", 1, 5],
+  ["bus ticket", "bus tickets", 1.5, 4],
+  ["packet of seeds", "packets of seeds", 1, 3],
+  ["mango", "mangoes", 0.5, 2],
+  ["glue stick", "glue sticks", 0.5, 2.5],
 ];
 
 function recipeDraft(r: Rng): Draft {
   const cost = r.chance(0.35);
   const ing = r.pick(INGREDIENTS);
-  const [item, items] = r.pick(ITEMS);
+  const [item, items, lo, hi] = r.pick(ITEMS);
   const cur: Cur = r.pick(["£", "$"]);
   let P = 4, R = 6, Q = 300;
   for (let t = 0; t < 500; t++) {
     P = cost ? r.int(2, 8) : r.pick([2, 3, 4, 5, 6, 8, 10]);
     R = r.int(2, cost ? 15 : 20);
-    Q = cost ? tidy(r.int(2, 48) * 0.25 * P) : ing.step * r.int(1, Math.floor(ing.max / ing.step));
+    Q = cost ? tidy(r.int(lo * 4, hi * 4) * 0.25 * P) : ing.step * r.int(1, Math.floor(ing.max / ing.step));
     const per = Q / P;
-    const ok = cost ? hasDp(per, 2) && Q <= 60 : ing.unit ? hasDp(per, 1) : hasDp(per, 2) && Q >= 2;
+    // per-person amounts must be believable, and exactly 1 each would make adding and scaling agree
+    const ok = cost ? hasDp(per, 2) && Q <= 60 && per !== 1 : (ing.unit ? hasDp(per, 1) : hasDp(per, 2)) && per >= ing.per[0] && per <= ing.per[1] && per !== 1;
     if (R !== P && ok && isWhole((Q * R) / P)) break;
   }
   const A = tidy((Q * R) / P);
@@ -1139,18 +1163,21 @@ function recipeDraft(r: Rng): Draft {
     : `${f(tidy(Q * R))} is ${f(Q)} for **each** of the ${R} people. The ${f(Q)} already feeds ${P} people, so find the amount for 1 person first.`);
   // 2. scaled the wrong way
   const wrongWay = tidy((Q * P) / R);
-  if (nice(wrongWay)) slips.add(wrongWay, f(wrongWay), `${f(wrongWay)} comes from multiplying by ${m(`${P}/${R}`)} instead of ${m(`${R}/${P}`)}. ${up ? `More ${who} need more` : `Fewer ${who} need less`}, so the answer must be ${up ? "more" : "less"} than ${f(Q)}.`);
+  const moreLess = cost ? (up ? `More ${who} cost more` : `Fewer ${who} cost less`) : up ? "More people need more" : "Fewer people need less";
+  if (nice(wrongWay)) slips.add(wrongWay, f(wrongWay), `${f(wrongWay)} comes from multiplying by ${m(`${P}/${R}`)} instead of ${m(`${R}/${P}`)}. ${moreLess}, so the answer must be ${up ? "more" : "less"} than ${f(Q)}.`);
   // 3. stopped at one
-  if (nice(per)) slips.add(per, f(per), `${f(per)} is the amount for **one** ${one}. Multiply by ${R} to get the amount for ${R} ${who}.`);
+  const amountFor = cost ? "the cost of" : "the amount for";
+  if (nice(per)) slips.add(per, f(per), `${f(per)} is ${amountFor} **one** ${one}. Multiply by ${R} to get ${amountFor} ${R} ${who}.`);
   // 4. only the change
   const change = tidy((gap * Q) / P);
-  if (nice(change)) slips.add(change, f(change), up
-    ? `${f(change)} is only the amount for the ${gap} extra ${gap === 1 ? one : who}. Add it on to the ${f(Q)} for the first ${P}.`
-    : `${f(change)} is the amount for the ${gap} ${gap === 1 ? one : who} you don't need. Take it away from ${f(Q)} to get the answer.`);
+  const gapWho = `${gap} ${gap === 1 ? one : who}`;
+  if (nice(change) && change !== Q) slips.add(change, f(change), up
+    ? `${f(change)} is only ${amountFor} the ${gap} extra ${gap === 1 ? one : who}. Add it on to the ${f(Q)} for the first ${P}.`
+    : `${f(change)} is ${amountFor} the ${gapWho} ${cost ? "you aren't buying" : "who aren't eating"}. Take it away from ${f(Q)} to get the answer.`);
   // 5. adding the difference instead of scaling (only believable for small counts and prices)
   if (count || cost) {
     const v = tidy(Q + (R - P));
-    slips.add(v, f(v), `${f(v)} comes from ${up ? "adding" : "taking away"} ${cost ? f(gap) : gap} because there ${gap === 1 ? "is" : "are"} ${gap} ${up ? "more" : "fewer"} ${gap === 1 ? one : who}. Amounts in proportion are **scaled** (multiplied by the same number), not changed by adding the difference.`);
+    slips.add(v, f(v), `${f(v)} comes from ${up ? "adding" : "taking away"} ${cost ? f(gap) : gap} because there ${gap === 1 ? "is" : "are"} ${gap} ${up ? "more" : "fewer"} ${gap === 1 ? one : who}. Amounts in proportion are **scaled** (multiplied by the same number), not changed by adding or taking away the difference.`);
   }
 
   const amountText = count ? `${Q} ${ing.what}` : cost ? f(Q) : `${f(Q)} of ${ing.what}`;
