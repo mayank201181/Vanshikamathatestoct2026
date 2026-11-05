@@ -34,6 +34,8 @@ export interface CheckResult {
   status: CheckStatus;
   /** Short, kind feedback for the learner. */
   feedback?: string;
+  /** "close" only because the value is within 1% (a guess at a rounding slip): a matching trap overrides it. */
+  roundingGuess?: true;
 }
 
 const EPS = 1e-9;
@@ -181,7 +183,7 @@ function checkNumber(spec: Extract<AnswerSpec, { type: "number" }>, input: strin
   // Only when decimals are involved: 99 for 100 is simply wrong, not a rounding issue.
   const bothWhole = Number.isInteger(spec.value) && Number.isInteger(p.value);
   if (!bothWhole && spec.value !== 0 && Math.abs(p.value - spec.value) <= 0.01 * Math.abs(spec.value)) {
-    return { status: "close", feedback: "Very close — check your rounding or the accuracy asked for." };
+    return { status: "close", feedback: "Very close — check your rounding or the accuracy asked for.", roundingGuess: true };
   }
   return { status: "incorrect" };
 }
@@ -429,7 +431,8 @@ function checkText(spec: Extract<AnswerSpec, { type: "text" }>, input: string): 
 /** Check an answer, then (if wrong) look for a matching trap to give targeted feedback. */
 export function checkWithTraps(spec: AnswerSpec, raw: string, traps?: { spec: AnswerSpec; feedback: string }[]): CheckResult {
   const r = checkAnswer(spec, raw);
-  if (r.status !== "incorrect" || !traps?.length) return r;
+  // A trap names a known slip, so it beats the checker's rounding guess (1.12 for 1.125 is a dropped ½, not rounding).
+  if ((r.status !== "incorrect" && !r.roundingGuess) || !traps?.length) return r;
   for (const t of traps) {
     try {
       if (checkAnswer(t.spec, raw).status === "correct") return { status: "incorrect", feedback: t.feedback };

@@ -1,4 +1,4 @@
-import type { GuideSection, MCQ, QA, QuestionSet, SectionId, TopicGuide, TopicId } from "../types.ts";
+import type { GuideSection, MCQ, Paper, QA, QuestionSet, SectionId, TopicGuide, TopicId } from "../types.ts";
 import { GUIDE_FR } from "./fr/guide.ts";
 import { MCQ_FR } from "./fr/mcq.ts";
 import { WRITTEN_FR } from "./fr/written.ts";
@@ -17,6 +17,9 @@ import { WRITTEN_SU } from "./su/written.ts";
 import { GUIDE_SQ } from "./sq/guide.ts";
 import { MCQ_SQ } from "./sq/mcq.ts";
 import { WRITTEN_SQ } from "./sq/written.ts";
+import { PAPERS } from "./papers/index.ts";
+
+export { PAPERS };
 
 export const GUIDES: Record<TopicId, TopicGuide> = {
   fr: GUIDE_FR,
@@ -88,14 +91,30 @@ function build(): Record<string, IndexedQuestion> {
   return idx;
 }
 
-export const QUESTION_INDEX: Record<string, IndexedQuestion> = build();
+/** Bank questions (topic sets) only. */
+const BANK_INDEX: Record<string, IndexedQuestion> = build();
+
+/** Bank questions plus practice-paper questions, so mistakes and scores from a paper resolve too. */
+export const QUESTION_INDEX: Record<string, IndexedQuestion> = { ...BANK_INDEX };
+for (const paper of PAPERS) {
+  paper.questions.forEach((q, i) => {
+    QUESTION_INDEX[q.id] = { kind: "qa", q, setId: paper.id, setTitle: paper.title, number: i + 1 };
+  });
+}
 
 export function lookup(qid: string): IndexedQuestion | undefined {
   return QUESTION_INDEX[qid];
 }
 
-/** Every question, for per-section mastery and practice-by-section. */
-export const ALL_QUESTIONS: IndexedQuestion[] = Object.values(QUESTION_INDEX);
+export function getPaper(id: string): Paper | undefined {
+  return PAPERS.find((p) => p.id === id);
+}
+
+/**
+ * Every bank question, for per-section mastery, practice-by-section and the random mock.
+ * Practice-paper questions are left out so they stay unseen until she sits the paper.
+ */
+export const ALL_QUESTIONS: IndexedQuestion[] = Object.values(BANK_INDEX);
 
 export function questionsForSection(section: string): IndexedQuestion[] {
   return ALL_QUESTIONS.filter((x) => x.q.section === section);

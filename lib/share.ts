@@ -1,5 +1,5 @@
 import type { Progress } from "./store";
-import { ALL_SETS, ALL_QUESTIONS, qaMarks } from "./content";
+import { ALL_SETS, ALL_QUESTIONS, PAPERS, lookup, qaMarks } from "./content";
 import { SECTIONS, TOPICS, TOPIC_IDS } from "./sections";
 import type { QA, TopicId } from "./types";
 
@@ -44,7 +44,7 @@ export function topicProgress(p: Progress): TopicProgress[] {
 
 export function openMistakes(p: Progress): string[] {
   return Object.entries(p.mistakes)
-    .filter(([id, open]) => open && ALL_QUESTIONS.some((x) => x.q.id === id))
+    .filter(([id, open]) => open && !!lookup(id))
     .map(([id]) => id);
 }
 
@@ -72,6 +72,8 @@ export function shareText(p: Progress): string {
   if (weak.length) lines.push(`🎯 Needs work: ${weak.map((s) => `${s.label} (${Math.round(s.score * 100)}%)`).join(", ")}`);
   const strong = m.filter((s) => s.score >= 0.9 && s.answered >= 4).map((s) => s.label);
   if (strong.length) lines.push(`💪 Strong: ${strong.slice(0, 4).join(", ")}`);
+  const papers = PAPERS.filter((pp) => p.best[pp.id]).map((pp) => `${pp.title.replace("Practice paper", "P")} ${p.best[pp.id].pct}%`);
+  if (papers.length) lines.push(`📝 Practice papers: ${papers.join(" · ")}`);
   const mocks = p.history.filter((h) => h.setId === "mock");
   if (mocks.length) lines.push(`🎓 Mock tests: ${mocks.slice(-5).map((m) => `${m.pct}%`).join(", ")}`);
   lines.push(`🔁 Mistakes still to fix: ${openMistakes(p).length}`);

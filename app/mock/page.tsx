@@ -6,6 +6,7 @@ import { emptyAttempt, useStore, type Progress } from "@/lib/store";
 import { ALL_QUESTIONS, lookup, qaMarks } from "@/lib/content";
 import { TOPICS, TOPIC_IDS } from "@/lib/sections";
 import { Runner, type RunItem } from "@/components/Runner";
+import { PaperCards } from "@/components/PaperCards";
 import type { QA } from "@/lib/types";
 
 const RUN = "mock";
@@ -84,8 +85,18 @@ export default function MockPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">🎓 Mock class test</h1>
+      <section className="space-y-3">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">🎓 Mock tests</h1>
+          <p className="mt-1 text-slate-600">
+            <b>Class-test practice papers:</b> four papers in the same style as your class mock (5 November), each with the same 18 kinds of question
+            plus 2 extra-practice questions. Do them on screen (marked and saved as you go) or print them and work on paper.
+          </p>
+        </div>
+        <PaperCards />
+      </section>
+      <div className="border-t border-slate-200 pt-5">
+        <h2 className="text-xl font-extrabold text-slate-900">🎲 Random mixed mock</h2>
         <p className="mt-1 text-slate-600">
           A mixed paper across all six topics — 2 multiple-choice questions and 1 written question from each of Fractions, Percentages, Ratio, Expressions, Substitution and
           Sequences. Questions you haven’t seen yet are picked first, so every mock is fresh practice.

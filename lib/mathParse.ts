@@ -47,7 +47,9 @@ export function normalizeInput(raw: string): string {
     .replace(/≤/g, "<=")
     .replace(/≥/g, ">=")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    .replace(/^=\s*/, "") // "= 7y - 11": a bare equals sign in front
+    .replace(/(?<=[a-z)\]])\.$/i, ""); // "7(4m-3).": a full stop after the answer
   return s;
 }
 
@@ -80,7 +82,7 @@ const POWER_UNIT = String.raw`(?:mm|cm|dm|m|km|units?)\s*\^?\s*[23]`;
  * read as 9 followed by a unit.
  */
 const UNIT_TAIL = new RegExp(
-  String.raw`^\s*(?:%|°\s*[a-z]?|(?:${POWER_UNIT}|[a-z]{1,12}(?:\s+[a-z]{1,12}){0,2})(?:\s*\/\s*(?:${POWER_UNIT}|[a-z]{1,5}))?)?\s*\.?\s*$`,
+  String.raw`^\s*(?:%|°\s*[a-z]?|(?:${POWER_UNIT}|[a-z]{1,12}(?:-[a-z]{1,12})?(?:\s+[a-z]{1,12}(?:-[a-z]{1,12})?){0,2})(?:\s*\/\s*(?:${POWER_UNIT}|[a-z]{1,5}))?)?\s*\.?\s*$`,
   "i",
 );
 
@@ -91,10 +93,10 @@ const UNIT_TAIL = new RegExp(
 export function parseNumberAnswer(raw: string): ParsedNumber | null {
   let s = normalizeInput(raw);
   if (!s) return null;
-  // Strip a leading label like "x =", "a=", "angle x =", "answer:".
-  s = s.replace(/^(?:[a-z][a-z ]{0,14}?\s*=|answer\s*[:=])\s*/i, "");
+  // Strip a leading label like "x =", "a=", "angle x =", "answer:", or a bare "= 7".
+  s = s.replace(/^(?:[a-z][a-z ]{0,14}?\s*=|answer\s*[:=]|=)\s*/i, "");
   // Strip currency symbols / codes at either end.
-  s = s.replace(/^(?:s\$|sgd|us\$|[£$€¥₹])\s*/i, "").replace(/\s*(?:sgd|dollars?|pounds?)$/i, "");
+  s = s.replace(/^(?:s\$|sgd|us\$|[£$€¥₹])\s*/i, "").replace(/\s*(?:sgd|dollars?|pounds?|[£$€])$/i, "");
   s = s.trim();
   let negative = false;
   s = s.replace(/^\+\s*/, "");
@@ -105,8 +107,17 @@ export function parseNumberAnswer(raw: string): ParsedNumber | null {
   s = s.replace(/^(?:s\$|[£$€¥₹])\s*/i, ""); // "-£5"
   const sign = negative ? -1 : 1;
 
+  // Recurring decimal, last digit repeating: "16.6 recurring", "0.16 rec", "8.3̇" → the exact fraction (50/3, 1/6, 25/3)
+  let m = s.match(/^(\d+)\.(\d*?)(\d)(?:\u0307|\s*(?:recurring|repeating|rec)\b\.?)(.*)$/i);
+  if (m && UNIT_TAIL.test(m[4])) {
+    const [, whole, fixed, rep] = m;
+    const top = parseInt(whole + fixed + rep, 10) - parseInt(whole + fixed, 10);
+    const bottom = 9 * Math.pow(10, fixed.length);
+    const g = gcd(top, bottom);
+    return { value: (sign * top) / bottom, frac: { whole: 0, n: top / g, d: bottom / g, negative }, kind: "fraction" };
+  }
   // Standard form: 3.2 * 10^4, 3.2x10^4, 3.2 × 10^(-3)
-  let m = s.match(/^(\d+(?:\.\d+)?)\s*(?:\*|x)\s*10\s*\^\s*\(?\s*(-?\d+)\s*\)?(.*)$/i);
+  m = s.match(/^(\d+(?:\.\d+)?)\s*(?:\*|x)\s*10\s*\^\s*\(?\s*(-?\d+)\s*\)?(.*)$/i);
   if (m && UNIT_TAIL.test(m[3])) {
     const mant = parseFloat(m[1]);
     const exp = parseInt(m[2], 10);

@@ -6,34 +6,57 @@ import { toMathML } from "@/lib/mathml";
 // Keys are positions within one render call, so re-rendering the same text keeps
 // the same DOM (no remounts: text selection and aria-live regions survive).
 
+/** Text with maths placeholders swapped back for rendered maths. */
+function restoreMaths(s: string, maths: string[]): ReactNode[] {
+  return s
+    .split(/\u0000(\d+)\u0000/g)
+    .map((piece, i) =>
+      i % 2 ? (
+        <span
+          key={i}
+          className="math"
+          dangerouslySetInnerHTML={{ __html: toMathML(maths[Number(piece)]) }}
+        />
+      ) : piece ? (
+        <Fragment key={i}>{piece}</Fragment>
+      ) : null,
+    );
+}
+
 /** Inline: {{maths}}, **bold**, *italic*, `code`. Newlines become <br/>. */
 export function renderInline(text: string): ReactNode[] {
   const out: ReactNode[] = [];
   const k = () => out.length;
-  const parts = String(text ?? "").split(/(\{\{[\s\S]+?\}\})/g);
-  for (const part of parts) {
-    if (!part) continue;
-    if (part.startsWith("{{") && part.endsWith("}}")) {
+  // Maths becomes a placeholder first, so **bold** can wrap it and a * (×) inside it never starts italics.
+  const maths: string[] = [];
+  const src = String(text ?? "").replace(
+    /\{\{([\s\S]+?)\}\}/g,
+    (_, m: string) => `\u0000${maths.push(m) - 1}\u0000`,
+  );
+  const tokens = src.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*\s][^*]*\*|\n)/g);
+  for (const t of tokens) {
+    if (!t) continue;
+    if (t === "\n") out.push(<br key={k()} />);
+    else if (t.startsWith("**") && t.endsWith("**") && t.length > 4)
       out.push(
-        <span key={k()} className="math" dangerouslySetInnerHTML={{ __html: toMathML(part.slice(2, -2)) }} />,
+        <strong key={k()}>{restoreMaths(t.slice(2, -2), maths)}</strong>,
       );
-      continue;
-    }
-    const tokens = part.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*\s][^*]*\*|\n)/g);
-    for (const t of tokens) {
-      if (!t) continue;
-      if (t === "\n") out.push(<br key={k()} />);
-      else if (t.startsWith("**") && t.endsWith("**") && t.length > 4) out.push(<strong key={k()}>{t.slice(2, -2)}</strong>);
-      else if (t.startsWith("`") && t.endsWith("`") && t.length > 2) out.push(<code key={k()}>{t.slice(1, -1)}</code>);
-      else if (t.startsWith("*") && t.endsWith("*") && t.length > 2) out.push(<em key={k()}>{t.slice(1, -1)}</em>);
-      else out.push(<Fragment key={k()}>{t}</Fragment>);
-    }
+    else if (t.startsWith("`") && t.endsWith("`") && t.length > 2)
+      out.push(<code key={k()}>{restoreMaths(t.slice(1, -1), maths)}</code>);
+    else if (t.startsWith("*") && t.endsWith("*") && t.length > 2)
+      out.push(<em key={k()}>{restoreMaths(t.slice(1, -1), maths)}</em>);
+    else out.push(<Fragment key={k()}>{restoreMaths(t, maths)}</Fragment>);
   }
   return out;
 }
 
 function splitRow(line: string): string[] {
-  return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+  return line
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((c) => c.trim());
 }
 
 function renderTable(lines: string[], key: number): ReactNode {
@@ -43,11 +66,19 @@ function renderTable(lines: string[], key: number): ReactNode {
     <div key={key} className="rich-table-wrap">
       <table className="rich-table">
         <thead>
-          <tr>{head.map((c, i) => <th key={i}>{renderInline(c)}</th>)}</tr>
+          <tr>
+            {head.map((c, i) => (
+              <th key={i}>{renderInline(c)}</th>
+            ))}
+          </tr>
         </thead>
         <tbody>
           {body.map((r, i) => (
-            <tr key={i}>{r.map((c, j) => <td key={j}>{renderInline(c)}</td>)}</tr>
+            <tr key={i}>
+              {r.map((c, j) => (
+                <td key={j}>{renderInline(c)}</td>
+              ))}
+            </tr>
           ))}
         </tbody>
       </table>
@@ -59,7 +90,9 @@ function renderTable(lines: string[], key: number): ReactNode {
 export function renderBlocks(text: string): ReactNode[] {
   const out: ReactNode[] = [];
   const k = () => out.length;
-  const blocks = String(text ?? "").replace(/\r\n/g, "\n").split(/\n\s*\n/);
+  const blocks = String(text ?? "")
+    .replace(/\r\n/g, "\n")
+    .split(/\n\s*\n/);
   for (const block of blocks) {
     if (!block.trim()) continue;
     const lines = block.split("\n");
@@ -69,24 +102,51 @@ export function renderBlocks(text: string): ReactNode[] {
       const line = lines[i];
       if (/^\s*\|/.test(line)) {
         const tbl: string[] = [];
-        while (i < lines.length && /^\s*\|/.test(lines[i])) tbl.push(lines[i++]);
+        while (i < lines.length && /^\s*\|/.test(lines[i]))
+          tbl.push(lines[i++]);
         out.push(renderTable(tbl, k()));
       } else if (/^\s*[-•]\s+/.test(line)) {
         const items: string[] = [];
-        while (i < lines.length && /^\s*[-•]\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*[-•]\s+/, ""));
-        out.push(<ul key={k()} className="rich-ul">{items.map((it, j) => <li key={j}>{renderInline(it)}</li>)}</ul>);
+        while (i < lines.length && /^\s*[-•]\s+/.test(lines[i]))
+          items.push(lines[i++].replace(/^\s*[-•]\s+/, ""));
+        out.push(
+          <ul key={k()} className="rich-ul">
+            {items.map((it, j) => (
+              <li key={j}>{renderInline(it)}</li>
+            ))}
+          </ul>,
+        );
       } else if (/^\s*\d+[.)]\s+/.test(line)) {
         const items: string[] = [];
-        while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) items.push(lines[i++].replace(/^\s*\d+[.)]\s+/, ""));
-        out.push(<ol key={k()} className="rich-ol">{items.map((it, j) => <li key={j}>{renderInline(it)}</li>)}</ol>);
+        while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i]))
+          items.push(lines[i++].replace(/^\s*\d+[.)]\s+/, ""));
+        out.push(
+          <ol key={k()} className="rich-ol">
+            {items.map((it, j) => (
+              <li key={j}>{renderInline(it)}</li>
+            ))}
+          </ol>,
+        );
       } else if (/^>\s?/.test(line)) {
         const q: string[] = [];
-        while (i < lines.length && /^>\s?/.test(lines[i])) q.push(lines[i++].replace(/^>\s?/, ""));
-        out.push(<blockquote key={k()} className="rich-callout">{renderInline(q.join("\n"))}</blockquote>);
+        while (i < lines.length && /^>\s?/.test(lines[i]))
+          q.push(lines[i++].replace(/^>\s?/, ""));
+        out.push(
+          <blockquote key={k()} className="rich-callout">
+            {renderInline(q.join("\n"))}
+          </blockquote>,
+        );
       } else if (/^( {4}|\t)/.test(line)) {
         const c: string[] = [];
-        while (i < lines.length && /^( {4}|\t)/.test(lines[i])) c.push(lines[i++].replace(/^( {4}|\t)/, ""));
-        out.push(<div key={k()} className="rich-calc">{c.map((l, j) => <div key={j}>{renderInline(l)}</div>)}</div>);
+        while (i < lines.length && /^( {4}|\t)/.test(lines[i]))
+          c.push(lines[i++].replace(/^( {4}|\t)/, ""));
+        out.push(
+          <div key={k()} className="rich-calc">
+            {c.map((l, j) => (
+              <div key={j}>{renderInline(l)}</div>
+            ))}
+          </div>,
+        );
       } else {
         const p: string[] = [];
         while (
@@ -106,12 +166,24 @@ export function renderBlocks(text: string): ReactNode[] {
 }
 
 /** Rich block text. */
-export function Rich({ text, className }: { text: string; className?: string }) {
+export function Rich({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
   return <div className={`rich ${className ?? ""}`}>{renderBlocks(text)}</div>;
 }
 
 /** Rich inline text (for options, hints, short labels). */
-export function RichInline({ text, className }: { text: string; className?: string }) {
+export function RichInline({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
   return <span className={className}>{renderInline(text)}</span>;
 }
 

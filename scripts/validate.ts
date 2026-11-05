@@ -2,7 +2,9 @@
 //   npm run validate            → every topic
 //   node scripts/validate.ts fr → one topic (fr | pc | ra | ex | su | sq)
 //   node scripts/validate.ts fr mcq   → one topic, one file (guide | mcq | written)
-import { GUIDES, MCQ_SETS, WRITTEN_SETS } from "../lib/content/index.ts";
+//   node scripts/validate.ts papers   → the class-test practice papers only
+//   node scripts/validate.ts papers "p1-q(0[1-9]|10)"   → only those questions' errors and warnings
+import { GUIDES, MCQ_SETS, PAPERS, WRITTEN_SETS } from "../lib/content/index.ts";
 import { checkAnswer, specSample, specSelfCheck } from "../lib/answerCheck.ts";
 import { gradeQA, keywordMatches, tokens } from "../lib/grade.ts";
 import { optionValue, verifyAnswer, verifyMcq } from "../lib/verify.ts";
@@ -10,9 +12,10 @@ import { SECTIONS, TOPIC_IDS } from "../lib/sections.ts";
 import type { GuideSection, MCQ, QA, QuestionSet, TopicId } from "../lib/types.ts";
 
 const [onlyTopic, onlyFile] = process.argv.slice(2);
-const topics = (onlyTopic ? [onlyTopic] : TOPIC_IDS) as TopicId[];
+const papersOnly = onlyTopic === "papers";
+const topics = (papersOnly ? [] : onlyTopic ? [onlyTopic] : TOPIC_IDS) as TopicId[];
 if (topics.some((t) => !TOPIC_IDS.includes(t))) {
-  console.error(`Unknown topic "${onlyTopic}". Use one of ${TOPIC_IDS.join(", ")}.`);
+  console.error(`Unknown topic "${onlyTopic}". Use one of ${TOPIC_IDS.join(", ")}, or "papers".`);
   process.exit(2);
 }
 const want = (f: "guide" | "mcq" | "written") => !onlyFile || onlyFile === f;
@@ -126,6 +129,77 @@ function checkMcqSets(sets: QuestionSet<MCQ>[], topic: TopicId) {
   });
 }
 
+/** Checks one written question (bank set or practice paper); returns its marks. */
+function checkQaQuestion(q: QA, topic: TopicId): number {
+  let marks = 0;
+  checkCommon(q, topic);
+  if (!q.parts?.length) err(`${q.id}: no parts`);
+  if (!q.solution?.length) err(`${q.id}: no solution steps`);
+  q.solution?.forEach((s, j) => checkText(`${q.id} solution ${j + 1}`, s));
+  q.altMethod?.steps.forEach((s, j) => checkText(`${q.id} altMethod ${j + 1}`, s));
+  if (!q.commonError?.trim()) err(`${q.id}: no commonError`);
+  checkText(`${q.id} commonError`, q.commonError);
+  const labels = new Set<string>();
+  q.parts?.forEach((p, j) => {
+    const where = `${q.id} part ${p.label ?? j + 1}`;
+    marks += p.marks;
+    if (q.parts.length > 1 && !p.label) err(`${where}: multi-part question needs labels a, b, c…`);
+    if (p.label) {
+      if (labels.has(p.label)) err(`${where}: duplicate label`);
+      labels.add(p.label);
+    }
+    if (q.parts.length > 1 && !p.prompt?.trim()) err(`${where}: missing prompt`);
+    checkText(`${where} prompt`, p.prompt);
+    if (!(p.marks >= 1 && p.marks <= 6)) err(`${where}: marks ${p.marks} out of range 1–6`);
+    if (!!p.answer === !!p.markScheme) err(`${where}: needs exactly one of answer / markScheme`);
+    if (p.answer) {
+      const self = specSelfCheck(p.answer);
+      if (self.status !== "correct") err(`${where}: the key's own sample "${specSample(p.answer)}" is marked ${self.status} (${self.feedback ?? ""}) — fix the spec`);
+      if (p.answer.display) checkText(`${where} display`, p.answer.display);
+      if (p.verify) {
+        const r = verifyAnswer(p.answer, p.verify);
+        if (!r.ok) err(`${where}: KEY MISMATCH — ${r.message}`);
+      } else if (p.answer.type !== "text") {
+        warn(`${where}: no \`verify\` — add one so the key is machine-checked`);
+      }
+      p.traps?.forEach((t, k) => {
+        try {
+          const r = checkAnswer(p.answer!, specSample(t.spec));
+          if (r.status === "correct") err(`${where}: trap ${k + 1} (${specSample(t.spec)}) is accepted as CORRECT by the answer spec`);
+        } catch {
+          err(`${where}: trap ${k + 1} could not be checked`);
+        }
+        checkText(`${where} trap ${k + 1}`, t.feedback);
+      });
+      if (p.answer.type === "expression" && /\s[a-z]\s|[A-Z]/.test(p.answer.expr)) warn(`${where}: expression "${p.answer.expr}" — use lower-case letters, no spaces between number and letter`);
+    }
+    if (p.markScheme) {
+      if (p.markScheme.length !== p.marks) err(`${where}: marks ${p.marks} != ${p.markScheme.length} mark points`);
+      if (!p.model?.trim()) err(`${where}: explain part needs a \`model\` answer`);
+      checkText(`${where} model`, p.model);
+      p.markScheme.forEach((mp, k) => {
+        if (!mp.point?.trim()) err(`${where} point ${k + 1}: empty`);
+        if (!mp.feedback || mp.feedback.length < 15) err(`${where} point ${k + 1}: feedback missing/short`);
+        if (!mp.keywords?.length) err(`${where} point ${k + 1}: no keywords`);
+        mp.keywords?.forEach((kw) => kw !== kw.toLowerCase() && warn(`${where} point ${k + 1}: keyword not lower-case: "${kw}"`));
+        checkText(`${where} point ${k + 1}`, mp.point);
+        checkText(`${where} point ${k + 1} feedback`, mp.feedback);
+      });
+      if (p.model) {
+        const r = gradeQA({ markScheme: p.markScheme }, p.model);
+        r.credited.forEach((c, k) => !c && warn(`${where}: model answer doesn't trigger keywords for point ${k + 1} ("${p.markScheme![k].point}")`));
+      }
+      const stem = `${q.question} ${p.prompt ?? ""}`;
+      gradeQA({ markScheme: p.markScheme }, stem).credited.forEach((c, k) => {
+        if (!c) return;
+        const hits = p.markScheme![k].keywords.filter((kw) => keywordMatches(tokens(stem), kw));
+        warn(`${where}: copying the question triggers point ${k + 1} via ${JSON.stringify(hits)}`);
+      });
+    }
+  });
+  return marks;
+}
+
 function checkWrittenSets(sets: QuestionSet<QA>[], topic: TopicId) {
   if (sets.length !== SETS_PER_TOPIC) err(`${topic} written: ${sets.length} sets, expected ${SETS_PER_TOPIC}`);
   sets.forEach((set, si) => {
@@ -138,73 +212,9 @@ function checkWrittenSets(sets: QuestionSet<QA>[], topic: TopicId) {
     set.questions.forEach((q, i) => {
       const id = `${topic}-w${n}-q${String(i + 1).padStart(2, "0")}`;
       if (q.id !== id) err(`${set.id}[${i}]: id ${q.id}, expected ${id}`);
-      checkCommon(q, topic);
-      if (!q.parts?.length) err(`${q.id}: no parts`);
-      if (!q.solution?.length) err(`${q.id}: no solution steps`);
-      q.solution?.forEach((s, j) => checkText(`${q.id} solution ${j + 1}`, s));
-      q.altMethod?.steps.forEach((s, j) => checkText(`${q.id} altMethod ${j + 1}`, s));
-      if (!q.commonError?.trim()) err(`${q.id}: no commonError`);
-      checkText(`${q.id} commonError`, q.commonError);
+      marks += checkQaQuestion(q, topic);
       if (ORDER[q.difficulty] < last) warn(`${q.id}: difficulty goes down (${q.difficulty} after harder)`);
       last = ORDER[q.difficulty];
-      const labels = new Set<string>();
-      q.parts?.forEach((p, j) => {
-        const where = `${q.id} part ${p.label ?? j + 1}`;
-        marks += p.marks;
-        if (q.parts.length > 1 && !p.label) err(`${where}: multi-part question needs labels a, b, c…`);
-        if (p.label) {
-          if (labels.has(p.label)) err(`${where}: duplicate label`);
-          labels.add(p.label);
-        }
-        if (q.parts.length > 1 && !p.prompt?.trim()) err(`${where}: missing prompt`);
-        checkText(`${where} prompt`, p.prompt);
-        if (!(p.marks >= 1 && p.marks <= 6)) err(`${where}: marks ${p.marks} out of range 1–6`);
-        if (!!p.answer === !!p.markScheme) err(`${where}: needs exactly one of answer / markScheme`);
-        if (p.answer) {
-          const self = specSelfCheck(p.answer);
-          if (self.status !== "correct") err(`${where}: the key's own sample "${specSample(p.answer)}" is marked ${self.status} (${self.feedback ?? ""}) — fix the spec`);
-          if (p.answer.display) checkText(`${where} display`, p.answer.display);
-          if (p.verify) {
-            const r = verifyAnswer(p.answer, p.verify);
-            if (!r.ok) err(`${where}: KEY MISMATCH — ${r.message}`);
-          } else if (p.answer.type !== "text") {
-            warn(`${where}: no \`verify\` — add one so the key is machine-checked`);
-          }
-          p.traps?.forEach((t, k) => {
-            try {
-              const r = checkAnswer(p.answer!, specSample(t.spec));
-              if (r.status === "correct") err(`${where}: trap ${k + 1} (${specSample(t.spec)}) is accepted as CORRECT by the answer spec`);
-            } catch {
-              err(`${where}: trap ${k + 1} could not be checked`);
-            }
-            checkText(`${where} trap ${k + 1}`, t.feedback);
-          });
-          if (p.answer.type === "expression" && /\s[a-z]\s|[A-Z]/.test(p.answer.expr)) warn(`${where}: expression "${p.answer.expr}" — use lower-case letters, no spaces between number and letter`);
-        }
-        if (p.markScheme) {
-          if (p.markScheme.length !== p.marks) err(`${where}: marks ${p.marks} != ${p.markScheme.length} mark points`);
-          if (!p.model?.trim()) err(`${where}: explain part needs a \`model\` answer`);
-          checkText(`${where} model`, p.model);
-          p.markScheme.forEach((mp, k) => {
-            if (!mp.point?.trim()) err(`${where} point ${k + 1}: empty`);
-            if (!mp.feedback || mp.feedback.length < 15) err(`${where} point ${k + 1}: feedback missing/short`);
-            if (!mp.keywords?.length) err(`${where} point ${k + 1}: no keywords`);
-            mp.keywords?.forEach((kw) => kw !== kw.toLowerCase() && warn(`${where} point ${k + 1}: keyword not lower-case: "${kw}"`));
-            checkText(`${where} point ${k + 1}`, mp.point);
-            checkText(`${where} point ${k + 1} feedback`, mp.feedback);
-          });
-          if (p.model) {
-            const r = gradeQA({ markScheme: p.markScheme }, p.model);
-            r.credited.forEach((c, k) => !c && warn(`${where}: model answer doesn't trigger keywords for point ${k + 1} ("${p.markScheme![k].point}")`));
-          }
-          const stem = `${q.question} ${p.prompt ?? ""}`;
-          gradeQA({ markScheme: p.markScheme }, stem).credited.forEach((c, k) => {
-            if (!c) return;
-            const hits = p.markScheme![k].keywords.filter((kw) => keywordMatches(tokens(stem), kw));
-            warn(`${where}: copying the question triggers point ${k + 1} via ${JSON.stringify(hits)}`);
-          });
-        }
-      });
     });
     const diff = { warmup: 0, core: 0, challenge: 0 };
     set.questions.forEach((q) => diff[q.difficulty]++);
@@ -246,6 +256,26 @@ function checkGuide(sections: GuideSection[], topic: TopicId, flashcards: number
   console.log(`guide ${topic}: ${sections.length} sections, ${flashcards} flashcards, ${cram} cram lines`);
 }
 
+
+const PAPER_QUESTIONS = 20;
+const PAPER_MARKS = 57;
+
+function checkPapers() {
+  PAPERS.forEach((paper, pi) => {
+    const n = pi + 1;
+    if (paper.id !== `paper-${n}`) err(`${paper.id}: paper id should be paper-${n}`);
+    if (paper.questions.length !== PAPER_QUESTIONS) err(`${paper.id}: ${paper.questions.length} questions, expected ${PAPER_QUESTIONS}`);
+    let marks = 0;
+    paper.questions.forEach((q, i) => {
+      const id = `p${n}-q${String(i + 1).padStart(2, "0")}`;
+      if (q.id !== id) err(`${paper.id}[${i}]: id ${q.id}, expected ${id}`);
+      marks += checkQaQuestion(q, q.topic);
+    });
+    if (marks !== PAPER_MARKS) err(`${paper.id}: ${marks} marks, expected ${PAPER_MARKS}`);
+    console.log(`${paper.id}: ${paper.questions.length} questions, ${marks} marks`);
+  });
+}
+
 for (const t of topics) {
   if (want("guide")) {
     const g = GUIDES[t];
@@ -257,6 +287,8 @@ for (const t of topics) {
   if (want("mcq")) checkMcqSets(MCQ_SETS[t], t);
   if (want("written")) checkWrittenSets(WRITTEN_SETS[t], t);
 }
+
+if (!onlyTopic || papersOnly) checkPapers();
 
 // coverage: every section practised
 if (!onlyFile) {
@@ -270,6 +302,16 @@ if (!onlyFile) {
       if (c < 6) warn(`${s.id}: only ${c} questions`);
     });
     console.log(`${t} questions per section:`, Object.fromEntries([...per.entries()].sort()));
+  }
+}
+
+// `node scripts/validate.ts papers "<id regex>"` reports only the matching questions (one author's half)
+if (papersOnly && onlyFile) {
+  const re = new RegExp(onlyFile);
+  for (const list of [errors, warnings]) {
+    const keep = list.filter((m) => re.test(m));
+    list.length = 0;
+    list.push(...keep);
   }
 }
 
