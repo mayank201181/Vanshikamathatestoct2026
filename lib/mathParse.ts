@@ -80,7 +80,7 @@ const POWER_UNIT = String.raw`(?:mm|cm|dm|m|km|units?)\s*\^?\s*[23]`;
  * read as 9 followed by a unit.
  */
 const UNIT_TAIL = new RegExp(
-  String.raw`^\s*(?:%|°\s*[a-z]?|(?:${POWER_UNIT}|[a-z]{1,12}(?:\s+[a-z]{1,12}){0,2})(?:\s*\/\s*(?:${POWER_UNIT}|[a-z]{1,5}))?)?\s*\.?\s*$`,
+  String.raw`^\s*(?:%|°\s*[a-z]?|(?:${POWER_UNIT}|[a-z]{1,12}(?:-[a-z]{1,12})?(?:\s+[a-z]{1,12}(?:-[a-z]{1,12})?){0,2})(?:\s*\/\s*(?:${POWER_UNIT}|[a-z]{1,5}))?)?\s*\.?\s*$`,
   "i",
 );
 
@@ -91,8 +91,8 @@ const UNIT_TAIL = new RegExp(
 export function parseNumberAnswer(raw: string): ParsedNumber | null {
   let s = normalizeInput(raw);
   if (!s) return null;
-  // Strip a leading label like "x =", "a=", "angle x =", "answer:".
-  s = s.replace(/^(?:[a-z][a-z ]{0,14}?\s*=|answer\s*[:=])\s*/i, "");
+  // Strip a leading label like "x =", "a=", "angle x =", "answer:", or a bare "= 7".
+  s = s.replace(/^(?:[a-z][a-z ]{0,14}?\s*=|answer\s*[:=]|=)\s*/i, "");
   // Strip currency symbols / codes at either end.
   s = s.replace(/^(?:s\$|sgd|us\$|[£$€¥₹])\s*/i, "").replace(/\s*(?:sgd|dollars?|pounds?)$/i, "");
   s = s.trim();
