@@ -42,7 +42,7 @@ export default async function PaperAnswers({
           📄 The paper
         </Link>
       </div>
-      <header className="border-b-2 border-slate-800 pb-3">
+      <div className="border-b-2 border-slate-800 pb-3">
         <h1 className="text-2xl font-extrabold">
           {paper.title}: answers and working
         </h1>
@@ -51,7 +51,7 @@ export default async function PaperAnswers({
           answer is wrong but the working matches the steps below, give method
           marks for each correct step.
         </p>
-      </header>
+      </div>
 
       <table className="mt-4 w-full border-collapse text-sm">
         <thead>

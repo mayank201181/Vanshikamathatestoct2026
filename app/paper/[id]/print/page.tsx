@@ -145,7 +145,7 @@ export default async function PrintPaper({
           Do it on screen instead
         </Link>
       </div>
-      <header className="border-b-2 border-slate-800 pb-3">
+      <div className="border-b-2 border-slate-800 pb-3">
         <h1 className="text-2xl font-extrabold">
           Year 8 Maths · {paper.title}
         </h1>
@@ -164,7 +164,7 @@ export default async function PrintPaper({
           {paper.questions.length} are extra practice: a pattern table and a
           changing ratio.
         </p>
-      </header>
+      </div>
       <ol className="mt-5 space-y-5">
         {paper.questions.map((q, i) => (
           <Question key={q.id} q={q} n={i + 1} />
