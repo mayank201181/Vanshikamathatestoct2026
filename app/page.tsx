@@ -156,6 +156,18 @@ export default function Home() {
         </Link>
       )}
 
+      {/* test-morning review */}
+      <Link
+        href="/bus"
+        className="flex items-center justify-between gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-5 py-4 shadow-sm transition hover:bg-emerald-100"
+      >
+        <span>
+          <span className="block text-lg font-extrabold text-emerald-950">🚌 Test-morning review</span>
+          <span className="text-sm text-emerald-800">10 minutes: the 18 question types from the class mock, each with its method and the slip to avoid.</span>
+        </span>
+        <span className="text-2xl">→</span>
+      </Link>
+
       {/* class-test practice papers */}
       <section className="space-y-2">
         <h2 className="text-lg font-extrabold text-slate-900">📝 Practice papers for the class test</h2>
