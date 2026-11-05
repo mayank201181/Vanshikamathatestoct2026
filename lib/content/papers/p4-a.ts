@@ -65,7 +65,7 @@ export const P4_A: QA[] = [
       "(b) The terms go down by 7, so the difference is −7 and the rule starts with −7n.",
       "Zeroth term: step back from 22. The terms go down, so stepping back means adding 7: 22 + 7 = 29.",
       "nth term = **29 − 7n** (or −7n + 29)",
-      "Check: n = 5 gives 29 − 7 × 5 = 29 − 35 = −6 ✓",
+      "Check with n = 5:\n\n    7 × 5 = 35\n    29 − 35 = −6 ✓",
     ],
     commonError:
       "Using the first term as the number on its own, e.g. 8n + 1 or 22 − 7n. The number on its own is the zeroth term, one step before the first term: 1 − 8 = −7 and 22 + 7 = 29.",
@@ -227,7 +227,7 @@ export const P4_A: QA[] = [
     topic: "fr",
     section: "fr-problems",
     difficulty: "core",
-    question: "Calculate {{3 5/6}} − {{5/8}} × {{4/3}}",
+    question: "Calculate {{3 5/6}} − {{5/8}} × {{4/3}}. Give your answer in its simplest form.",
     parts: [
       {
         marks: 3,
@@ -280,6 +280,11 @@ export const P4_A: QA[] = [
           {
             spec: { type: "list", values: [16, 24], ordered: true },
             feedback: "The number of coins does not go up by 8 every time. Count the coins in pattern 3 row by row.",
+          },
+          {
+            spec: { type: "list", values: [8, 16, 26], ordered: true },
+            feedback:
+              "These numbers are right, but the 8 for pattern 1 is already in the table. Only the two missing values (patterns 2 and 3) were asked for.",
           },
         ],
       },
@@ -338,6 +343,7 @@ export const P4_A: QA[] = [
     question: "Write the answer to this calculation in its simplest form: {{(45t^4)/16}} × {{12/(25t^3)}}",
     parts: [
       {
+        prompt: "If the bottom of your answer has more than one factor, type it in brackets, e.g. 5/(2a).",
         marks: 2,
         answer: { type: "expression", expr: "27t/20", form: "simplified" },
         verify: "(45t^4/16)*(12/(25t^3))",
@@ -402,7 +408,7 @@ export const P4_A: QA[] = [
           {
             spec: { type: "number", value: 27 },
             feedback:
-              "27 is 22 + 5, but the square root is taken away from 2w. Check k² too: (−7)² = (−7) × (−7) = +49, so k² − 3m = 49 − 24 = 25.",
+              "27 is 22 + 5, but the square root is taken **away** from 2w. {{sqrt(25)}} is +5 (not −5, even though k is negative), so work out 22 − 5.",
           },
         ],
       },
