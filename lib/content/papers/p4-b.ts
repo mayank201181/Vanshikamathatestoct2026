@@ -180,6 +180,16 @@ export const P4_B: QA[] = [
             feedback:
               "0.675 would **decrease** the amount by {{32 1/2}}%. The multiplier for an increase is bigger than 1.",
           },
+          {
+            spec: { type: "number", value: 1.32 },
+            feedback:
+              "1.32 is the multiplier for a 32% increase: the {{1/2}}% has gone missing. 100% + 32.5% = 132.5%, so the multiplier is 1.325.",
+          },
+          {
+            spec: { type: "number", value: 1.33 },
+            feedback:
+              "Don't round the multiplier: 1.33 would be a 33% increase. 100% + 32.5% = 132.5% exactly, so the multiplier is 1.325.",
+          },
         ],
       },
     ],
@@ -228,6 +238,16 @@ export const P4_B: QA[] = [
           {
             spec: { type: "number", value: 84.5 },
             feedback: "84.5 is the percentage that is left. To turn it into a multiplier, divide by 100: 84.5% = 0.845.",
+          },
+          {
+            spec: { type: "number", value: 0.84 },
+            feedback:
+              "Don't round the multiplier: 0.84 would be a 16% decrease. 100% − 15.5% = 84.5% exactly, so the multiplier is 0.845.",
+          },
+          {
+            spec: { type: "number", value: 1.155 },
+            feedback:
+              "1.155 would **increase** the amount by {{15 1/2}}%. The multiplier for a decrease is less than 1: 100% − 15.5% = 84.5%.",
           },
         ],
       },
@@ -341,6 +361,10 @@ export const P4_B: QA[] = [
             spec: { type: "number", value: 99 },
             feedback: "99 is the number of adults at the start. The question asks for the number of children.",
           },
+          {
+            spec: { type: "number", value: 11 },
+            feedback: "11 is x, the size of one part. The number of children is 11x.",
+          },
         ],
       },
     ],
@@ -453,7 +477,7 @@ export const P4_B: QA[] = [
     difficulty: "challenge",
     question:
       "**Extra practice: completing a pattern table** (like 6(a) in your class test).\n\nSiti uses dots to make a growing T-shaped pattern, as shown below. The first pattern uses 4 dots.",
-    diagram: dotPatterns([[3, 1], [5, 1, 1], [7, 1, 1, 1]], "dots"),
+    diagram: dotPatterns([[3, 1], [6, 1, 1, 1], [9, 1, 1, 1, 1, 1]], "dots"),
     table: {
       headers: ["Pattern number", "1", "2", "3", "4"],
       rows: [["Number of dots", "4", "?", "?", "?"]],
@@ -464,21 +488,21 @@ export const P4_B: QA[] = [
         prompt:
           "Complete the table to show how many dots are used for patterns 2, 3 and 4. Pattern 4 is not drawn, so continue the pattern. Type the three numbers in order, separated by commas.",
         marks: 2,
-        answer: { type: "list", values: [7, 10, 13], ordered: true },
-        verify: "5+1+1, 7+1+1+1, 9+1+1+1+1",
+        answer: { type: "list", values: [9, 14, 19], ordered: true },
+        verify: "6+3, 9+5, 12+7",
         traps: [
           {
-            spec: { type: "list", values: [6, 8, 10], ordered: true },
+            spec: { type: "list", values: [7, 10, 13], ordered: true },
             feedback:
-              "You've only counted the 2 extra dots on the top row. The stem grows by 1 dot each time too, so each pattern has 2 + 1 = 3 more dots than the one before.",
+              "You've only counted the 3 extra dots on the top row. The stem grows too: it gets 2 more dots each time. So each pattern has 3 + 2 = 5 more dots than the one before.",
           },
           {
-            spec: { type: "list", values: [7, 10, 12], ordered: true },
+            spec: { type: "list", values: [9, 14, 18], ordered: true },
             feedback:
-              "7 and 10 are right, but check pattern 4: its top row has 9 dots and its stem has 4 dots. Then check the differences: they should all be the same.",
+              "9 and 14 are right, but check pattern 4: its top row has 12 dots and its stem has 7 dots. Then check the differences: they should all be the same.",
           },
           {
-            spec: { type: "list", values: [4, 7, 10, 13], ordered: true },
+            spec: { type: "list", values: [4, 9, 14, 19], ordered: true },
             feedback:
               "These numbers are right, but the 4 for pattern 1 is already in the table. Only the three missing values (patterns 2, 3 and 4) were asked for.",
           },
@@ -488,36 +512,49 @@ export const P4_B: QA[] = [
         label: "b",
         prompt: "Find an expression for the number of dots in pattern n.",
         marks: 1,
-        answer: { type: "expression", expr: "3n+1" },
-        verify: "terms:3+1, 5+1+1, 7+1+1+1",
+        answer: { type: "expression", expr: "5n-1" },
+        verify: "terms:3+1, 6+3, 9+5",
         traps: [
           {
-            spec: { type: "expression", expr: "3n+4" },
+            spec: { type: "expression", expr: "5n+4" },
             feedback:
-              "4 is the 1st term, not the zeroth term. One step back from 4 is 4 − 3 = 1, so the expression is 3n + 1. (Check: 3n + 4 gives 7 dots for pattern 1, not 4.)",
+              "4 is the 1st term, not the zeroth term. One step back from 4 is 4 − 5 = −1, so the expression is 5n − 1. (Check: 5n + 4 gives 9 dots for pattern 1, not 4.)",
           },
           {
-            spec: { type: "expression", expr: "n+3" },
-            feedback: "n + 3 only goes up by 1 each time. The difference, 3, goes **in front of** n: start with 3n, then adjust.",
+            spec: { type: "expression", expr: "n+5" },
+            feedback: "n + 5 only goes up by 1 each time. The difference, 5, goes **in front of** n: start with 5n, then adjust.",
+          },
+          {
+            spec: { type: "expression", expr: "5n+1" },
+            feedback: "Check it with pattern 1: 5 × 1 + 1 = 6, but pattern 1 has 4 dots. The zeroth term is 4 − 5 = −1, so it's 5n − 1.",
           },
         ],
       },
       {
         label: "c",
-        prompt: "Which pattern uses 100 dots?",
+        prompt: "Which pattern uses 124 dots?",
         marks: 1,
-        answer: { type: "number", value: 33, display: "Pattern 33" },
-        verify: "(100-(3+1))/((5+1+1)-(3+1))+1",
+        answer: { type: "number", value: 25, display: "Pattern 25" },
+        verify: "(124-(3+1))/((6+3)-(3+1))+1",
         traps: [
           {
-            spec: { type: "number", value: 301 },
+            spec: { type: "number", value: 619 },
             feedback:
-              "301 is the number of dots in pattern 100 (3 × 100 + 1). The question asks which pattern has 100 dots, so solve 3n + 1 = 100.",
+              "619 is the number of dots in pattern 124 (5 × 124 − 1). The question asks which pattern has 124 dots, so solve 5n − 1 = 124.",
           },
           {
-            spec: { type: "number", value: 32 },
+            spec: { type: "number", value: 24 },
             feedback:
-              "From pattern 1 (4 dots) up to 100 dots is 96 ÷ 3 = 32 jumps of 3, so it's 32 patterns after pattern 1, which is pattern 33. (If you used 3n + 4, check it with pattern 1 first.)",
+              "From pattern 1 (4 dots) up to 124 dots is 120 ÷ 5 = 24 jumps of 5, so it's 24 patterns after pattern 1, which is pattern 25.",
+          },
+          {
+            spec: { type: "number", value: 24.8, tolerance: 0.01 },
+            feedback:
+              "124 ÷ 5 = 24.8 comes from solving 5n = 124, but the expression is 5n − 1. Add the 1 first: 5n − 1 = 124, so 5n = 125. A pattern number is always a whole number.",
+          },
+          {
+            spec: { type: "number", value: 24.6, tolerance: 0.01 },
+            feedback: "That's solving 5n = 123. The expression is 5n − 1, so add 1 to both sides: 5n = 125, n = 25.",
           },
         ],
       },
@@ -525,29 +562,29 @@ export const P4_B: QA[] = [
     hints: [
       "Fill in **every** empty cell before you look for a rule. Count the dots in patterns 2 and 3 from the picture: the top row, then the stem.",
       "Pattern 4 isn't drawn. What changes from one pattern to the next? Look at the top row and the stem separately, or sketch pattern 4.",
-      "Check your finished row with the differences: are they all the same? That difference goes in front of n. For (c), make your expression equal to 100 and solve.",
+      "Check your finished row with the differences: are they all the same? That difference goes in front of n. For (c), make your expression equal to 124 and solve.",
     ],
     solution: [
       "(a) Count the dots in each pattern: the top row plus the stem.",
       "Pattern 1: 3 + 1 = 4 (given)",
-      "Pattern 2: 5 + 2 = 7",
-      "Pattern 3: 7 + 3 = 10",
-      "Pattern 4 is not drawn. Each time, the top row gets 2 more dots and the stem gets 1 more dot, so pattern 4 has a top row of 9 dots and a stem of 4 dots:\n\n    9 + 4 = 13",
-      "The completed table:\n\n| Pattern number | 1 | 2 | 3 | 4 |\n|---|---|---|---|---|\n| Number of dots | 4 | **7** | **10** | **13** |",
-      "Check with the differences: 4 → 7 → 10 → 13 goes +3, +3, +3 ✓ (all the same).",
-      "(b) The difference is 3, so the expression starts with 3n.",
-      "The zeroth term is one step back from pattern 1:\n\n    4 − 3 = 1\n\nSo the number of dots in pattern n is **3n + 1**.",
-      "Check with pattern 4:\n\n    3 × 4 + 1 = 13 ✓",
-      "(c) Make the expression equal to 100 and solve:\n\n    3n + 1 = 100\n    3n = 99\n    n = 33",
-      "So **pattern 33** uses 100 dots. Check: 3 × 33 + 1 = 100 ✓",
+      "Pattern 2: 6 + 3 = 9",
+      "Pattern 3: 9 + 5 = 14",
+      "Pattern 4 is not drawn. Each time, the top row gets 3 more dots and the stem gets 2 more dots, so pattern 4 has a top row of 12 dots and a stem of 7 dots:\n\n    12 + 7 = 19",
+      "The completed table:\n\n| Pattern number | 1 | 2 | 3 | 4 |\n|---|---|---|---|---|\n| Number of dots | 4 | **9** | **14** | **19** |",
+      "Check with the differences: 4 → 9 → 14 → 19 goes +5, +5, +5 ✓ (all the same).",
+      "(b) The difference is 5, so the expression starts with 5n.",
+      "The zeroth term is one step back from pattern 1:\n\n    4 − 5 = −1\n\nSo the number of dots in pattern n is **5n − 1**.",
+      "Check with pattern 4:\n\n    5 × 4 − 1 = 19 ✓",
+      "(c) Make the expression equal to 124 and solve:\n\n    5n − 1 = 124\n    5n = 125\n    n = 25",
+      "So **pattern 25** uses 124 dots. Check: 5 × 25 − 1 = 124 ✓",
     ],
     altMethod: {
       label: "Use the picture",
       steps: [
-        "Pattern n has a stem of n dots and a top row of 2n + 1 dots (pattern 3: a stem of 3 and a top row of 7).",
-        "Total: (2n + 1) + n = 3n + 1 dots.",
-        "For 100 dots: 3n + 1 = 100, so 3n = 99 and n = 33.",
-        "Check: pattern 33 has a top row of 67 dots and a stem of 33 dots, and 67 + 33 = 100 ✓",
+        "Pattern n has a top row of 3n dots and a stem of 2n − 1 dots (pattern 3: a top row of 9 and a stem of 5).",
+        "Total: 3n + (2n − 1) = 5n − 1 dots.",
+        "For 124 dots: 5n − 1 = 124, so 5n = 125 and n = 25.",
+        "Check: pattern 25 has a top row of 75 dots and a stem of 49 dots, and 75 + 49 = 124 ✓",
       ],
     },
     commonError:
@@ -581,6 +618,10 @@ export const P4_B: QA[] = [
           {
             spec: { type: "number", value: 35 },
             feedback: "35 is the number of cats at the start. The question asks for the number of dogs.",
+          },
+          {
+            spec: { type: "number", value: 5 },
+            feedback: "5 is x, the size of one part. The number of dogs is 13x.",
           },
         ],
       },

@@ -173,6 +173,7 @@ Q10 in Papers 1 and 3 has a recurring answer: say "Give your answer as an exact 
 16. {{(21k^2)/10}} ÷ {{(14k)/(25m)}} → **{{(15km)/4}}**
 17. 45% of the people at a concert are adults, the rest children. 22 more adults arrive; adults : children is now 1 : 1. How many children? → **121** (220 people: 99 + 22 = 121 : 121)
 18. 0, 13, 36, 69, 112, 165 → (a) **228**; (b) **5n² − 2n − 3**
-19. Dots in a T shape. Rows: pattern 1 [3, 1], pattern 2 [5, 1, 1], pattern 3 [7, 1, 1, 1]; table 1 → 4.
-    (a) patterns 2, 3, 4 → **7, 10, 13** (2); (b) expression for pattern n → **3n + 1** (1); (c) which pattern uses 100 dots → **33** (1)
+19. Dots in a T shape. Rows: pattern 1 [3, 1], pattern 2 [6, 1, 1, 1], pattern 3 [9, 1, 1, 1, 1, 1]; table 1 → 4.
+    (a) patterns 2, 3, 4 → **9, 14, 19** (2); (b) expression for pattern n → **5n − 1** (1); (c) which pattern uses 124 dots → **25** (1)
+    (Changed from 3n + 1 / 100 dots after the audit: the bank's sq-w2-q03 already uses 4, 7, 10 → 3n + 1 and 100 → 33.)
 20. 35% of the animals at a rescue centre are cats, the rest dogs. 9 cats are rehomed; cats : dogs is now 2 : 5. How many dogs? → **65** (35 cats, 65 dogs; 26 : 65)

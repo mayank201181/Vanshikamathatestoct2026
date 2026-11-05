@@ -297,7 +297,7 @@ export const P1_A: QA[] = [
       {
         label: "a",
         prompt:
-          "Complete the table to show how many counters are used for the other patterns. Give the numbers for patterns 2 and 3, in that order.",
+          "Complete the table to show how many counters are used for the other patterns. Type the numbers for patterns 2 and 3 in order, separated by commas.",
         marks: 1,
         answer: { type: "list", values: [12, 19], ordered: true, display: "12, 19" },
         verify: "4+4+4, 5+5+5+4",
@@ -321,12 +321,16 @@ export const P1_A: QA[] = [
         prompt:
           "Noor correctly identifies the rule for the nth term in this pattern as {{n^2 + 2n + 4}}. Use this formula to calculate the number of counters she needs to create the 10th pattern of this sequence.",
         marks: 2,
-        answer: { type: "number", value: 124 },
+        answer: { type: "number", value: 124, display: "124 counters" },
         verify: "10^2+2*10+4",
         traps: [
           {
             spec: { type: "number", value: 44 },
             feedback: "{{10^2}} means 10 × 10 = 100, not 10 × 2 = 20. Then add 2 × 10 = 20 and 4.",
+          },
+          {
+            spec: { type: "number", value: 120 },
+            feedback: "Nearly: 100 + 20 = 120 is right so far. Now add the 4.",
           },
         ],
       },
@@ -529,26 +533,6 @@ export const P1_A: QA[] = [
         verify: "(280-240)/240*100",
         traps: [
           {
-            // The checker reads "recurring" as a unit, so "16.6 recurring" would otherwise meet the "rounded" trap below.
-            // ("16.6 recurring %" can't be read as a number at all, so it never reaches the traps.)
-            spec: {
-              type: "text",
-              accept: [
-                "16.6 recurring",
-                "16.66 recurring",
-                "16.666 recurring",
-                "16.6666 recurring",
-                "16.6 recurring percent",
-                "16.6 repeating",
-                "16.66 repeating",
-                "16.6 rec",
-                "16.6r",
-              ],
-            },
-            feedback:
-              "16.6 recurring means the same as {{16 2/3}}, so your value is exact. On paper, show that it recurs with a dot over the 6, or (better, the way your teacher wrote {{33 1/3}}%) give the fraction: {{16 2/3}}%.",
-          },
-          {
             spec: { type: "number", value: 16.67, tolerance: 0.07 },
             feedback:
               "That's a rounded answer, but the question asks for an **exact** percentage. {{1/6}} × 100 = 16.666…, and the 6s go on for ever, so write the exact value as a mixed number: {{16 2/3}}% (like {{33 1/3}}% rather than 33.3% in your class test).",
@@ -589,7 +573,7 @@ export const P1_A: QA[] = [
       "{{1/6 * 100 = 100/6 = 50/3}}",
       "50 ÷ 3 = 16 remainder 2, so {{50/3 = 16 2/3}}",
       "Percentage profit = **{{16 2/3}}%**",
-      "16.7% is a rounded value, so it is not exact. Keep the fraction part: {{16 2/3}}%.",
+      "16.7% is a rounded value, so it is not exact. Keep the fraction part: {{16 2/3}}%. (16.6 recurring, written with a dot over the 6, is exact too.)",
     ],
     altMethod: {
       label: "Use the multiplier",

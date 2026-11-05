@@ -252,7 +252,7 @@ export const P3_A: QA[] = [
     topic: "fr",
     section: "fr-problems",
     difficulty: "core",
-    question: "Calculate {{1 2/5}} + {{4/7}} × {{7/10}}\n\nGive your answer in its simplest form.",
+    question: "Calculate {{1 2/5}} + {{4/7}} × {{7/10}}. Give your answer in its simplest form.",
     parts: [
       {
         marks: 3,
@@ -528,26 +528,6 @@ export const P3_A: QA[] = [
         answer: { type: "fraction", n: 25, d: 3, simplest: true, display: "{{8 1/3}}%" },
         verify: "(390-360)/360*100",
         traps: [
-          {
-            // The checker reads "recurring" as a unit, so "8.3 recurring" would otherwise meet the "rounded" trap below.
-            // ("8.3 recurring %" can't be read as a number at all, so it never reaches the traps.)
-            spec: {
-              type: "text",
-              accept: [
-                "8.3 recurring",
-                "8.33 recurring",
-                "8.333 recurring",
-                "8.3333 recurring",
-                "8.3 recurring percent",
-                "8.3 repeating",
-                "8.33 repeating",
-                "8.3 rec",
-                "8.3r",
-              ],
-            },
-            feedback:
-              "8.3 recurring means the same as {{8 1/3}}, so your value is exact. On paper, show that it recurs with a dot over the 3, or (better, the way your teacher wrote {{33 1/3}}%) give the fraction: {{8 1/3}}%.",
-          },
           {
             spec: { type: "number", value: 8.33, tolerance: 0.04 },
             feedback:

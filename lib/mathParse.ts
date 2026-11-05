@@ -107,8 +107,17 @@ export function parseNumberAnswer(raw: string): ParsedNumber | null {
   s = s.replace(/^(?:s\$|[£$€¥₹])\s*/i, ""); // "-£5"
   const sign = negative ? -1 : 1;
 
+  // Recurring decimal, last digit repeating: "16.6 recurring", "0.16 rec", "8.3̇" → the exact fraction (50/3, 1/6, 25/3)
+  let m = s.match(/^(\d+)\.(\d*?)(\d)(?:\u0307|\s*(?:recurring|repeating|rec)\b\.?)(.*)$/i);
+  if (m && UNIT_TAIL.test(m[4])) {
+    const [, whole, fixed, rep] = m;
+    const top = parseInt(whole + fixed + rep, 10) - parseInt(whole + fixed, 10);
+    const bottom = 9 * Math.pow(10, fixed.length);
+    const g = gcd(top, bottom);
+    return { value: (sign * top) / bottom, frac: { whole: 0, n: top / g, d: bottom / g, negative }, kind: "fraction" };
+  }
   // Standard form: 3.2 * 10^4, 3.2x10^4, 3.2 × 10^(-3)
-  let m = s.match(/^(\d+(?:\.\d+)?)\s*(?:\*|x)\s*10\s*\^\s*\(?\s*(-?\d+)\s*\)?(.*)$/i);
+  m = s.match(/^(\d+(?:\.\d+)?)\s*(?:\*|x)\s*10\s*\^\s*\(?\s*(-?\d+)\s*\)?(.*)$/i);
   if (m && UNIT_TAIL.test(m[3])) {
     const mant = parseFloat(m[1]);
     const exp = parseInt(m[2], 10);

@@ -160,8 +160,20 @@ export const P1_B: QA[] = [
         verify: "1+(12+1/2)/100",
         traps: [
           {
+            spec: { type: "number", value: 1.12 },
+            feedback: "1.12 is the multiplier for a 12% increase: the {{1/2}} has gone missing. {{12 1/2}}% = 12.5 ÷ 100 = 0.125, so the multiplier is 1 + 0.125.",
+          },
+          {
+            spec: { type: "number", value: 1.13 },
+            feedback: "1.13 is the multiplier for a 13% increase. Don't round 12.5% to 13%: the single number must give the correct answer exactly, so use 1 + 0.125.",
+          },
+          {
             spec: { type: "number", value: 1.25 },
             feedback: "1.25 is the multiplier for a 25% increase. {{12 1/2}}% = 12.5 ÷ 100 = 0.125, so the multiplier is 1 + 0.125.",
+          },
+          {
+            spec: { type: "number", value: 0.875 },
+            feedback: "0.875 would **decrease** the amount by {{12 1/2}}%. For an increase, add 0.125 to 1 instead of taking it away.",
           },
           {
             spec: { type: "number", value: 0.125 },
@@ -190,7 +202,7 @@ export const P1_B: QA[] = [
       "Check without the multiplier: 10% of 520 = 52 and 2.5% of 520 = 13.",
       "So {{12 1/2}}% of 520 = 52 + 13 = 65, and 520 + 65 = 585 ✓",
     ],
-    commonError: "Writing {{12 1/2}}% as 0.25 (giving 1.25) instead of 0.125, or forgetting the original 100% and using 0.125.",
+    commonError: "Dropping the {{1/2}} (giving 1.12), writing {{12 1/2}}% as 0.25 (giving 1.25) instead of 0.125, or forgetting the original 100% and using 0.125.",
     strategy: "Use the multiplier",
   },
   {
@@ -326,7 +338,7 @@ export const P1_B: QA[] = [
     parts: [
       {
         marks: 3,
-        answer: { type: "number", value: 42 },
+        answer: { type: "number", value: 42, display: "42 blue pens" },
         verify: "(1-30/100)*(12*7/(7*30/100-(1-30/100)))",
         traps: [
           {
@@ -347,7 +359,7 @@ export const P1_B: QA[] = [
           },
           {
             spec: { type: "number", value: 84 },
-            feedback: "84 isn't the number of blue pens. If it came from 84 = 14x, divide by 14 to find x first. (And the 12 pens aren't one part: they are the 2 parts red loses, going from 3 parts to 1.)",
+            feedback: "84 = 7 × 12 treats the 12 pens as one part. Red goes from 3 parts to 1 part, so the 12 pens taken out are **2** parts, and 1 part = 6 pens. (If your 84 came from 84 = 14x, divide by 14 to find x first.)",
           },
         ],
       },
@@ -495,7 +507,7 @@ export const P1_B: QA[] = [
         prompt:
           "Hana correctly identifies the rule for the nth term in this pattern as {{2n^2 + 1}}. Use this formula to calculate the number of dots she needs to create the 15th pattern of this sequence.",
         marks: 2,
-        answer: { type: "number", value: 451 },
+        answer: { type: "number", value: 451, display: "451 dots" },
         verify: "2*15^2+1",
         traps: [
           {
@@ -554,7 +566,7 @@ export const P1_B: QA[] = [
     parts: [
       {
         marks: 3,
-        answer: { type: "number", value: 64 },
+        answer: { type: "number", value: 64, display: "64 cars" },
         verify: "14*4/(4*3/8-(1-3/8))",
         traps: [
           {

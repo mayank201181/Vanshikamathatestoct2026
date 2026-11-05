@@ -512,6 +512,10 @@ export const P4_A: QA[] = [
             feedback: "$60 is the loss in dollars. Now write it as a percentage of the price Sam paid, $250.",
           },
           {
+            spec: { type: "number", value: 0.24 },
+            feedback: "0.24 is the loss as a decimal of what Sam paid ({{60/250}} = 0.24). Multiply by 100 to make it a percentage.",
+          },
+          {
             spec: { type: "number", value: -24 },
             feedback: "Leave out the minus sign. The question asks for the percentage **loss**, and the word 'loss' already tells you the price went down.",
           },
