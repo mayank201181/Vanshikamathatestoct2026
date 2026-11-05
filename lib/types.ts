@@ -247,6 +247,21 @@ export interface QuestionSet<Q> {
   questions: Q[];
 }
 
+/**
+ * A class-test practice paper across all six topics, laid out like the school's mock test.
+ * Each question keeps its own topic and section, so scores and mistakes feed the usual places.
+ */
+export interface Paper {
+  /** "paper-1" … "paper-4". */
+  id: string;
+  title: string;
+  subtitle: string;
+  /** Suggested time in minutes. */
+  minutes: number;
+  /** Question ids are "p1-q01" … */
+  questions: QA[];
+}
+
 // ---------------------------------------------------------------------------
 // Revision guide
 // ---------------------------------------------------------------------------

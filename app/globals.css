@@ -249,6 +249,7 @@ input[type="range"] { accent-color: var(--brand); width: 100%; }
 
 /* Print the cram sheet cleanly */
 @media print {
+  @page { margin: 14mm 12mm; }
   body { background: #fff; }
   header, footer, nav, .no-print { display: none !important; }
   main { max-width: none !important; padding: 0 !important; }

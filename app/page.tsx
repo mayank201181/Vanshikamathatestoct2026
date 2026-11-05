@@ -7,6 +7,7 @@ import { ALL_QUESTIONS, GUIDES, setsForTopic } from "@/lib/content";
 import { TOPICS, UNITS } from "@/lib/sections";
 import { openMistakes, topicProgress } from "@/lib/share";
 import { ShareButton } from "@/components/ShareButton";
+import { PaperCards } from "@/components/PaperCards";
 import type { TopicId } from "@/lib/types";
 
 type Task = { key: string; label: string; href: string; done?: (p: Progress) => boolean };
@@ -154,6 +155,15 @@ export default function Home() {
           <span className="text-3xl">▶️</span>
         </Link>
       )}
+
+      {/* class-test practice papers */}
+      <section className="space-y-2">
+        <h2 className="text-lg font-extrabold text-slate-900">📝 Practice papers for the class test</h2>
+        <p className="text-sm text-slate-600">
+          Same style as the class mock: 18 questions plus 2 extra practice. Do them on screen (marked and saved as you go) or print them.
+        </p>
+        <PaperCards />
+      </section>
 
       {/* stats */}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
