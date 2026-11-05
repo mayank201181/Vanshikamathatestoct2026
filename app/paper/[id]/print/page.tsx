@@ -75,11 +75,17 @@ function Answer({ marks }: { marks: number }) {
 /** Drops sentences that only say how to type an answer on screen ("type the bottom in brackets"); paper doesn't need them. */
 function forPaper(text?: string): string | undefined {
   if (!text) return text;
+  const keepLine = (line: string) =>
+    line
+      .split(/(?<=[.!?:])(?<!\be\.g\.)(?<!\bi\.e\.)[ \t]+/)
+      .filter((sentence) => !/\b(type|typing|typed)\b/i.test(sentence))
+      .join(" ");
+  // keep paragraphs and line breaks: only whole sentences go
   const kept = text
-    .split(/(?<=[.!?:])(?<!\be\.g\.)(?<!\bi\.e\.)\s+/)
-    .filter((sentence) => !/\b(type|typing|typed)\b/i.test(sentence))
-    .join(" ")
-    .trim();
+    .split(/\n\s*\n/)
+    .map((para) => para.split("\n").map(keepLine).filter((l) => l.trim()).join("\n"))
+    .filter((para) => para.trim())
+    .join("\n\n");
   return kept || undefined;
 }
 

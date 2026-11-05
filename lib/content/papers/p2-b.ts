@@ -279,7 +279,7 @@ export const P2_B: QA[] = [
       "So the answer is {{(450p^2q)/(30pq^2)}} before it is simplified.",
       "Simplify the numbers:\n\n    450 ÷ 30 = 15",
       "Simplify the letters:\n\n    {{p^2/p = p}} (one p is left on the top)\n    {{q/q^2 = 1/q}} (one q is left on the bottom)",
-      "Answer: {{15p/q}}",
+      "Answer: **{{15p/q}}**",
     ],
     altMethod: {
       label: "Cancel before you multiply",
@@ -320,7 +320,7 @@ export const P2_B: QA[] = [
           },
           {
             spec: { type: "number", value: 30 },
-            feedback: "30 is x, the number of fiction books at the start. The non-fiction books are 3x.",
+            feedback: "30 is the number of fiction books at the start (1 part). At the start fiction : non-fiction = 1 : 3, so there are 3 times as many non-fiction books.",
           },
           {
             spec: { type: "number", value: 60 },
@@ -365,7 +365,7 @@ export const P2_B: QA[] = [
     topic: "sq",
     section: "sq-quadratic",
     difficulty: "challenge",
-    question: "Here are the first six terms of a sequence: 1, 12, 29, 52, 81, 116",
+    question: "Here are the first six terms of a sequence: 1, 12, 29, 52, 81, 116.",
     parts: [
       {
         label: "a",
@@ -547,7 +547,7 @@ export const P2_B: QA[] = [
           },
           {
             spec: { type: "number", value: 12 },
-            feedback: "12 is x, the size of one part. The total at the start is 3x + 2x = 5x.",
+            feedback: "12 is the size of one part. At the start there are 3 parts of girls and 2 parts of boys, so 5 parts altogether.",
           },
           {
             spec: { type: "number", value: 36 },

@@ -192,6 +192,10 @@ export const P2_A: QA[] = [
             feedback:
               "{{3/8}} and {{1/4}} have different denominators, so you can't just use the tops, 3 and 1. Change 25% into eighths first: 25% = {{1/4}} = {{2/8}}.",
           },
+          {
+            spec: { type: "ratio", parts: [3, 2, 5] },
+            feedback: "The daisies are what's left after the roses **and** the tulips: {{1 - 3/8 - 2/8}}, not just {{1 - 3/8}}.",
+          },
         ],
       },
     ],
@@ -283,7 +287,7 @@ export const P2_A: QA[] = [
       {
         label: "a",
         prompt:
-          "Complete the table to show how many coins are used for the other patterns. Type the numbers for patterns 2 and 3, in that order, separated by a comma.",
+          "Complete the table to show how many coins are used for the other patterns. Write the numbers for patterns 2 and 3 in that order, separated by a comma.",
         marks: 1,
         answer: { type: "list", values: [12, 20], ordered: true },
         verify: "4*3, 5*4",
@@ -295,6 +299,10 @@ export const P2_A: QA[] = [
           {
             spec: { type: "list", values: [12, 24], ordered: true },
             feedback: "The pattern doesn't double each time. Count the coins in pattern 3: it has 5 rows of 4.",
+          },
+          {
+            spec: { type: "list", values: [6, 12, 20], ordered: true },
+            feedback: "Your table is right, but the 6 for pattern 1 was already given. Give only the two new numbers, for patterns 2 and 3.",
           },
         ],
       },
@@ -531,6 +539,10 @@ export const P2_A: QA[] = [
           {
             spec: { type: "number", value: 0.35 },
             feedback: "0.35 is the profit as a decimal of what he paid. Multiply by 100 to make it a percentage.",
+          },
+          {
+            spec: { type: "number", value: 1.35 },
+            feedback: "1.35 is the multiplier (108 ÷ 80): he sold the lamp for 135% of what he paid. The profit is only the part above 100%.",
           },
         ],
       },

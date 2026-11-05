@@ -32,6 +32,10 @@ export const P3_B: QA[] = [
             spec: { type: "expression", expr: "2a-9" },
             feedback: "Check the a terms: 4a − 6a = −2a, not 2a. Taking 6 lots of a away from 4 lots of a leaves −2 lots.",
           },
+          {
+            spec: { type: "expression", expr: "-2a-29" },
+            feedback: "Multiply **both** terms in the second bracket by −3: −3 × 2a = −6a and −3 × (−5) = +15. So the numbers are −24 + 15 = −9.",
+          },
         ],
       },
     ],
@@ -186,6 +190,18 @@ export const P3_B: QA[] = [
             spec: { type: "number", value: 0.975 },
             feedback: "0.975 is the multiplier for a 2.5% **decrease**. Ravi is increasing the amount, so add the 2.5% on to 100%.",
           },
+          {
+            spec: { type: "number", value: 1.02 },
+            feedback: "1.02 is the multiplier for a 2% increase: the {{1/2}}% has gone missing. {{1/2}}% = 0.005, so {{2 1/2}}% = 0.025 as a decimal.",
+          },
+          {
+            spec: { type: "number", value: 1.03 },
+            feedback: "1.03 is a 3% increase (or 1.025 rounded). A multiplier must be exact: {{2 1/2}}% = 2.5% = 0.025, so keep all three decimal places.",
+          },
+          {
+            spec: { type: "number", value: 963.5 },
+            feedback: "963.5 is the new amount after the increase. The question asks for the single number Ravi multiplies 940 by, not the answer he gets.",
+          },
         ],
       },
     ],
@@ -241,6 +257,10 @@ export const P3_B: QA[] = [
           {
             spec: { type: "number", value: 96 },
             feedback: "96% is the right percentage, but the multiplier is a decimal: divide it by 100.",
+          },
+          {
+            spec: { type: "number", value: 729.6 },
+            feedback: "729.6 is the new amount after the decrease. The question asks for the single number Sofia multiplies 760 by, not the answer she gets.",
           },
         ],
       },
@@ -438,6 +458,10 @@ export const P3_B: QA[] = [
             feedback: "{{4n^2}} is only the first part. Subtract {{4n^2}} from each term and find the nth term of what's left.",
           },
           {
+            spec: { type: "expression", expr: "8n^2" },
+            feedback: "8 is the second difference, but the number in front of {{n^2}} is **half** of it: 8 ÷ 2 = 4. Start with {{4n^2}}, then subtract it from each term to find the rest of the rule.",
+          },
+          {
             spec: { type: "expression", expr: "11n-9" },
             feedback:
               "The first differences (11, 19, 27, …) aren't the same each time, so the sequence isn't linear. The second difference is constant, so it's quadratic: start with an {{n^2}} term.",
@@ -482,7 +506,7 @@ export const P3_B: QA[] = [
       {
         label: "a",
         prompt:
-          "Complete the table to show how many dots are used for the other patterns. Pattern 4 is not drawn, so continue the pattern. Write the numbers for patterns 2, 3 and 4 in order, separated by commas.",
+          "Complete the table to show how many dots are used for the other patterns. Pattern 4 is not drawn, so continue the pattern. Type the numbers for patterns 2, 3 and 4 in order, separated by commas.",
         marks: 2,
         answer: { type: "list", values: [8, 15, 24], ordered: true, display: "8, 15, 24" },
         verify: "4+4, 5+5+5, 6+6+6+6",
@@ -527,7 +551,7 @@ export const P3_B: QA[] = [
     ],
     hints: [
       "Fill in **every** cell of the table, including pattern 4. Start by counting the dots in patterns 2 and 3 in the picture.",
-      "Pattern 4 isn't drawn: look at how the rows change from one pattern to the next. Then check your table with the differences between the numbers: they should go up by the same amount each time.",
+      "Pattern 4 isn't drawn: look at how the rows change from one pattern to the next. Then check your table: work out the differences between the numbers. The differences themselves should go up by the same amount each time.",
       "For (b), substitute n = 14. Work out {{n^2}} on one line and 2n on the next line, then add them.",
     ],
     solution: [

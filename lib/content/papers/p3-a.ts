@@ -298,7 +298,7 @@ export const P3_A: QA[] = [
     parts: [
       {
         label: "a",
-        prompt: "Complete the table to show how many buttons are used for patterns 2 and 3.",
+        prompt: "Complete the table to show how many buttons are used for patterns 2 and 3. Type the two numbers in that order, separated by a comma.",
         marks: 1,
         answer: { type: "list", values: [9, 15], ordered: true, display: "9, 15" },
         verify: "3+3+3, 4+4+4+3",
@@ -485,6 +485,10 @@ export const P3_A: QA[] = [
           {
             spec: { type: "number", value: 40 },
             feedback: "$40 is one part. Hari has 3 parts, so multiply by 3.",
+          },
+          {
+            spec: { type: "number", value: 760 },
+            feedback: "$760 is the total prize money (19 parts of $40). The question asks for Hari's share, which is 3 parts.",
           },
           {
             // $240 shared out as if it were the total: 240 ÷ 19 × 3 ≈ 37.89 (typed as 37.89, 37.9 or 38)

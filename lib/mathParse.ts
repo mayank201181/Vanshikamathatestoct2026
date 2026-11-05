@@ -47,7 +47,9 @@ export function normalizeInput(raw: string): string {
     .replace(/≤/g, "<=")
     .replace(/≥/g, ">=")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    .replace(/^=\s*/, "") // "= 7y - 11": a bare equals sign in front
+    .replace(/(?<=[a-z)\]])\.$/i, ""); // "7(4m-3).": a full stop after the answer
   return s;
 }
 
@@ -94,7 +96,7 @@ export function parseNumberAnswer(raw: string): ParsedNumber | null {
   // Strip a leading label like "x =", "a=", "angle x =", "answer:", or a bare "= 7".
   s = s.replace(/^(?:[a-z][a-z ]{0,14}?\s*=|answer\s*[:=]|=)\s*/i, "");
   // Strip currency symbols / codes at either end.
-  s = s.replace(/^(?:s\$|sgd|us\$|[£$€¥₹])\s*/i, "").replace(/\s*(?:sgd|dollars?|pounds?)$/i, "");
+  s = s.replace(/^(?:s\$|sgd|us\$|[£$€¥₹])\s*/i, "").replace(/\s*(?:sgd|dollars?|pounds?|[£$€])$/i, "");
   s = s.trim();
   let negative = false;
   s = s.replace(/^\+\s*/, "");
